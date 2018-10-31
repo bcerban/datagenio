@@ -12,6 +12,13 @@
 
     <!--<url>http://sonatype.com/book</url>-->
 
+    <properties>
+        <maven.compiler.source>10</maven.compiler.source>
+        <maven.compiler.target>10</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+    </properties>
+
     <modules>
         <module>cli</module>
         <module>crawler</module>
@@ -30,58 +37,34 @@
                         <descriptorRef>project</descriptorRef>
                     </descriptorRefs>
                 </configuration>
-                <executions>
-                    <execution>
-                        <id>examples</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>attached</goal>
-                        </goals>
-                    </execution>
-                </executions>
+                <!--<executions>-->
+                    <!--<execution>-->
+                        <!--<id>examples</id>-->
+                        <!--<phase>package</phase>-->
+                        <!--<goals>-->
+                            <!--<goal>attached</goal>-->
+                        <!--</goals>-->
+                    <!--</execution>-->
+                <!--</executions>-->
             </plugin>
         </plugins>
     </build>
 
-    <!--<scm>-->
-        <!--<connection>scm:git:git@github.com:zaproxy/crawljax.git</connection>-->
-        <!--<developerConnection>scm:git:git@github.com:zaproxy/crawljax.git</developerConnection>-->
-        <!--<url>https://github.com/zaproxy/crawljax</url>-->
-        <!--<tag>HEAD</tag>-->
-    <!--</scm>-->
-
-    <!--<profiles>-->
-        <!--<profile>-->
-            <!--<id>publish</id>-->
-            <!--<distributionManagement>-->
-                <!--<site>-->
-                    <!--<id>sonatype-site</id>-->
-                    <!--<name>Sonatype Book Examples</name>-->
-                    <!--<url>scp://site@172.16.0.1/home/site/books/mvnex-book/book-examples/</url>-->
-                <!--</site>-->
-            <!--</distributionManagement>-->
-            <!--<properties>-->
-                <!--<sonatype.site>scp://site@172.16.0.1/home/site/books/</sonatype.site>-->
-            <!--</properties>-->
-        <!--</profile>-->
-        <!--<profile>-->
-            <!--<id>stage</id>-->
-            <!--<distributionManagement>-->
-                <!--<site>-->
-                    <!--<id>sonatype-site</id>-->
-                    <!--<name>Sonatype Book Examples</name>-->
-                    <!--<url>scp://site@172.16.0.1/home/site/books/mvnex-book-stage/book-examples/</url>-->
-                <!--</site>-->
-            <!--</distributionManagement>-->
-        <!--</profile>-->
-    <!--</profiles>-->
+    <dependencies>
+        <!-- https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-project-info-reports-plugin -->
+        <dependency>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-project-info-reports-plugin</artifactId>
+            <version>3.0.0</version>
+        </dependency>
+    </dependencies>
 
     <reporting>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-project-info-reports-plugin</artifactId>
-                <version>2.0.1</version>
+                <version>3.0.0</version>
             </plugin>
         </plugins>
     </reporting>
