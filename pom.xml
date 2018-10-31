@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>com.datagenio</groupId>
+    <version>0.0.1</version>
+    <artifactId>datagenio-parent-pom</artifactId>
+    <packaging>pom</packaging>
+    <name>Datagenio</name>
+    <description>Datagenio description</description>
+
+    <!--<url>http://sonatype.com/book</url>-->
+
+    <modules>
+        <module>cli</module>
+        <module>crawler</module>
+        <module>databank</module>
+        <module>generator</module>
+        <module>model</module>
+    </modules>
+
+    <build>
+        <finalName>datagenio-${project.version}</finalName>
+        <plugins>
+            <plugin>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <configuration>
+                    <descriptorRefs>
+                        <descriptorRef>project</descriptorRef>
+                    </descriptorRefs>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>examples</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>attached</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+    <!--<scm>-->
+        <!--<connection>scm:git:git@github.com:zaproxy/crawljax.git</connection>-->
+        <!--<developerConnection>scm:git:git@github.com:zaproxy/crawljax.git</developerConnection>-->
+        <!--<url>https://github.com/zaproxy/crawljax</url>-->
+        <!--<tag>HEAD</tag>-->
+    <!--</scm>-->
+
+    <!--<profiles>-->
+        <!--<profile>-->
+            <!--<id>publish</id>-->
+            <!--<distributionManagement>-->
+                <!--<site>-->
+                    <!--<id>sonatype-site</id>-->
+                    <!--<name>Sonatype Book Examples</name>-->
+                    <!--<url>scp://site@172.16.0.1/home/site/books/mvnex-book/book-examples/</url>-->
+                <!--</site>-->
+            <!--</distributionManagement>-->
+            <!--<properties>-->
+                <!--<sonatype.site>scp://site@172.16.0.1/home/site/books/</sonatype.site>-->
+            <!--</properties>-->
+        <!--</profile>-->
+        <!--<profile>-->
+            <!--<id>stage</id>-->
+            <!--<distributionManagement>-->
+                <!--<site>-->
+                    <!--<id>sonatype-site</id>-->
+                    <!--<name>Sonatype Book Examples</name>-->
+                    <!--<url>scp://site@172.16.0.1/home/site/books/mvnex-book-stage/book-examples/</url>-->
+                <!--</site>-->
+            <!--</distributionManagement>-->
+        <!--</profile>-->
+    <!--</profiles>-->
+
+    <reporting>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-project-info-reports-plugin</artifactId>
+                <version>2.0.1</version>
+            </plugin>
+        </plugins>
+    </reporting>
+
+    <developers>
+        <developer>
+            <id>cerbanb</id>
+            <name>Bettina Cerban</name>
+            <email>bettinacerban@gmail.com</email>
+            <timezone>-3</timezone>
+        </developer>
+    </developers>
+</project>
