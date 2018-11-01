@@ -3,6 +3,7 @@ package com.datagenio.model;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 public class AbstractBody {
     private Collection<TypedParam> properties;
@@ -23,12 +24,16 @@ public class AbstractBody {
         this.properties.add(param);
     }
 
+    public Collection<TypedParam> getRequiredProperties() {
+        return this.properties.stream().filter(p -> p.isRequired()).collect(Collectors.toList());
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         AbstractBody that = (AbstractBody) o;
-        return Objects.equals(properties, that.properties);
+        return Objects.equals(this.getRequiredProperties(), that.getRequiredProperties());
     }
 
     @Override

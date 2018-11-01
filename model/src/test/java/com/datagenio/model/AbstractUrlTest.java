@@ -46,6 +46,18 @@ public class AbstractUrlTest {
     }
 
     @Test
+    public void testGetRequiredParams() {
+        var requiredParam = new TypedParam("username", "string", true);
+        var optionalParam = new TypedParam("password", "string", false);
+
+        this.url.addParam(requiredParam);
+        this.url.addParam(optionalParam);
+
+        assertTrue(this.url.getRequiredParams().contains(requiredParam));
+        assertFalse(this.url.getRequiredParams().contains(optionalParam));
+    }
+
+    @Test
     public void testEqualsSelf() {
         assertTrue(this.url.equals(this.url));
     }
@@ -57,10 +69,17 @@ public class AbstractUrlTest {
     }
 
     @Test
-    public void testEqualsDiffParams() {
+    public void testEqualsDiffRequiredParams() {
+        AbstractUrl other = new AbstractUrl(this.url.getBaseUrl());
+        other.addParam(new TypedParam("q", "string", true));
+        assertFalse(this.url.equals(other));
+    }
+
+    @Test
+    public void testEqualsDiffOptionalParams() {
         AbstractUrl other = new AbstractUrl(this.url.getBaseUrl());
         other.addParam(new TypedParam("q", "string"));
-        assertFalse(this.url.equals(other));
+        assertTrue(this.url.equals(other));
     }
 
     @Test

@@ -36,15 +36,34 @@ public class AbstractBodyTest {
     }
 
     @Test
+    public void testGetRequiredProperties() {
+        var requiredProp = new TypedParam("username", "string", true);
+        var optionalProp = new TypedParam("password", "string", false);
+
+        this.body.addPropery(requiredProp);
+        this.body.addPropery(optionalProp);
+
+        assertTrue(this.body.getRequiredProperties().contains(requiredProp));
+        assertFalse(this.body.getRequiredProperties().contains(optionalProp));
+    }
+
+    @Test
     public void testEqualsSelf() {
         assertTrue(this.body.equals(this.body));
     }
 
     @Test
-    public void testEqualsDiff() {
+    public void testEqualsDiffRequired() {
         AbstractBody other = new AbstractBody();
-        other.addPropery(new TypedParam("person", "object"));
+        other.addPropery(new TypedParam("person", "object", true));
         assertFalse(this.body.equals(other));
+    }
+
+    @Test
+    public void testEqualsDiffOptional() {
+        AbstractBody other = new AbstractBody();
+        other.addPropery(new TypedParam("person", "object", false));
+        assertTrue(this.body.equals(other));
     }
 
     @Test

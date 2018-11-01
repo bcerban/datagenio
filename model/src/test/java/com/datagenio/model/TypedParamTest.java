@@ -38,6 +38,17 @@ public class TypedParamTest {
     }
 
     @Test
+    public void testIsRequired() {
+        assertFalse(this.param.isRequired());
+    }
+
+    @Test
+    public void testSetRequired() {
+        this.param.setRequired(true);
+        assertTrue(this.param.isRequired());
+    }
+
+    @Test
     public void testEqualsSelf() {
         assertTrue(this.param.equals(this.param));
     }
