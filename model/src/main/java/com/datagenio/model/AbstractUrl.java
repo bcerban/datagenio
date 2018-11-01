@@ -3,6 +3,7 @@ package com.datagenio.model;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 public class AbstractUrl {
     private String baseUrl;
@@ -37,6 +38,10 @@ public class AbstractUrl {
         this.params.add(param);
     }
 
+    public Collection<TypedParam> getRequiredParams() {
+        return this.params.stream().filter(p -> p.isRequired()).collect(Collectors.toList());
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -44,7 +49,7 @@ public class AbstractUrl {
 
         AbstractUrl that = (AbstractUrl) o;
         return Objects.equals(baseUrl, that.baseUrl) &&
-                Objects.equals(params, that.params);
+                Objects.equals(this.getRequiredParams(), that.getRequiredParams());
     }
 
     @Override

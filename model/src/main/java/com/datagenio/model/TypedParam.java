@@ -6,12 +6,20 @@ public class TypedParam {
 
     private String name;
     private String type;
+    private boolean required;
 
     public TypedParam() { }
 
     public TypedParam(String name, String type) {
         this.name = name;
         this.type = type;
+        this.required = false;
+    }
+
+    public TypedParam(String name, String type, boolean required) {
+        this.name = name;
+        this.type = type;
+        this.required = required;
     }
 
     public String getName() {
@@ -30,6 +38,14 @@ public class TypedParam {
         this.type = type;
     }
 
+    public boolean isRequired() {
+        return required;
+    }
+
+    public void setRequired(boolean required) {
+        this.required = required;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -37,7 +53,8 @@ public class TypedParam {
 
         TypedParam that = (TypedParam) o;
         return Objects.equals(name, that.name) &&
-                Objects.equals(type, that.type);
+                Objects.equals(type, that.type) &&
+                Objects.equals(required, that.required);
     }
 
     @Override
