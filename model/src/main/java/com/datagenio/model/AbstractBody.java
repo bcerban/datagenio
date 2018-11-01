@@ -2,12 +2,13 @@ package com.datagenio.model;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Objects;
 
 public class AbstractBody {
     private Collection<TypedParam> properties;
 
     public AbstractBody() {
-        this.properties = new ArrayList<TypedParam>();
+        this.properties = new ArrayList<>();
     }
 
     public Collection<TypedParam> getProperties() {
@@ -20,5 +21,18 @@ public class AbstractBody {
 
     public void addPropery(TypedParam param) {
         this.properties.add(param);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        AbstractBody that = (AbstractBody) o;
+        return Objects.equals(properties, that.properties);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(properties);
     }
 }

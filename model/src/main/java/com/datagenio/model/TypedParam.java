@@ -1,5 +1,7 @@
 package com.datagenio.model;
 
+import java.util.Objects;
+
 public class TypedParam {
 
     private String name;
@@ -28,7 +30,18 @@ public class TypedParam {
         this.type = type;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
 
+        TypedParam that = (TypedParam) o;
+        return Objects.equals(name, that.name) &&
+                Objects.equals(type, that.type);
+    }
 
-
+    @Override
+    public int hashCode() {
+        return Objects.hash(name, type);
+    }
 }

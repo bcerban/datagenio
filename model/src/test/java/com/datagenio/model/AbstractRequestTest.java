@@ -3,6 +3,7 @@ package com.datagenio.model;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import static org.junit.Assert.*;
@@ -84,5 +85,56 @@ public class AbstractRequestTest {
         Session session = new Session();
         this.request.setSession(session);
         assertEquals(session, this.request.getSession());
+    }
+
+    @Test
+    public void testEqualsSelf() {
+        assertTrue(this.request.equals(this.request));
+    }
+
+    @Test
+    public void testEqualsIdentical() {
+        AbstractRequest other = new AbstractRequest(this.request.getMethod(), this.request.getRequestUrl());
+        other.setHeaders(this.request.getHeaders());
+        other.setRequestBody(this.request.getRequestBody());
+        assertTrue(this.request.equals(other));
+    }
+
+    @Test
+    public void testEqualsDiffMethod() {
+        AbstractRequest other = new AbstractRequest("POST", this.request.getRequestUrl());
+        other.setHeaders(this.request.getHeaders());
+        other.setRequestBody(this.request.getRequestBody());
+        assertFalse(this.request.equals(other));
+    }
+
+    @Test
+    public void testEqualsDiffUrl() {
+        AbstractRequest other = new AbstractRequest(this.request.getMethod(), new AbstractUrl("new_base_url"));
+        other.setHeaders(this.request.getHeaders());
+        other.setRequestBody(this.request.getRequestBody());
+        assertFalse(this.request.equals(other));
+    }
+
+    @Test
+    public void testEqualsDiffHeaders() {
+        HashMap<String, String> headers = new HashMap<>();
+        headers.put("Content-type", "application/json");
+
+        AbstractRequest other = new AbstractRequest("POST", this.request.getRequestUrl());
+        other.setHeaders(headers);
+        other.setRequestBody(this.request.getRequestBody());
+        assertFalse(this.request.equals(other));
+    }
+
+    @Test
+    public void testEqualsDiffBody() {
+        AbstractBody body = new AbstractBody();
+        body.addPropery(new TypedParam("product", "object"));
+
+        AbstractRequest other = new AbstractRequest("POST", this.request.getRequestUrl());
+        other.setHeaders(this.request.getHeaders());
+        other.setRequestBody(body);
+        assertFalse(this.request.equals(other));
     }
 }
