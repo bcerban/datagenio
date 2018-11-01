@@ -2,6 +2,7 @@ package com.datagenio.model;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Objects;
 
 public class AbstractUrl {
     private String baseUrl;
@@ -34,5 +35,20 @@ public class AbstractUrl {
 
     public void addParam(TypedParam param) {
         this.params.add(param);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        AbstractUrl that = (AbstractUrl) o;
+        return Objects.equals(baseUrl, that.baseUrl) &&
+                Objects.equals(params, that.params);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(baseUrl, params);
     }
 }

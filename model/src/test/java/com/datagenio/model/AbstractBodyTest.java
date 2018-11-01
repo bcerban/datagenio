@@ -5,9 +5,7 @@ import org.junit.Test;
 
 import java.util.ArrayList;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class AbstractBodyTest {
 
@@ -35,5 +33,23 @@ public class AbstractBodyTest {
         ArrayList<TypedParam> props = new ArrayList<TypedParam>();
         this.body.setProperties(props);
         assertEquals(props, this.body.getProperties());
+    }
+
+    @Test
+    public void testEqualsSelf() {
+        assertTrue(this.body.equals(this.body));
+    }
+
+    @Test
+    public void testEqualsDiff() {
+        AbstractBody other = new AbstractBody();
+        other.addPropery(new TypedParam("person", "object"));
+        assertFalse(this.body.equals(other));
+    }
+
+    @Test
+    public void testEqualsIdentical() {
+        AbstractBody other = new AbstractBody();
+        assertTrue(this.body.equals(other));
     }
 }

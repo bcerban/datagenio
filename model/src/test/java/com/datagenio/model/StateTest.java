@@ -53,4 +53,28 @@ public class StateTest {
         assertEquals(1, this.state.getRequestSet().size());
         assertTrue(this.state.getRequestSet().contains(req));
     }
+
+    @Test
+    public void testEqualsSelf() {
+        assertTrue(this.state.equals(this.state));
+    }
+
+    @Test
+    public void testEqualsIdentical() {
+        State other = new State(new AbstractUrl(this.state.getContext().getContextUrl().getBaseUrl()));
+        assertTrue(this.state.equals(other));
+    }
+
+    @Test
+    public void testEqualsDiffUrl() {
+        State other = new State(new AbstractUrl("some_new_url"));
+        assertFalse(this.state.equals(other));
+    }
+
+    @Test
+    public void testEqualsDiffRequestSet() {
+        State other = new State(this.state.getContext().getContextUrl());
+        other.addRequest(new AbstractRequest("GET", new AbstractUrl("yet_another_url")));
+        assertFalse(this.state.equals(other));
+    }
 }

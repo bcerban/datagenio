@@ -2,6 +2,7 @@ package com.datagenio.model;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 public class AbstractRequest {
     private String method;
@@ -58,5 +59,22 @@ public class AbstractRequest {
 
     public void setSession(Session session) {
         this.session = session;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        AbstractRequest that = (AbstractRequest) o;
+        return Objects.equals(method, that.method) &&
+                Objects.equals(requestUrl, that.requestUrl) &&
+                Objects.equals(requestBody, that.requestBody) &&
+                Objects.equals(headers, that.headers);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(method, requestUrl, requestBody, headers);
     }
 }

@@ -36,4 +36,27 @@ public class TypedParamTest {
         this.param.setType("alphanumeric");
         assertEquals("alphanumeric", this.param.getType());
     }
+
+    @Test
+    public void testEqualsSelf() {
+        assertTrue(this.param.equals(this.param));
+    }
+
+    @Test
+    public void testEqualsIdentical() {
+        TypedParam other = new TypedParam("name", "string");
+        assertTrue(this.param.equals(other));
+    }
+
+    @Test
+    public void testEqualsDiffType() {
+        TypedParam other = new TypedParam("name", "object");
+        assertFalse(this.param.equals(other));
+    }
+
+    @Test
+    public void testEqualsDiffName() {
+        TypedParam other = new TypedParam("person", "string");
+        assertFalse(this.param.equals(other));
+    }
 }
