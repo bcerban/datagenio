@@ -4,6 +4,8 @@ import org.apache.commons.lang.StringUtils;
 import org.jsoup.nodes.Element;
 import org.jsoup.nodes.Document;
 
+import java.util.Objects;
+
 /**
  * Represents an event that can be executed from an instance of the
  * application's user interface.
@@ -77,5 +79,16 @@ public class Eventable {
             identifier = this.xpath;
         }
         return identifier;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+
+        Eventable e = (Eventable) obj;
+        return Objects.equals(getEventType(), e.getEventType()) &&
+                Objects.equals(getSourceIdentifier(), e.getSourceIdentifier()) &&
+                Objects.equals(getHandler(), e.getHandler());
     }
 }

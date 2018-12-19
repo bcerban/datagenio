@@ -10,7 +10,8 @@ import static org.junit.Assert.*;
 
 public class EventableTest {
 
-    private Element source;
+    private Element button;
+    private Element img;
     private Document parent;
     private Eventable eventable;
 
@@ -18,24 +19,24 @@ public class EventableTest {
     @Before
     public void setUp() {
         String html = "<html><head><title>Test html document</title></head>"
-                + "<body><span><button id=\"button-id\">Click me!</button>"
-                + "</span></body></html>";
+                + "<body><span><button id=\"button-id\">Click me!</button></span>"
+                + "<span><img src=\"/avatar.jpg\" alt=\"Avatar\"></span></body></html>";
 
         this.parent = Jsoup.parse(html);
-        this.source = this.parent.selectFirst("button");
-        this.eventable = new Eventable(this.source, Eventable.EventType.click);
+        this.button = this.parent.selectFirst("button");
+        this.img = this.parent.selectFirst("img");
+        this.eventable = new Eventable(this.button, Eventable.EventType.click);
     }
 
     @Test
     public void testGetSource() {
-        assertEquals(this.source, this.eventable.getSource());
+        assertEquals(this.button, this.eventable.getSource());
     }
 
     @Test
     public void testSetSource() {
-        var newSource = new Element("form");
-        this.eventable.setSource(newSource);
-        assertEquals(newSource, this.eventable.getSource());
+        this.eventable.setSource(this.img);
+        assertEquals(this.img, this.eventable.getSource());
     }
 
     @Test
@@ -74,7 +75,7 @@ public class EventableTest {
 
     @Test
     public void testGetXpath() {
-        assertEquals("#root/html/body/span/button", this.eventable.getXpath());
+        assertEquals("/html/body/span[1]/button", this.eventable.getXpath());
     }
 
     @Test
@@ -84,7 +85,37 @@ public class EventableTest {
 
     @Test
     public void testGetIdentifierXPath() {
-        this.source.attr("id", null);
-        assertEquals("#root/html/body/span/button", this.eventable.getSourceIdentifier());
+        this.button.attr("id", null);
+        assertEquals("/html/body/span[1]/button", this.eventable.getSourceIdentifier());
+    }
+
+    @Test
+    public void testEqualsSelf() {
+        assertTrue(this.eventable.equals(this.eventable));
+    }
+
+    @Test
+    public void testEqualsIdentical() {
+        Eventable other = new Eventable(this.button, Eventable.EventType.click);
+        assertTrue(this.eventable.equals(other));
+    }
+
+    @Test
+    public void testEqualsDiffEventType() {
+        Eventable other = new Eventable(this.button, Eventable.EventType.submit);
+        assertFalse(this.eventable.equals(other));
+    }
+
+    @Test
+    public void testEqualsDiffSourceIdentifier() {
+        Eventable other = new Eventable(this.img, Eventable.EventType.click);
+        assertFalse(this.eventable.equals(other));
+    }
+
+    @Test
+    public void testEqualsDiffHandler() {
+        Eventable other = new Eventable(this.button, Eventable.EventType.click);
+        other.setHandler("testHandlerAction");
+        assertFalse(this.eventable.equals(other));
     }
 }
