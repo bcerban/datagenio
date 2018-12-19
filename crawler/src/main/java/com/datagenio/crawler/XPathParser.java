@@ -1,4 +1,4 @@
-package com.datagenio.crawler.model;
+package com.datagenio.crawler;
 
 import org.jsoup.nodes.Element;
 

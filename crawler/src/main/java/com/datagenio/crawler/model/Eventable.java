@@ -1,5 +1,6 @@
 package com.datagenio.crawler.model;
 
+import com.datagenio.crawler.XPathParser;
 import org.apache.commons.lang.StringUtils;
 import org.jsoup.nodes.Element;
 import org.jsoup.nodes.Document;
