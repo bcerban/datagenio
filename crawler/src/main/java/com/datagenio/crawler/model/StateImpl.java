@@ -32,4 +32,13 @@ public class StateImpl implements State {
     public void setDocument(Document document) {
         this.document = document;
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+
+        StateImpl s = (StateImpl) obj;
+        return this.getEventables().equals(s.getEventables());
+    }
 }

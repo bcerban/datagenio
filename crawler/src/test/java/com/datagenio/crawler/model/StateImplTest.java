@@ -5,11 +5,13 @@ import com.datagenio.crawler.api.Eventable;
 import com.datagenio.crawler.api.EventableExtractor;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import static org.mockito.Mockito.*;
 import static org.junit.Assert.*;
@@ -17,6 +19,7 @@ import static org.junit.Assert.*;
 public class StateImplTest {
 
     private Document document;
+    private ExecutableEventExtractor eventableExtractor;
     private Collection<Eventable> eventables;
     private StateImpl state;
 
@@ -29,10 +32,10 @@ public class StateImplTest {
         this.document = Jsoup.parse(html);
         this.eventables = new ArrayList<>();
 
-        EventableExtractor eventableExtractor = mock(ExecutableEventExtractor.class);
-        when(eventableExtractor.extract(this.state, this.document)).thenReturn(this.eventables);
+        this.eventableExtractor = mock(ExecutableEventExtractor.class);
+        when(this.eventableExtractor.extract(this.state, this.document)).thenReturn(this.eventables);
 
-        this.state = new StateImpl(this.document, eventableExtractor);
+        this.state = new StateImpl(this.document, this.eventableExtractor);
     }
 
     @Test
@@ -58,4 +61,26 @@ public class StateImplTest {
         this.state.setEventables(otherEventables);
         assertEquals(otherEventables, this.state.getEventables());
     }
+
+    @Test
+    public void testEqualsSelf() {
+        assertTrue(this.state.equals(this.state));
+    }
+
+    @Test
+    public void testEqualsIdentical() {
+        StateImpl other = new StateImpl(this.document, this.eventableExtractor);
+        assertTrue(this.state.equals(other));
+    }
+
+    @Test
+    public void testEqualsDifferent() {
+        Document newDocument = Jsoup.parse("<html><head><title>Test html document</title></head></html>");
+        StateImpl other = new StateImpl(newDocument, this.eventableExtractor);
+        other.setEventables(
+                List.of(new ExecutableEvent(other, null, new Element("button"), Eventable.EventType.click))
+        );
+        assertFalse(this.state.equals(other));
+    }
+
 }
