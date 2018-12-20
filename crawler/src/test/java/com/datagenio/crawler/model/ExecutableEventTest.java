@@ -1,5 +1,7 @@
 package com.datagenio.crawler.model;
 
+import com.datagenio.crawler.api.Eventable;
+import com.datagenio.crawler.api.State;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -7,14 +9,16 @@ import org.junit.Before;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
-public class EventableTest {
+public class ExecutableEventTest {
 
+    private State origin;
+    private State destination;
     private Element button;
     private Element img;
     private Document parent;
-    private Eventable eventable;
-
+    private ExecutableEvent executableEvent;
 
     @Before
     public void setUp() {
@@ -22,100 +26,126 @@ public class EventableTest {
                 + "<body><span><button id=\"button-id\">Click me!</button></span>"
                 + "<span><img src=\"/avatar.jpg\" alt=\"Avatar\"></span></body></html>";
 
+        this.origin = mock(State.class);
+        this.destination = mock(State.class);
         this.parent = Jsoup.parse(html);
         this.button = this.parent.selectFirst("button");
         this.img = this.parent.selectFirst("img");
-        this.eventable = new Eventable(this.button, Eventable.EventType.click);
+        this.executableEvent = new ExecutableEvent(this.origin, this.destination, this.button, ExecutableEvent.EventType.click);
+    }
+
+    @Test
+    public void testGetOrigin() {
+        assertEquals(this.origin, this.executableEvent.getOrigin());
+    }
+
+    @Test
+    public void testSetOrigin() {
+        State newOrigin = mock(State.class);
+        this.executableEvent.setOrigin(newOrigin);
+        assertEquals(newOrigin, this.executableEvent.getOrigin());
+    }
+
+    @Test
+    public void testGetDestination() {
+        assertEquals(this.destination, this.executableEvent.getDestination());
+    }
+
+    @Test
+    public void testSetDestination() {
+        State newDestination = mock(State.class);
+        this.executableEvent.setDestination(newDestination);
+        assertEquals(newDestination, this.executableEvent.getDestination());
     }
 
     @Test
     public void testGetSource() {
-        assertEquals(this.button, this.eventable.getSource());
+        assertEquals(this.button, this.executableEvent.getSource());
     }
 
     @Test
     public void testSetSource() {
-        this.eventable.setSource(this.img);
-        assertEquals(this.img, this.eventable.getSource());
+        this.executableEvent.setSource(this.img);
+        assertEquals(this.img, this.executableEvent.getSource());
     }
 
     @Test
     public void testGetEventType() {
-        assertEquals(Eventable.EventType.click, this.eventable.getEventType());
+        assertEquals(ExecutableEvent.EventType.click, this.executableEvent.getEventType());
     }
 
     @Test
     public void testSetEventType() {
-        this.eventable.setEventType(Eventable.EventType.submit);
-        assertEquals(Eventable.EventType.submit, this.eventable.getEventType());
+        this.executableEvent.setEventType(ExecutableEvent.EventType.submit);
+        assertEquals(ExecutableEvent.EventType.submit, this.executableEvent.getEventType());
     }
 
     @Test
     public void testGetHandler() {
-        assertEquals("", this.eventable.getHandler());
+        assertEquals("", this.executableEvent.getHandler());
     }
 
     @Test
     public void testSetHandler() {
-        this.eventable.setHandler("testHandlerAction");
-        assertEquals("testHandlerAction", this.eventable.getHandler());
+        this.executableEvent.setHandler("testHandlerAction");
+        assertEquals("testHandlerAction", this.executableEvent.getHandler());
     }
 
     @Test
     public void testGetParent() {
-        assertEquals(this.parent, this.eventable.getParent());
+        assertEquals(this.parent, this.executableEvent.getParent());
     }
 
     @Test
     public void testSetParent() {
         var newParent = new Document("some-uri");
-        this.eventable.setParent(newParent);
-        assertEquals(newParent, this.eventable.getParent());
+        this.executableEvent.setParent(newParent);
+        assertEquals(newParent, this.executableEvent.getParent());
     }
 
     @Test
     public void testGetXpath() {
-        assertEquals("/html/body/span[1]/button", this.eventable.getXpath());
+        assertEquals("/html/body/span[1]/button", this.executableEvent.getXpath());
     }
 
     @Test
     public void testGetIdentifierID() {
-        assertEquals("button-id", this.eventable.getSourceIdentifier());
+        assertEquals("button-id", this.executableEvent.getIdentifier());
     }
 
     @Test
     public void testGetIdentifierXPath() {
         this.button.attr("id", null);
-        assertEquals("/html/body/span[1]/button", this.eventable.getSourceIdentifier());
+        assertEquals("/html/body/span[1]/button", this.executableEvent.getIdentifier());
     }
 
     @Test
     public void testEqualsSelf() {
-        assertTrue(this.eventable.equals(this.eventable));
+        assertTrue(this.executableEvent.equals(this.executableEvent));
     }
 
     @Test
     public void testEqualsIdentical() {
-        Eventable other = new Eventable(this.button, Eventable.EventType.click);
-        assertTrue(this.eventable.equals(other));
+        var other = new ExecutableEvent(this.origin, this.destination, this.button, Eventable.EventType.click);
+        assertTrue(this.executableEvent.equals(other));
     }
 
     @Test
     public void testEqualsDiffEventType() {
-        Eventable other = new Eventable(this.button, Eventable.EventType.submit);
-        assertFalse(this.eventable.equals(other));
+        ExecutableEvent other = new ExecutableEvent(this.origin, this.destination, this.button, Eventable.EventType.submit);
+        assertFalse(this.executableEvent.equals(other));
     }
 
     @Test
     public void testEqualsDiffSourceIdentifier() {
-        Eventable other = new Eventable(this.img, Eventable.EventType.click);
-        assertFalse(this.eventable.equals(other));
+        ExecutableEvent other = new ExecutableEvent(this.origin, this.destination, this.img, Eventable.EventType.click);
+        assertFalse(this.executableEvent.equals(other));
     }
 
     @Test
     public void testEqualsDiffHandler() {
-        Eventable other = new Eventable(this.button, Eventable.EventType.click);
+        ExecutableEvent other = new ExecutableEvent(this.origin, this.destination, this.button, Eventable.EventType.click);
         other.setHandler("testHandlerAction");
-        assertFalse(this.eventable.equals(other));
+        assertFalse(this.executableEvent.equals(other));
     }
 }

@@ -2,16 +2,17 @@ package com.datagenio.crawler.model;
 
 import com.datagenio.crawler.api.Eventable;
 import com.datagenio.crawler.api.EventableExtractor;
+import com.datagenio.crawler.api.State;
 import org.jsoup.nodes.Document;
 
 import java.util.Collection;
 
-public class State {
+public class StateImpl implements State {
 
     private Collection<Eventable> eventables;
     private Document document;
 
-    public State(Document view, EventableExtractor extractor) {
+    public StateImpl(Document view, EventableExtractor extractor) {
         this.document = view;
         this.eventables = extractor.extract(this.document);
     }
