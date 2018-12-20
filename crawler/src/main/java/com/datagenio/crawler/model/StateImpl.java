@@ -14,7 +14,7 @@ public class StateImpl implements State {
 
     public StateImpl(Document view, EventableExtractor extractor) {
         this.document = view;
-        this.eventables = extractor.extract(this.document);
+        this.eventables = extractor.extract(this, this.document);
     }
 
     public Collection<Eventable> getEventables() {

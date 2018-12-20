@@ -28,7 +28,6 @@ public class XPathParser {
     }
 
     /**
-     *
      * @param e The element whose siblings are checked
      * @return True if the element has a sibling with the same tag, False otherwise.
      */

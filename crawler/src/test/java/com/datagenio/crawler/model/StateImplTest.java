@@ -1,6 +1,6 @@
 package com.datagenio.crawler.model;
 
-import com.datagenio.crawler.ConfigurableExtractor;
+import com.datagenio.crawler.ExecutableEventExtractor;
 import com.datagenio.crawler.api.Eventable;
 import com.datagenio.crawler.api.EventableExtractor;
 import org.jsoup.Jsoup;
@@ -29,8 +29,8 @@ public class StateImplTest {
         this.document = Jsoup.parse(html);
         this.eventables = new ArrayList<>();
 
-        EventableExtractor eventableExtractor = mock(ConfigurableExtractor.class);
-        when(eventableExtractor.extract(this.document)).thenReturn(this.eventables);
+        EventableExtractor eventableExtractor = mock(ExecutableEventExtractor.class);
+        when(eventableExtractor.extract(this.state, this.document)).thenReturn(this.eventables);
 
         this.state = new StateImpl(this.document, eventableExtractor);
     }
