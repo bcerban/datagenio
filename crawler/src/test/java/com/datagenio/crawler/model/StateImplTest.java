@@ -1,4 +1,4 @@
 package com.datagenio.crawler.model;
 
-public class State {
+public class StateImplTest {
 }
