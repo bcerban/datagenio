@@ -2,7 +2,6 @@ package com.datagenio.crawler.model;
 
 import com.datagenio.crawler.XPathParser;
 import com.datagenio.crawler.api.Eventable;
-import com.datagenio.crawler.api.State;
 import org.apache.commons.lang.StringUtils;
 import org.jsoup.nodes.Element;
 import org.jsoup.nodes.Document;
@@ -15,8 +14,6 @@ import java.util.Objects;
  */
 public class ExecutableEvent implements Eventable {
 
-    private State origin;
-    private State destination;
     private Element source;
     private EventType eventType;
     private String handler = "";
@@ -25,32 +22,10 @@ public class ExecutableEvent implements Eventable {
     /** Not sure whether saving the full DOM is necessary, but it can be removed later. */
     private Document parent;
 
-    public ExecutableEvent(State origin, State destination, Element e, EventType event) {
-        this.origin = origin;
-        this.destination = destination;
+    public ExecutableEvent(Element e, EventType event) {
         this.source = e;
         this.eventType = event;
         this.parent = this.source.ownerDocument();
-    }
-
-    @Override
-    public State getOrigin() {
-        return origin;
-    }
-
-    @Override
-    public void setOrigin(State origin) {
-        this.origin = origin;
-    }
-
-    @Override
-    public State getDestination() {
-        return destination;
-    }
-
-    @Override
-    public void setDestination(State destination) {
-        this.destination = destination;
     }
 
     @Override

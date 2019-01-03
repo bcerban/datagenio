@@ -22,7 +22,7 @@ public class ExecutableEventExtractor implements EventableExtractor {
         var eventables = new ArrayList<Eventable>();
 
         if (this.isEventableElement(node)) {
-            eventables.add(new ExecutableEvent(origin, null, node, getEventTypeFor(node)));
+            eventables.add(new ExecutableEvent(node, getEventTypeFor(node)));
         } else {
             node.children().forEach(child -> eventables.addAll(extract(origin, child)));
         }

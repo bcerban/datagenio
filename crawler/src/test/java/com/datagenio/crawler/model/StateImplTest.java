@@ -78,7 +78,7 @@ public class StateImplTest {
         Document newDocument = Jsoup.parse("<html><head><title>Test html document</title></head></html>");
         StateImpl other = new StateImpl(newDocument, this.eventableExtractor);
         other.setEventables(
-                List.of(new ExecutableEvent(other, null, new Element("button"), Eventable.EventType.click))
+                List.of(new ExecutableEvent(new Element("button"), Eventable.EventType.click))
         );
         assertFalse(this.state.equals(other));
     }
