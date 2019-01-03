@@ -8,15 +8,13 @@ public interface Eventable {
         click, submit
     }
 
-    State getOrigin();
-    State getDestination();
     Element getSource();
     String getIdentifier();
     String getXpath();
     EventType getEventType();
+    String getHandler();
 
-    void setOrigin(State origin);
-    void setDestination(State destination);
     void setSource(Element source);
     void setEventType(EventType eventType);
+    void setHandler(String handler);
 }
