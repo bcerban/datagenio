@@ -1,6 +1,6 @@
 package com.datagenio.crawler.model;
 
-import com.datagenio.crawler.ExecutableEventExtractor;
+import com.datagenio.crawler.util.ExecutableEventExtractor;
 import com.datagenio.crawler.api.Eventable;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;

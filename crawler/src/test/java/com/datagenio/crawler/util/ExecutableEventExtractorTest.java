@@ -1,8 +1,9 @@
-package com.datagenio.crawler;
+package com.datagenio.crawler.util;
 
 import com.datagenio.crawler.api.Eventable;
 import com.datagenio.crawler.api.ExtractionRule;
 import com.datagenio.crawler.api.State;
+import com.datagenio.crawler.rule.TagRule;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Element;
 import org.junit.Before;

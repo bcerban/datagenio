@@ -1,5 +1,6 @@
-package com.datagenio.crawler;
+package com.datagenio.crawler.rule;
 
+import com.datagenio.crawler.rule.TagRule;
 import org.jsoup.nodes.Element;
 import org.junit.Before;
 import org.junit.Test;

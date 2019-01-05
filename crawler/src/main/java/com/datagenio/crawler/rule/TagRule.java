@@ -1,4 +1,4 @@
-package com.datagenio.crawler;
+package com.datagenio.crawler.rule;
 
 import com.datagenio.crawler.api.ExtractionRule;
 import org.jsoup.nodes.Element;

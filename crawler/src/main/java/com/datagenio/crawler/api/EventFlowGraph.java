@@ -1,6 +1,5 @@
 package com.datagenio.crawler.api;
 
-
 import java.util.Collection;
 
 public interface EventFlowGraph {

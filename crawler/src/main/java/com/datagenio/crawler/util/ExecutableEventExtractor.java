@@ -1,4 +1,4 @@
-package com.datagenio.crawler;
+package com.datagenio.crawler.util;
 
 import com.datagenio.crawler.api.Eventable;
 import com.datagenio.crawler.api.EventableExtractor;
