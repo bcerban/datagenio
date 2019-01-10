@@ -1,6 +1,7 @@
 package com.datagenio.model;
 
-import com.datagenio.model.api.AbstractHTTPRequest;
+import com.datagenio.model.api.AbstractHttpRequest;
+import com.datagenio.model.api.AbstractUrl;
 import com.datagenio.model.api.WebState;
 import com.datagenio.model.request.AbstractUrlImpl;
 
@@ -10,44 +11,40 @@ import java.util.Objects;
 
 public class WebStateImpl implements WebState {
 
-    private StateContext context;
-    private Collection<AbstractHTTPRequest> requests;
+    private AbstractUrl url;
+    private Collection<AbstractHttpRequest> requests;
 
-    public WebStateImpl(AbstractUrlImpl url) {
-        this.context = new StateContext(url);
+    public WebStateImpl() {
         this.requests = new ArrayList<>();
     }
 
-    public StateContext getContext() {
-        return context;
-    }
-
-    public void setContext(StateContext context) {
-        this.context = context;
+    public WebStateImpl(AbstractUrl url) {
+        this.url = url;
+        this.requests = new ArrayList<>();
     }
 
     @Override
-    public AbstractUrlImpl getUrl() {
-        return this.context.getContextUrl();
+    public AbstractUrl getUrl() {
+        return this.url;
     }
 
     @Override
-    public void setUrl(AbstractUrlImpl url) {
-        this.context.setContextUrl(url);
+    public void setUrl(AbstractUrl url) {
+        this.url = url;
     }
 
     @Override
-    public Collection<AbstractHTTPRequest> getRequests() {
+    public Collection<AbstractHttpRequest> getRequests() {
         return requests;
     }
 
     @Override
-    public void setRequests(Collection<AbstractHTTPRequest> requestSet) {
+    public void setRequests(Collection<AbstractHttpRequest> requestSet) {
         this.requests = requestSet;
     }
 
     @Override
-    public void addRequest(AbstractHTTPRequest request) {
+    public void addRequest(AbstractHttpRequest request) {
         this.requests.add(request);
     }
 
@@ -57,12 +54,12 @@ public class WebStateImpl implements WebState {
         if (o == null || getClass() != o.getClass()) return false;
 
         WebStateImpl state = (WebStateImpl) o;
-        return Objects.equals(context.getContextUrl(), state.context.getContextUrl()) &&
+        return Objects.equals(url, state.getUrl()) &&
                 Objects.equals(requests, state.requests);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(context, requests);
+        return Objects.hash(url, requests);
     }
 }

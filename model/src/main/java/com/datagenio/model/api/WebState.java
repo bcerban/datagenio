@@ -1,15 +1,13 @@
 package com.datagenio.model.api;
 
-import com.datagenio.model.request.AbstractUrlImpl;
-
 import java.util.Collection;
 
 public interface WebState {
 
-    AbstractUrlImpl getUrl();
-    Collection<AbstractHTTPRequest> getRequests();
+    AbstractUrl getUrl();
+    Collection<AbstractHttpRequest> getRequests();
 
-    void setUrl(AbstractUrlImpl url);
-    void setRequests(Collection<AbstractHTTPRequest> requests);
-    void addRequest(AbstractHTTPRequest request);
+    void setUrl(AbstractUrl url);
+    void setRequests(Collection<AbstractHttpRequest> requests);
+    void addRequest(AbstractHttpRequest request);
 }

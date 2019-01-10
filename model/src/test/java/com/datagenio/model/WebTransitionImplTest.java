@@ -1,12 +1,8 @@
 package com.datagenio.model;
 
-import com.datagenio.model.WebStateImpl;
-import com.datagenio.model.WebTransitionImpl;
-import com.datagenio.model.api.AbstractHTTPRequest;
+import com.datagenio.model.api.AbstractHttpRequest;
 import com.datagenio.model.api.WebState;
-import com.datagenio.model.request.AbstractRequest;
 import com.datagenio.model.request.AbstractUrlImpl;
-import com.datagenio.model.request.TypedParam;
 import org.apache.http.ProtocolVersion;
 import org.apache.http.message.BasicHttpRequest;
 import org.apache.http.message.BasicRequestLine;
@@ -17,7 +13,7 @@ import static org.junit.Assert.*;
 
 public class WebTransitionImplTest {
 
-    private AbstractHTTPRequest request;
+    private AbstractHttpRequest request;
     private WebState origin;
     private WebState destination;
     private WebTransitionImpl transition;

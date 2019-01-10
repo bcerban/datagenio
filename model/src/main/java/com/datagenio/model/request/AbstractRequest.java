@@ -1,14 +1,14 @@
 package com.datagenio.model.request;
 
 import com.datagenio.model.Session;
-import com.datagenio.model.api.AbstractHTTPRequest;
+import com.datagenio.model.api.AbstractHttpRequest;
 import com.datagenio.model.api.AbstractUrl;
 import org.apache.http.Header;
 import org.apache.http.message.BasicHeader;
 
 import java.util.*;
 
-public class AbstractRequest implements AbstractHTTPRequest {
+public class AbstractRequest implements AbstractHttpRequest {
     private String method;
     private AbstractUrl requestUrl;
     private AbstractBody requestBody;

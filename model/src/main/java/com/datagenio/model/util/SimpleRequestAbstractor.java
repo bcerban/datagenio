@@ -1,6 +1,6 @@
 package com.datagenio.model.util;
 
-import com.datagenio.model.api.AbstractHTTPRequest;
+import com.datagenio.model.api.AbstractHttpRequest;
 import com.datagenio.model.api.AbstractUrl;
 import com.datagenio.model.api.RequestAbstractor;
 import com.datagenio.model.request.AbstractRequest;
@@ -10,7 +10,7 @@ import org.apache.http.HttpRequest;
 public class SimpleRequestAbstractor implements RequestAbstractor {
 
     @Override
-    public AbstractHTTPRequest process(HttpRequest request) {
+    public AbstractHttpRequest process(HttpRequest request) {
         var abstractRequest = new AbstractRequest(
                 request.getRequestLine().getMethod(),
                 this.processUrl(request.getRequestLine().getUri())

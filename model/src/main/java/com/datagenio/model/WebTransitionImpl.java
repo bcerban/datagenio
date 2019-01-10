@@ -1,6 +1,6 @@
 package com.datagenio.model;
 
-import com.datagenio.model.api.AbstractHTTPRequest;
+import com.datagenio.model.api.AbstractHttpRequest;
 import com.datagenio.model.api.RequestAbstractor;
 import com.datagenio.model.api.WebState;
 import com.datagenio.model.api.WebTransition;
@@ -17,7 +17,7 @@ public class WebTransitionImpl implements WebTransition {
     private WebState origin;
     private WebState destination;
     private Collection<HttpRequest> concreteRequests;
-    private Collection<AbstractHTTPRequest> abstractRequests;
+    private Collection<AbstractHttpRequest> abstractRequests;
 
     public WebTransitionImpl(WebState origin, WebState destination) {
         // TODO: inject dependency
@@ -60,7 +60,7 @@ public class WebTransitionImpl implements WebTransition {
     }
 
     @Override
-    public Collection<AbstractHTTPRequest> getAbstractRequests() {
+    public Collection<AbstractHttpRequest> getAbstractRequests() {
         return abstractRequests;
     }
 

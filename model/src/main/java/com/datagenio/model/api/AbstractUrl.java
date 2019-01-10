@@ -1,7 +1,5 @@
 package com.datagenio.model.api;
 
-import com.datagenio.model.request.TypedParam;
-
 import java.util.Collection;
 
 public interface AbstractUrl {

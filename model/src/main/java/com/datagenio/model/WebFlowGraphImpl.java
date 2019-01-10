@@ -1,21 +1,23 @@
 package com.datagenio.model;
 
+import com.datagenio.model.api.WebFlowGraph;
 import com.datagenio.model.api.WebState;
 import com.datagenio.model.api.WebTransition;
 
 import java.util.ArrayList;
 import java.util.Collection;
 
-public class StateGraph {
+public class WebFlowGraphImpl implements WebFlowGraph {
 
     private Collection<WebState> states;
     private Collection<WebTransition> transitions;
 
-    public StateGraph() {
+    public WebFlowGraphImpl() {
         this.states = new ArrayList<>();
         this.transitions = new ArrayList<>();
     }
 
+    @Override
     public Collection<WebState> getStates() {
         return states;
     }
@@ -24,6 +26,7 @@ public class StateGraph {
         this.states = states;
     }
 
+    @Override
     public Collection<WebTransition> getTransitions() {
         return transitions;
     }
@@ -36,6 +39,7 @@ public class StateGraph {
         return this.states.size();
     }
 
+    @Override
     public void addState(WebState state) {
         if (!this.states.contains(state)) {
             this.states.add(state);
@@ -44,6 +48,7 @@ public class StateGraph {
         //TODO: should merge states otherwise?
     }
 
+    @Override
     public void addTransition(WebTransition transition) {
         if (canAddTransition(transition)) {
             this.transitions.add(transition);

@@ -11,13 +11,13 @@ import java.util.ArrayList;
 
 import static org.junit.Assert.*;
 
-public class WebStateImplGraphTest {
+public class WebFlowGraphTest {
 
-    private StateGraph graph;
+    private WebFlowGraphImpl graph;
 
     @Before
     public void setUp() {
-        this.graph = new StateGraph();
+        this.graph = new WebFlowGraphImpl();
     }
 
     @Test
@@ -45,7 +45,7 @@ public class WebStateImplGraphTest {
 
         var origin = new WebStateImpl(new AbstractUrlImpl("origin"));
         var destination = new WebStateImpl(new AbstractUrlImpl("destination"));
-        var request = new AbstractRequest("GET", destination.getContext().getContextUrl());
+        var request = new AbstractRequest("GET", destination.getUrl());
 
         transitions.add(new WebTransitionImpl(origin, destination));
         this.graph.setTransitions(transitions);
@@ -66,7 +66,7 @@ public class WebStateImplGraphTest {
     public void testAddStateAlreadyExists() {
         var states = new ArrayList<WebState>();
         var state = new WebStateImpl(new AbstractUrlImpl("added_state_url"));
-        var newState = new WebStateImpl(state.getContext().getContextUrl());
+        var newState = new WebStateImpl(state.getUrl());
         states.add(state);
 
         this.graph.setStates(states);
@@ -111,7 +111,7 @@ public class WebStateImplGraphTest {
     private WebTransitionImpl getTestTransition() {
         var origin = new WebStateImpl(new AbstractUrlImpl("origin"));
         var destination = new WebStateImpl(new AbstractUrlImpl("destination"));
-        var request = new AbstractRequest("GET", destination.getContext().getContextUrl());
+        var request = new AbstractRequest("GET", destination.getUrl());
         return new WebTransitionImpl(origin, destination);
     }
 }

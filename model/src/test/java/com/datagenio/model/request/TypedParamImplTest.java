@@ -1,19 +1,18 @@
 package com.datagenio.model.request;
 
 
-import com.datagenio.model.request.TypedParam;
 import org.junit.Before;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
 
-public class TypedParamTest {
+public class TypedParamImplTest {
 
-    private TypedParam param;
+    private TypedParamImpl param;
 
     @Before
     public void setUp() {
-        this.param = new TypedParam("name", "string");
+        this.param = new TypedParamImpl("name", "string");
     }
 
     @Test
@@ -45,7 +44,7 @@ public class TypedParamTest {
 
     @Test
     public void testSetRequired() {
-        this.param.setRequired(true);
+        this.param.setIsRequired(true);
         assertTrue(this.param.isRequired());
     }
 
@@ -56,19 +55,19 @@ public class TypedParamTest {
 
     @Test
     public void testEqualsIdentical() {
-        TypedParam other = new TypedParam("name", "string");
+        TypedParamImpl other = new TypedParamImpl("name", "string");
         assertTrue(this.param.equals(other));
     }
 
     @Test
     public void testEqualsDiffType() {
-        TypedParam other = new TypedParam("name", "object");
+        TypedParamImpl other = new TypedParamImpl("name", "object");
         assertFalse(this.param.equals(other));
     }
 
     @Test
     public void testEqualsDiffName() {
-        TypedParam other = new TypedParam("person", "string");
+        TypedParamImpl other = new TypedParamImpl("person", "string");
         assertFalse(this.param.equals(other));
     }
 }

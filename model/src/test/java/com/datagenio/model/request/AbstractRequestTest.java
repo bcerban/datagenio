@@ -1,10 +1,6 @@
 package com.datagenio.model.request;
 
 import com.datagenio.model.Session;
-import com.datagenio.model.request.AbstractBody;
-import com.datagenio.model.request.AbstractRequest;
-import com.datagenio.model.request.AbstractUrlImpl;
-import com.datagenio.model.request.TypedParam;
 import org.apache.http.Header;
 import org.apache.http.message.BasicHeader;
 import org.junit.Before;
@@ -12,7 +8,6 @@ import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 
 import static org.junit.Assert.*;
 
@@ -138,7 +133,7 @@ public class AbstractRequestTest {
     @Test
     public void testEqualsDiffBody() {
         AbstractBody body = new AbstractBody();
-        body.addPropery(new TypedParam("product", "object"));
+        body.addProperty(new TypedParamImpl("product", "object"));
 
         AbstractRequest other = new AbstractRequest("POST", this.request.getUrl());
         other.setHeaders(this.request.getHeaders());

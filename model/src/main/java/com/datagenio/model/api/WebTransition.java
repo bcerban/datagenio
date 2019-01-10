@@ -9,7 +9,7 @@ public interface WebTransition {
     WebState getOrigin();
     WebState getDestination();
     Collection<HttpRequest> getConcreteRequests();
-    Collection<AbstractHTTPRequest> getAbstractRequests();
+    Collection<AbstractHttpRequest> getAbstractRequests();
 
     void setOrigin(WebState origin);
     void setDestination(WebState destination);

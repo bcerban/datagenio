@@ -1,6 +1,6 @@
 package com.datagenio.model;
 
-import com.datagenio.model.api.AbstractHTTPRequest;
+import com.datagenio.model.api.AbstractHttpRequest;
 import com.datagenio.model.request.AbstractRequest;
 import com.datagenio.model.request.AbstractUrlImpl;
 import org.junit.Before;
@@ -23,21 +23,6 @@ public class WebStateImplTest {
     }
 
     @Test
-    public void testGetContext() {
-        assertNotNull(this.state.getContext());
-        assertEquals("test_url", this.state.getContext().getContextUrl().getBaseUrl());
-    }
-
-    @Test
-    public void testSetContext() {
-        StateContext context = new StateContext(new AbstractUrlImpl("other_url"));
-        this.state.setContext(context);
-
-        assertNotNull(this.state.getContext());
-        assertEquals("other_url", this.state.getContext().getContextUrl().getBaseUrl());
-    }
-
-    @Test
     public void testGetUrl() {
         assertEquals(this.url, this.state.getUrl());
     }
@@ -57,7 +42,7 @@ public class WebStateImplTest {
 
     @Test
     public void testSetRequestSet() {
-        ArrayList<AbstractHTTPRequest> set = new ArrayList<>();
+        ArrayList<AbstractHttpRequest> set = new ArrayList<>();
         this.state.setRequests(set);
         assertEquals(set, this.state.getRequests());
     }
@@ -77,7 +62,7 @@ public class WebStateImplTest {
 
     @Test
     public void testEqualsIdentical() {
-        WebStateImpl other = new WebStateImpl(new AbstractUrlImpl(this.state.getContext().getContextUrl().getBaseUrl()));
+        WebStateImpl other = new WebStateImpl(new AbstractUrlImpl(this.state.getUrl().getBaseUrl()));
         assertTrue(this.state.equals(other));
     }
 
@@ -89,7 +74,7 @@ public class WebStateImplTest {
 
     @Test
     public void testEqualsDiffRequestSet() {
-        WebStateImpl other = new WebStateImpl(this.state.getContext().getContextUrl());
+        WebStateImpl other = new WebStateImpl(this.state.getUrl());
         other.addRequest(new AbstractRequest("GET", new AbstractUrlImpl("yet_another_url")));
         assertFalse(this.state.equals(other));
     }

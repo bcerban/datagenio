@@ -1,6 +1,7 @@
 package com.datagenio.model.request;
 
 import com.datagenio.model.api.AbstractUrl;
+import com.datagenio.model.api.TypedParam;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -47,12 +48,12 @@ public class AbstractUrlImpl implements AbstractUrl {
 
     @Override
     public void addTypedParam(String name, String type) {
-        this.addTypedParam(new TypedParam(name, type, false));
+        this.addTypedParam(new TypedParamImpl(name, type, false));
     }
 
     @Override
     public void addTypedParam(String name, String type, boolean required) {
-        this.params.add(new TypedParam(name, type, required));
+        this.params.add(new TypedParamImpl(name, type, required));
     }
 
     @Override

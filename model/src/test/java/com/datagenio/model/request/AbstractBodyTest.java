@@ -1,7 +1,6 @@
 package com.datagenio.model.request;
 
-import com.datagenio.model.request.AbstractBody;
-import com.datagenio.model.request.TypedParam;
+import com.datagenio.model.api.TypedParam;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -25,25 +24,25 @@ public class AbstractBodyTest {
 
     @Test
     public void testAddProperty() {
-        TypedParam property = new TypedParam("name", "string");
-        this.body.addPropery(property);
+        TypedParamImpl property = new TypedParamImpl("name", "string");
+        this.body.addProperty(property);
         assertTrue(this.body.getProperties().contains(property));
     }
 
     @Test
     public void testSetProperties() {
-        ArrayList<TypedParam> props = new ArrayList<TypedParam>();
+        ArrayList<TypedParam> props = new ArrayList<>();
         this.body.setProperties(props);
         assertEquals(props, this.body.getProperties());
     }
 
     @Test
     public void testGetRequiredProperties() {
-        var requiredProp = new TypedParam("username", "string", true);
-        var optionalProp = new TypedParam("password", "string", false);
+        var requiredProp = new TypedParamImpl("username", "string", true);
+        var optionalProp = new TypedParamImpl("password", "string", false);
 
-        this.body.addPropery(requiredProp);
-        this.body.addPropery(optionalProp);
+        this.body.addProperty(requiredProp);
+        this.body.addProperty(optionalProp);
 
         assertTrue(this.body.getRequiredProperties().contains(requiredProp));
         assertFalse(this.body.getRequiredProperties().contains(optionalProp));
@@ -57,14 +56,14 @@ public class AbstractBodyTest {
     @Test
     public void testEqualsDiffRequired() {
         AbstractBody other = new AbstractBody();
-        other.addPropery(new TypedParam("person", "object", true));
+        other.addProperty(new TypedParamImpl("person", "object", true));
         assertFalse(this.body.equals(other));
     }
 
     @Test
     public void testEqualsDiffOptional() {
         AbstractBody other = new AbstractBody();
-        other.addPropery(new TypedParam("person", "object", false));
+        other.addProperty(new TypedParamImpl("person", "object", false));
         assertTrue(this.body.equals(other));
     }
 

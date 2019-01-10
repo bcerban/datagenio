@@ -5,7 +5,7 @@ import org.apache.http.Header;
 
 import java.util.Collection;
 
-public interface AbstractHTTPRequest {
+public interface AbstractHttpRequest {
 
     String getMethod();
     AbstractUrl getUrl();
