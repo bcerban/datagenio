@@ -18,7 +18,7 @@ public class Generator {
         this.converter = converter;
     }
 
-    public WebFlowGraph generateWebModel(String rootUrl, String outputDirectory) {
+    public WebFlowGraph generateWebModel(String rootUrl) {
         EventFlowGraph eventGraph = this.crawler.crawl(rootUrl);
         return this.converter.convert(eventGraph);
     }

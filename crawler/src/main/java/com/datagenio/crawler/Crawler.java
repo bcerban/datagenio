@@ -9,6 +9,20 @@ public class Crawler {
 
     private static Logger logger = LoggerFactory.getLogger(Crawler.class);
 
+    private CrawlContext context;
+
+    public Crawler(CrawlContext context) {
+        this.context = context;
+    }
+
+    public CrawlContext getContext() {
+        return context;
+    }
+
+    public static Logger getLogger() {
+        return logger;
+    }
+
     public EventFlowGraph crawl(String rootUrl) {
         throw new NotImplementedException();
     }

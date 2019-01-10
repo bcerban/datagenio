@@ -31,6 +31,6 @@ public class GeneratorTest {
         when(this.crawler.crawl(anyString())).thenReturn(eventFlowGraph);
         when(this.converter.convert(eventFlowGraph)).thenReturn(webFlowGraph);
 
-        this.generator.generateWebModel("http://example.com", "/var/tmp");
+        this.generator.generateWebModel("http://example.com");
     }
 }
