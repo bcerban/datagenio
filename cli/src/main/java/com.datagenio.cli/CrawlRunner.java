@@ -73,8 +73,6 @@ public class CrawlRunner {
         // Begin modeling site
         System.out.println("Beginning modeling process...");
         // @TODO change this to generator once it is done
-        Crawler crawler = new Crawler();
-
 
         System.out.println("Finished modeling site.");
     }

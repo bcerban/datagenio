@@ -1,56 +1,74 @@
-package com.datagenio.model;
+package com.datagenio.model.request;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
+import com.datagenio.model.Session;
+import com.datagenio.model.api.AbstractHTTPRequest;
+import com.datagenio.model.api.AbstractUrl;
+import org.apache.http.Header;
+import org.apache.http.message.BasicHeader;
 
-public class AbstractRequest {
+import java.util.*;
+
+public class AbstractRequest implements AbstractHTTPRequest {
     private String method;
     private AbstractUrl requestUrl;
     private AbstractBody requestBody;
-    private Map<String, String> headers;
+    private Collection<Header> headers;
     private Session session;
 
     public AbstractRequest(String method, AbstractUrl requestUrl) {
         this.method = method;
         this.requestUrl = requestUrl;
-        this.headers = new HashMap<>();
+        this.headers = new ArrayList<>();
     }
 
+    @Override
     public String getMethod() {
         return method;
     }
 
+    @Override
     public void setMethod(String method) {
         this.method = method;
     }
 
-    public AbstractUrl getRequestUrl() {
+    @Override
+    public AbstractUrl getUrl() {
         return requestUrl;
     }
 
-    public void setRequestUrl(AbstractUrl requestUrl) {
+    @Override
+    public void setUrl(AbstractUrl requestUrl) {
         this.requestUrl = requestUrl;
     }
 
-    public AbstractBody getRequestBody() {
+    @Override
+    public AbstractBody getBody() {
         return requestBody;
     }
 
-    public void setRequestBody(AbstractBody requestBody) {
+    @Override
+    public void setBody(AbstractBody requestBody) {
         this.requestBody = requestBody;
     }
 
-    public Map<String, String> getHeaders() {
+    @Override
+    public Collection<Header> getHeaders() {
         return headers;
     }
 
-    public void setHeaders(Map<String, String> headers) {
+    @Override
+    public void setHeaders(Collection<Header> headers) {
         this.headers = headers;
     }
 
-    public void addHeader(String header, String value) {
-        this.headers.put(header, value);
+    @Override
+    public void addHeader(Header header) {
+        this.headers.add(header);
+    }
+
+    @Override
+    public void addHeader(String name, String value) {
+        this.headers.add(new BasicHeader(name, value));
     }
 
     public Session getSession() {

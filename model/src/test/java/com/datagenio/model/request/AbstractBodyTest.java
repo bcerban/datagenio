@@ -1,5 +1,7 @@
-package com.datagenio.model;
+package com.datagenio.model.request;
 
+import com.datagenio.model.request.AbstractBody;
+import com.datagenio.model.request.TypedParam;
 import org.junit.Before;
 import org.junit.Test;
 

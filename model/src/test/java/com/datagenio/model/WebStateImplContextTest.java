@@ -1,16 +1,17 @@
 package com.datagenio.model;
 
+import com.datagenio.model.request.AbstractUrlImpl;
 import org.junit.Before;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
 
-public class StateContextTest {
+public class WebStateImplContextTest {
     private StateContext context;
 
     @Before
     public void setUp() {
-        this.context = new StateContext(new AbstractUrl("test_url"));
+        this.context = new StateContext(new AbstractUrlImpl("test_url"));
     }
 
     @Test
@@ -21,7 +22,7 @@ public class StateContextTest {
 
     @Test
     public void testSetContextUrl() {
-        this.context.setContextUrl(new AbstractUrl("new_url"));
+        this.context.setContextUrl(new AbstractUrlImpl("new_url"));
         assertEquals("new_url", this.context.getContextUrl().getBaseUrl());
     }
 

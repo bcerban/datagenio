@@ -1,4 +1,4 @@
-package com.datagenio.model;
+package com.datagenio.model.request;
 
 import java.util.ArrayList;
 import java.util.Collection;

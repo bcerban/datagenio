@@ -1,5 +1,9 @@
 package com.datagenio.model;
 
+import com.datagenio.model.api.WebState;
+import com.datagenio.model.api.WebTransition;
+import com.datagenio.model.request.AbstractRequest;
+import com.datagenio.model.request.AbstractUrlImpl;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -7,7 +11,7 @@ import java.util.ArrayList;
 
 import static org.junit.Assert.*;
 
-public class StateGraphTest {
+public class WebStateImplGraphTest {
 
     private StateGraph graph;
 
@@ -23,8 +27,8 @@ public class StateGraphTest {
 
     @Test
     public void testSetStates() {
-        var states = new ArrayList<State>();
-        states.add(new State(new AbstractUrl("state_url")));
+        var states = new ArrayList<WebState>();
+        states.add(new WebStateImpl(new AbstractUrlImpl("state_url")));
         this.graph.setStates(states);
 
         assertEquals(states, this.graph.getStates());
@@ -37,13 +41,13 @@ public class StateGraphTest {
 
     @Test
     public void testSetTransitions() {
-        var transitions = new ArrayList<Transition>();
+        var transitions = new ArrayList<WebTransition>();
 
-        var origin = new State(new AbstractUrl("origin"));
-        var destination = new State(new AbstractUrl("destination"));
+        var origin = new WebStateImpl(new AbstractUrlImpl("origin"));
+        var destination = new WebStateImpl(new AbstractUrlImpl("destination"));
         var request = new AbstractRequest("GET", destination.getContext().getContextUrl());
 
-        transitions.add(new Transition(origin, destination, request));
+        transitions.add(new WebTransitionImpl(origin, destination));
         this.graph.setTransitions(transitions);
 
         assertEquals(transitions, this.graph.getTransitions());
@@ -51,7 +55,7 @@ public class StateGraphTest {
 
     @Test
     public void testAddStateNew() {
-        var state = new State(new AbstractUrl("added_state_url"));
+        var state = new WebStateImpl(new AbstractUrlImpl("added_state_url"));
         this.graph.addState(state);
 
         assertEquals(1, this.graph.getStateCount());
@@ -60,9 +64,9 @@ public class StateGraphTest {
 
     @Test
     public void testAddStateAlreadyExists() {
-        var states = new ArrayList<State>();
-        var state = new State(new AbstractUrl("added_state_url"));
-        var newState = new State(state.getContext().getContextUrl());
+        var states = new ArrayList<WebState>();
+        var state = new WebStateImpl(new AbstractUrlImpl("added_state_url"));
+        var newState = new WebStateImpl(state.getContext().getContextUrl());
         states.add(state);
 
         this.graph.setStates(states);
@@ -99,15 +103,15 @@ public class StateGraphTest {
         this.graph.addState(transition.getOrigin());
         this.graph.addState(transition.getDestination());
         this.graph.addTransition(transition);
-        this.graph.addTransition(new Transition(transition.getOrigin(), transition.getDestination(), transition.getRequest()));
+        this.graph.addTransition(new WebTransitionImpl(transition.getOrigin(), transition.getDestination()));
 
         assertEquals(1, this.graph.getTransitions().size());
     }
 
-    private Transition getTestTransition() {
-        var origin = new State(new AbstractUrl("origin"));
-        var destination = new State(new AbstractUrl("destination"));
+    private WebTransitionImpl getTestTransition() {
+        var origin = new WebStateImpl(new AbstractUrlImpl("origin"));
+        var destination = new WebStateImpl(new AbstractUrlImpl("destination"));
         var request = new AbstractRequest("GET", destination.getContext().getContextUrl());
-        return new Transition(origin, destination, request);
+        return new WebTransitionImpl(origin, destination);
     }
 }
