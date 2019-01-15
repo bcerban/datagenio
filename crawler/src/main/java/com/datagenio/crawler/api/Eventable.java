@@ -5,7 +5,7 @@ import org.jsoup.nodes.Element;
 public interface Eventable {
 
     enum EventType {
-        click, submit
+        click, submit, hover
     }
 
     Element getSource();
