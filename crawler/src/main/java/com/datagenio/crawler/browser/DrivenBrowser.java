@@ -178,8 +178,7 @@ public class DrivenBrowser implements Browser {
 
     public Document triggerSubmitEvent(Eventable event, WebElement element, Map<String, String> inputs) {
         try {
-            // TODO: actual input handling should be done here...
-            element.clear();
+            this.fillElementInputs(element, inputs);
             element.submit();
         } catch (StaleElementReferenceException|ElementNotInteractableException|NoSuchElementException e) {
             logger.debug(
@@ -190,6 +189,16 @@ public class DrivenBrowser implements Browser {
         }
 
         return getDOM();
+    }
+
+    private void fillElementInputs(WebElement element, Map<String, String> inputs) {
+        inputs.forEach((xpath, value) -> fillElementByXpath(element, xpath, value));
+    }
+
+    private void fillElementByXpath(WebElement element, String xpath, String value) {
+        try {
+            element.findElement(By.xpath(xpath)).sendKeys(value);
+        } catch (NoSuchElementException e) { }
     }
 
     @Override

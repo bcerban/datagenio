@@ -94,6 +94,7 @@ public class Crawler {
         return this.getGraph();
     }
 
+
     private void initCrawl(URI root) throws UncrawlableStateException {
         try {
             this.browser.navigateTo(root);
