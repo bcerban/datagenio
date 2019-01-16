@@ -4,59 +4,91 @@ import com.datagenio.crawler.api.EventFlowGraph;
 import com.datagenio.crawler.api.Eventable;
 import com.datagenio.crawler.api.State;
 import com.datagenio.crawler.api.Transitionable;
+import org.junit.Before;
 import org.junit.Test;
+import org.openqa.selenium.InvalidArgumentException;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 public class EventFlowGraphImplTest {
 
-    @Test
-    public void testGetInstance() {
-        assertTrue(EventFlowGraphImpl.getInstance() instanceof EventFlowGraph);
+    private EventFlowGraph graph;
+
+    @Before
+    public void setUp() {
+        this.graph = new EventFlowGraphImpl();
     }
 
     @Test
     public void testGetStates() {
-        assertTrue(EventFlowGraphImpl.getInstance().getStates().isEmpty());
+        assertTrue(this.graph.getStates().isEmpty());
     }
 
     @Test
     public void testGetTransitions() {
-        assertTrue(EventFlowGraphImpl.getInstance().getTransitions().isEmpty());
+        assertTrue(this.graph.getTransitions().isEmpty());
     }
 
     @Test
     public void testGetEvents() {
-        assertTrue(EventFlowGraphImpl.getInstance().getEvents().isEmpty());
+        assertTrue(this.graph.getEvents().isEmpty());
     }
 
     @Test
     public void testAddState() {
         State state = mock(State.class);
-        EventFlowGraphImpl.getInstance().addState(state);
-        assertTrue(EventFlowGraphImpl.getInstance().getStates().contains(state));
+        this.graph.addState(state);
+        assertTrue(this.graph.getStates().contains(state));
     }
 
     @Test
     public void testAddTransition() {
         State origin = mock(State.class);
         State destination = mock(State.class);
-        EventFlowGraphImpl.getInstance().addState(origin);
-        EventFlowGraphImpl.getInstance().addState(destination);
+        this.graph.addState(origin);
+        this.graph.addState(destination);
 
         Transitionable transition = mock(Transitionable.class);
         when(transition.getOrigin()).thenReturn(origin);
         when(transition.getDestination()).thenReturn(destination);
 
-        EventFlowGraphImpl.getInstance().addTransition(transition);
-        assertTrue(EventFlowGraphImpl.getInstance().getTransitions().contains(transition));
+        this.graph.addTransition(transition);
+        assertTrue(this.graph.getTransitions().contains(transition));
     }
 
     @Test
     public void testAddEvent() {
         Eventable event = mock(Eventable.class);
-        EventFlowGraphImpl.getInstance().addEvent(event);
-        assertTrue(EventFlowGraphImpl.getInstance().getEvents().contains(event));
+        this.graph.addEvent(event);
+        assertTrue(this.graph.getEvents().contains(event));
+    }
+
+    @Test
+    public void testGetCurrentState() {
+        assertNull(this.graph.getCurrentState());
+    }
+
+    @Test(expected = InvalidArgumentException.class)
+    public void testSetCurrentStateNotInGraph() {
+        State state = mock(State.class);
+        this.graph.setCurrentState(state);
+        assertEquals(state, this.graph.getCurrentState());
+    }
+
+    @Test
+    public void testSetCurrentState() {
+        State state = mock(State.class);
+        this.graph.addState(state);
+        this.graph.setCurrentState(state);
+        assertEquals(state, this.graph.getCurrentState());
+    }
+
+    @Test
+    public void testAddStateAsCurrent() {
+        State state = mock(State.class);
+        this.graph.addStateAsCurrent(state);
+        assertEquals(state, this.graph.getCurrentState());
+        assertTrue(this.graph.getStates().contains(state));
     }
 }

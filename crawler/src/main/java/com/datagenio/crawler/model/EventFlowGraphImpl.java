@@ -5,25 +5,18 @@ import com.datagenio.crawler.api.Eventable;
 import com.datagenio.crawler.api.State;
 import com.datagenio.crawler.api.Transitionable;
 import org.jgrapht.graph.DirectedPseudograph;
+import org.openqa.selenium.InvalidArgumentException;
 
 import java.util.ArrayList;
 import java.util.Collection;
 
 public class EventFlowGraphImpl implements EventFlowGraph {
 
-    private static EventFlowGraphImpl instance;
     private DirectedPseudograph<State, Transitionable> graph;
     private Collection<Eventable> events;
+    private State current;
 
-    public static EventFlowGraph getInstance() {
-        if (instance == null) {
-            instance = new EventFlowGraphImpl();
-        }
-
-        return instance;
-    }
-
-    private EventFlowGraphImpl() {
+    public EventFlowGraphImpl() {
         this.graph = new DirectedPseudograph<>(Transitionable.class);
         this.events = new ArrayList<>();
     }
@@ -44,8 +37,19 @@ public class EventFlowGraphImpl implements EventFlowGraph {
     }
 
     @Override
+    public State getCurrentState() {
+        return this.current;
+    }
+
+    @Override
     public void addState(State state) {
         this.graph.addVertex(state);
+    }
+
+    @Override
+    public void addStateAsCurrent(State state) {
+        this.graph.addVertex(state);
+        this.setCurrentState(state);
     }
 
     @Override
@@ -56,5 +60,13 @@ public class EventFlowGraphImpl implements EventFlowGraph {
     @Override
     public void addEvent(Eventable event) {
         this.events.add(event);
+    }
+
+    @Override
+    public void setCurrentState(State state) {
+        if (!this.graph.containsVertex(state)) {
+            throw new InvalidArgumentException("Selected state does not belong to graph!");
+        }
+        this.current = state;
     }
 }

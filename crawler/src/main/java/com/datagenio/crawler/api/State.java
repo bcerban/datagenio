@@ -10,9 +10,11 @@ public interface State {
     URI getUri();
     Document getDocument();
     Collection<Eventable> getEventables();
+    Collection<Eventable> getUnfiredEventables();
+    boolean isFinished();
 
     void setUri(URI uri);
     void setDocument(Document document);
     void setEventables(Collection<Eventable> eventables);
-
+    void markEventAsFired(ExecutedEventable event);
 }

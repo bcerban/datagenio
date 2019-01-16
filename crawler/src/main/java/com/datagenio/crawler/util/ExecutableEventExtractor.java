@@ -18,6 +18,14 @@ public class ExecutableEventExtractor implements EventableExtractor {
         this.rules = rules;
     }
 
+    public Collection<ExtractionRule> getRules() {
+        return rules;
+    }
+
+    public void setRules(Collection<ExtractionRule> rules) {
+        this.rules = rules;
+    }
+
     public Collection<Eventable> extract(State origin, Element node) {
         var eventables = new ArrayList<Eventable>();
 

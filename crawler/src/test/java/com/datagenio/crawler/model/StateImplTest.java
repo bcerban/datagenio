@@ -1,5 +1,7 @@
 package com.datagenio.crawler.model;
 
+import com.datagenio.crawler.api.ExecutedEventable;
+import com.datagenio.crawler.api.State;
 import com.datagenio.crawler.util.ExecutableEventExtractor;
 import com.datagenio.crawler.api.Eventable;
 import org.jsoup.Jsoup;
@@ -74,6 +76,38 @@ public class StateImplTest {
         Collection<Eventable> otherEventables = new ArrayList<>();
         this.state.setEventables(otherEventables);
         assertEquals(otherEventables, this.state.getEventables());
+    }
+
+    @Test
+    public void testGetUnfiredEventables() {
+        assertEquals(this.eventables, this.state.getUnfiredEventables());
+    }
+
+    @Test
+    public void testIsFinished() {
+        assertTrue(this.state.isFinished());
+    }
+
+    @Test
+    public void testMarkEventAsFired() {
+        State newState = null;
+
+        Eventable event = mock(Eventable.class);
+        ExecutableEventExtractor extractor = mock(ExecutableEventExtractor.class);
+
+        when(extractor.extract(any(), any())).thenReturn(List.of(event));
+        newState = new StateImpl(this.uri, this.document, extractor);
+
+        // Check preconditions for test
+        assertFalse(newState.isFinished());
+        assertTrue(newState.getUnfiredEventables().contains(event));
+
+        ExecutedEventable executed = new ExecutedEvent(event);
+        newState.markEventAsFired(executed);
+
+        // Check postconditions
+        assertTrue(newState.isFinished());
+        assertFalse(newState.getUnfiredEventables().contains(event));
     }
 
     @Test

@@ -6,4 +6,6 @@ import java.util.Collection;
 public interface EventableExtractor {
 
     Collection<Eventable> extract(State origin, Element node);
+    Collection<ExtractionRule> getRules();
+    void setRules(Collection<ExtractionRule> rules);
 }
