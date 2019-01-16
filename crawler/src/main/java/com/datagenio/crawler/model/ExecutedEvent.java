@@ -16,6 +16,11 @@ public class ExecutedEvent implements ExecutedEventable {
         this.inputs = new HashMap<>();
     }
 
+    public ExecutedEvent(Eventable event, Map<String, String> inputs) {
+        this.event = event;
+        this.inputs = inputs;
+    }
+
     @Override
     public Eventable getEvent() {
         return this.event;

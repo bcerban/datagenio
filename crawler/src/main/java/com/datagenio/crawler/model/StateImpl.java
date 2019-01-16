@@ -4,16 +4,19 @@ import com.datagenio.crawler.api.Eventable;
 import com.datagenio.crawler.api.EventableExtractor;
 import com.datagenio.crawler.api.ExecutedEventable;
 import com.datagenio.crawler.api.State;
+import com.datagenio.crawler.exception.UncrawlableStateException;
 import org.jsoup.nodes.Document;
 
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedList;
+import java.util.Queue;
 
 public class StateImpl implements State {
 
     private Collection<ExecutedEventable> executedEventables;
-    private Collection<Eventable> unfiredEventables;
+    private Queue<Eventable> unfiredEventables;
     private Collection<Eventable> eventables;
     private Document document;
     private URI uri;
@@ -22,7 +25,7 @@ public class StateImpl implements State {
         this.uri = uri;
         this.document = view;
         this.eventables = extractor.extract(this, this.document);
-        this.unfiredEventables = new ArrayList<>(this.eventables);
+        this.unfiredEventables = new LinkedList<>(this.eventables);
         this.executedEventables = new ArrayList<>();
     }
 
@@ -34,6 +37,23 @@ public class StateImpl implements State {
     @Override
     public Collection<Eventable> getUnfiredEventables() {
         return this.unfiredEventables;
+    }
+
+    @Override
+    public Eventable getNextEventToFire() throws UncrawlableStateException {
+        Eventable next = null;
+        while(next == null && !this.unfiredEventables.isEmpty()) {
+            var event = this.unfiredEventables.poll();
+            if (this.eventables.contains(event)) {
+                next = event;
+            }
+        }
+
+        if (next == null) {
+            throw new UncrawlableStateException("This state is inconsistent! Looks unfinished but has no unfired events.");
+        }
+
+        return next;
     }
 
     @Override
