@@ -8,6 +8,8 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Element;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.mockito.Mockito.*;
@@ -34,6 +36,18 @@ public class ExecutableEventExtractorTest {
         this.rule = new TagRule(List.of("a", "button", "form"));
         this.origin = mock(State.class);
         this.extractor = new ExecutableEventExtractor(List.of(this.rule));
+    }
+
+    @Test
+    public void testGetRules() {
+        assertEquals(List.of(this.rule), this.extractor.getRules());
+    }
+
+    @Test
+    public void testSetRules() {
+        var rules = new ArrayList<ExtractionRule>();
+        this.extractor.setRules(rules);
+        assertEquals(rules, this.extractor.getRules());
     }
 
     @Test

@@ -74,7 +74,7 @@ public class DrivenBrowserTest {
 
         when(event.getXpath()).thenReturn("/html/body/span[1]/button");
         when(this.driver.findElement(any(By.class))).thenReturn(null);
-        this.browser.triggerEvent(event);
+        this.browser.triggerEvent(event, null);
 
         verify(event, times(2)).getIdentifier();
         verify(event, times(1)).getXpath();
@@ -90,7 +90,7 @@ public class DrivenBrowserTest {
         when(this.driver.findElement(any(By.class))).thenReturn(element);
         doThrow(new StaleElementReferenceException("")).when(element).click();
 
-        this.browser.triggerEvent(event);
+        this.browser.triggerEvent(event, null);
 
         verify(event, times(2)).getIdentifier();
         verify(event, times(1)).getXpath();
@@ -106,7 +106,7 @@ public class DrivenBrowserTest {
         when(this.driver.findElement(any(By.class))).thenReturn(element);
         doThrow(new ElementNotInteractableException("")).when(element).click();
 
-        this.browser.triggerEvent(event);
+        this.browser.triggerEvent(event, null);
 
         verify(event, times(2)).getIdentifier();
         verify(event, times(1)).getXpath();
@@ -122,7 +122,7 @@ public class DrivenBrowserTest {
         when(this.driver.findElement(any(By.class))).thenReturn(element);
         when(this.driver.getPageSource()).thenReturn("");
 
-        this.browser.triggerEvent(event);
+        this.browser.triggerEvent(event, null);
 
         verify(event, times(1)).getIdentifier();
         verify(event, times(1)).getXpath();
@@ -139,7 +139,7 @@ public class DrivenBrowserTest {
         when(this.driver.findElement(any(By.class))).thenReturn(element);
         doThrow(new StaleElementReferenceException("")).when(element).submit();
 
-        this.browser.triggerEvent(event);
+        this.browser.triggerEvent(event, null);
 
         verify(event, times(2)).getIdentifier();
         verify(event, times(1)).getXpath();
@@ -155,7 +155,7 @@ public class DrivenBrowserTest {
         when(this.driver.findElement(any(By.class))).thenReturn(element);
         doThrow(new ElementNotInteractableException("")).when(element).submit();
 
-        this.browser.triggerEvent(event);
+        this.browser.triggerEvent(event, null);
 
         verify(event, times(2)).getIdentifier();
         verify(event, times(1)).getXpath();
@@ -171,7 +171,7 @@ public class DrivenBrowserTest {
         when(this.driver.findElement(any(By.class))).thenReturn(element);
         doThrow(new NoSuchElementException("")).when(element).submit();
 
-        this.browser.triggerEvent(event);
+        this.browser.triggerEvent(event, null);
 
         verify(event, times(2)).getIdentifier();
         verify(event, times(1)).getXpath();
@@ -187,7 +187,7 @@ public class DrivenBrowserTest {
         when(this.driver.findElement(any(By.class))).thenReturn(element);
         when(this.driver.getPageSource()).thenReturn("");
 
-        this.browser.triggerEvent(event);
+        this.browser.triggerEvent(event, null);
 
         verify(event, times(1)).getIdentifier();
         verify(event, times(1)).getXpath();
@@ -205,7 +205,7 @@ public class DrivenBrowserTest {
         when(event.getEventType()).thenReturn(Eventable.EventType.hover);
         when(this.driver.findElement(any(By.class))).thenReturn(element);
 
-        this.browser.triggerEvent(event);
+        this.browser.triggerEvent(event, null);
 
         verify(event, times(1)).getIdentifier();
         verify(event, times(1)).getXpath();

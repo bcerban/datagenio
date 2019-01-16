@@ -2,7 +2,9 @@ package com.datagenio.cli;
 
 import com.datagenio.crawler.CrawlContext;
 import com.datagenio.crawler.Crawler;
+import com.datagenio.crawler.browser.BrowserFactory;
 import com.datagenio.crawler.util.GraphConverterImpl;
+import com.datagenio.databank.InputBuilderFactory;
 import com.datagenio.generator.Generator;
 import com.google.common.base.Charsets;
 import com.google.common.io.Resources;
@@ -75,10 +77,9 @@ public class CrawlRunner {
 
         // Begin modeling site
         System.out.println("Beginning modeling process...");
-        // @TODO change this to generator once it is done
 
         var crawlContext = new CrawlContext(directory);
-        var crawler = new Crawler(crawlContext);
+        var crawler = new Crawler(crawlContext, BrowserFactory.drivenByFirefox(), InputBuilderFactory.get());
 
         var generator = new Generator(crawler, new GraphConverterImpl());
         generator.generateWebModel(url);

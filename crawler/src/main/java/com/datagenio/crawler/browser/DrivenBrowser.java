@@ -2,8 +2,12 @@ package com.datagenio.crawler.browser;
 
 import com.datagenio.crawler.api.Browser;
 import com.datagenio.crawler.api.Eventable;
+import com.datagenio.crawler.api.EventableExtractor;
+import com.datagenio.crawler.api.State;
 import com.datagenio.crawler.exception.BrowserException;
 import com.datagenio.crawler.exception.UnsupportedEventTypeException;
+import com.datagenio.crawler.model.StateImpl;
+import com.datagenio.crawler.util.EventExtractorFactory;
 import org.apache.commons.lang.NotImplementedException;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -13,6 +17,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.net.URI;
+import java.util.Map;
 import java.util.concurrent.*;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -24,9 +29,11 @@ public class DrivenBrowser implements Browser {
     private static ExecutorService closeExecutor = Executors.newCachedThreadPool(new BrowserCloserFactory());
 
     private WebDriver driver;
+    private EventableExtractor extractor;
 
     public DrivenBrowser(WebDriver driver) {
         this.driver = driver;
+        this.extractor = EventExtractorFactory.get();
     }
 
     @Override
@@ -72,6 +79,11 @@ public class DrivenBrowser implements Browser {
     @Override
     public void pause() throws BrowserException {
         throw new NotImplementedException();
+    }
+
+    @Override
+    public State getCurrentBrowserState() {
+        return new StateImpl(URI.create(this.driver.getCurrentUrl()), this.getDOM(), this.extractor);
     }
 
     @Override
@@ -125,7 +137,7 @@ public class DrivenBrowser implements Browser {
     }
 
     @Override
-    public Document triggerEvent(Eventable event) throws UnsupportedEventTypeException, InvalidArgumentException {
+    public Document triggerEvent(Eventable event, Map<String, String> inputs) throws UnsupportedEventTypeException, InvalidArgumentException {
         logger.debug("Attempting to trigger event {}...", event.getIdentifier());
 
         // Check element is present in current web interface
@@ -135,16 +147,16 @@ public class DrivenBrowser implements Browser {
             throw new InvalidArgumentException("Selected event is not present in current interface.");
         }
 
-        return handleEventByType(event, element);
+        return handleEventByType(event, element, inputs);
     }
 
-    private Document handleEventByType(Eventable event, WebElement element) throws UnsupportedEventTypeException {
+    private Document handleEventByType(Eventable event, WebElement element, Map<String, String> inputs) throws UnsupportedEventTypeException {
         Eventable.EventType type = event.getEventType();
         switch (type) {
             case click:
                 return triggerClickableEvent(event, element);
             case submit:
-                return triggerSubmitEvent(event, element);
+                return triggerSubmitEvent(event, element, inputs);
             default:
                 throw new UnsupportedEventTypeException("Type " + type.toString() + " is not supported.");
         }
@@ -164,7 +176,7 @@ public class DrivenBrowser implements Browser {
         return getDOM();
     }
 
-    public Document triggerSubmitEvent(Eventable event, WebElement element) {
+    public Document triggerSubmitEvent(Eventable event, WebElement element, Map<String, String> inputs) {
         try {
             // TODO: actual input handling should be done here...
             element.clear();
