@@ -28,9 +28,9 @@ public class GeneratorTest {
         EventFlowGraph eventFlowGraph = mock(EventFlowGraph.class);
         WebFlowGraph webFlowGraph = mock(WebFlowGraph.class);
 
-        when(this.crawler.crawl(anyString())).thenReturn(eventFlowGraph);
+        when(this.crawler.crawl()).thenReturn(eventFlowGraph);
         when(this.converter.convert(eventFlowGraph)).thenReturn(webFlowGraph);
 
-        this.generator.generateWebModel("http://example.com");
+        this.generator.generateWebModel();
     }
 }

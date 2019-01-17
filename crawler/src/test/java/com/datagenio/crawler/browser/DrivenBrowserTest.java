@@ -5,7 +5,6 @@ import com.datagenio.crawler.exception.BrowserException;
 import com.datagenio.crawler.exception.UnsupportedEventTypeException;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mockito;
 import org.openqa.selenium.*;
 import org.openqa.selenium.firefox.FirefoxDriver;
 
@@ -49,7 +48,7 @@ public class DrivenBrowserTest {
         screenShot.deleteOnExit();
 
         when(((TakesScreenshot)this.driver).getScreenshotAs(OutputType.FILE)).thenReturn(screenShot);
-        assertEquals(screenShot, this.browser.takeScreenShot());
+        assertEquals(screenShot, this.browser.getScreenShotFile());
     }
 
     @Test

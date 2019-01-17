@@ -2,6 +2,7 @@ package com.datagenio.cli;
 
 import com.datagenio.crawler.CrawlContext;
 import com.datagenio.crawler.Crawler;
+import com.datagenio.crawler.api.EventFlowGraph;
 import com.datagenio.crawler.browser.BrowserFactory;
 import com.datagenio.crawler.util.GraphConverterImpl;
 import com.datagenio.databank.InputBuilderFactory;
@@ -39,6 +40,8 @@ public class CrawlRunner {
         } catch (ParseException e) {
             System.out.println("ERROR: Unreadable input. " + e.getMessage());
         }
+
+        System.exit(0);
     }
 
     private static void printVersion() {
@@ -78,13 +81,21 @@ public class CrawlRunner {
         // Begin modeling site
         System.out.println("Beginning modeling process...");
 
-        var crawlContext = new CrawlContext(directory);
+        var crawlContext = new CrawlContext(url, directory, isVerbose(arguments), true);
         var crawler = new Crawler(crawlContext, BrowserFactory.drivenByFirefox(), InputBuilderFactory.get());
 
-        var generator = new Generator(crawler, new GraphConverterImpl());
-        generator.generateWebModel(url);
+        EventFlowGraph graph = crawler.crawl();
+        System.out.println("Finished crawling site.");
+        System.out.println("Found " + graph.getStates().size() + " states, and " + graph.getTransitions().size() + " transitions.");
+
+//        var generator = new Generator(crawler, new GraphConverterImpl());
+//        generator.generateWebModel();
 
         System.out.println("Finished modeling site.");
+    }
+
+    private static boolean isVerbose(CommandLine arguments) {
+        return arguments.hasOption(ArgumentParser.VERBOSE);
     }
 
     public static boolean urlIsValid(String url) {

@@ -6,47 +6,73 @@ public class CrawlContext {
     private final int requestTimeout;
     private final int crawlTimeout;
     private final int crawlDepth;
+    private final String rootUrl;
     private final String outputDirName;
     private final boolean verbose;
+    private final boolean printScreen;
 
-    public CrawlContext(String outputDirName) {
+    public CrawlContext(String rootUrl, String outputDirName) {
+        this.rootUrl = rootUrl;
         this.requestTimeout = REQUEST_TIMEOUT;
         this.crawlTimeout = 0;
         this.outputDirName = outputDirName;
         this.crawlDepth = 0;
         this.verbose = false;
+        this.printScreen = false;
     }
 
-    public CrawlContext(String outputDirName, boolean verbose) {
+    public CrawlContext(String rootUrl, String outputDirName, boolean verbose) {
+        this.rootUrl = rootUrl;
         this.requestTimeout = REQUEST_TIMEOUT;
         this.crawlTimeout = 0;
         this.outputDirName = outputDirName;
         this.crawlDepth = 0;
         this.verbose = verbose;
+        this.printScreen = false;
     }
 
-    public CrawlContext(String outputDirName, boolean verbose, int crawlTimeout) {
+    public CrawlContext(String rootUrl, String outputDirName, boolean verbose, boolean printScreen) {
+        this.rootUrl = rootUrl;
+        this.requestTimeout = REQUEST_TIMEOUT;
+        this.crawlTimeout = 0;
+        this.outputDirName = outputDirName;
+        this.crawlDepth = 0;
+        this.verbose = verbose;
+        this.printScreen = printScreen;
+    }
+
+    public CrawlContext(String rootUrl, String outputDirName, boolean verbose, int crawlTimeout) {
+        this.rootUrl = rootUrl;
         this.requestTimeout = REQUEST_TIMEOUT;
         this.crawlTimeout = crawlTimeout;
         this.outputDirName = outputDirName;
         this.crawlDepth = 0;
         this.verbose = verbose;
+        this.printScreen = false;
     }
 
-    public CrawlContext(String outputDirName, boolean verbose, int crawlTimeout, int requestTimeout) {
+    public CrawlContext(String rootUrl, String outputDirName, boolean verbose, int crawlTimeout, int requestTimeout) {
+        this.rootUrl = rootUrl;
         this.requestTimeout = requestTimeout;
         this.crawlTimeout = crawlTimeout;
         this.outputDirName = outputDirName;
         this.crawlDepth = 0;
         this.verbose = verbose;
+        this.printScreen = false;
     }
 
-    public CrawlContext(String outputDirName, boolean verbose, int crawlTimeout, int requestTimeout, int crawlDepth) {
+    public CrawlContext(String rootUrl, String outputDirName, boolean verbose, int crawlTimeout, int requestTimeout, int crawlDepth) {
+        this.rootUrl = rootUrl;
         this.requestTimeout = requestTimeout;
         this.crawlTimeout = crawlTimeout;
         this.outputDirName = outputDirName;
         this.crawlDepth = crawlDepth;
         this.verbose = verbose;
+        this.printScreen = false;
+    }
+
+    public String getRootUrl() {
+        return rootUrl;
     }
 
     public int getRequestTimeout() {
@@ -67,5 +93,9 @@ public class CrawlContext {
 
     public boolean isVerbose() {
         return verbose;
+    }
+
+    public boolean isPrintScreen() {
+        return printScreen;
     }
 }

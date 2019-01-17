@@ -30,10 +30,12 @@ public class DrivenBrowser implements Browser {
 
     private WebDriver driver;
     private EventableExtractor extractor;
+    private String initialHandle;
 
     public DrivenBrowser(WebDriver driver) {
         this.driver = driver;
         this.extractor = EventExtractorFactory.get();
+        this.initialHandle = driver.getWindowHandle();
     }
 
     @Override
@@ -56,24 +58,56 @@ public class DrivenBrowser implements Browser {
     }
 
     @Override
+    public void backOrClose() throws BrowserException {
+        State previous = getCurrentBrowserState();
+        back();
+        State current = getCurrentBrowserState();
+        if (current.equals(previous)) {
+            close();
+            switchToDefaultWindow();
+        }
+    }
+
+    @Override
     public void close() throws BrowserException {
         logger.debug("Closing browser at {}.", this.driver.getCurrentUrl());
+        handleClosingTask(closeExecutor.submit(this.driver::close));
+        logger.debug("Browser session closed.");
+    }
 
-        var task = closeExecutor.submit(this.driver::quit);
+    @Override
+    public void quit() throws BrowserException {
+        logger.debug("Closing all browser windows.");
+        handleClosingTask(closeExecutor.submit(this.driver::quit));
+        logger.debug("All browser sessions finished.");
+    }
+
+    private void handleClosingTask(Future<?> task) throws BrowserException {
         try {
             task.get(BROWSER_CLOSE_TIMEOUT, TimeUnit.SECONDS);
+            Thread.sleep(BROWSER_CLOSE_TIMEOUT);
         } catch (TimeoutException e) {
             logger.debug("Browser timed out while trying to close at {}.", this.driver.getCurrentUrl());
             Thread.currentThread().interrupt();
         } catch (ExecutionException e) {
             logger.debug("Unexpected exception while trying to close browser at {}.", this.driver.getCurrentUrl());
             throw new BrowserException(e);
-        } catch (InterruptedException e) {
+        } catch (InterruptedException|NoSuchWindowException e) {
             logger.debug("Interruption while trying to close browser at {}. Will proceed to forced interruption.", this.driver.getCurrentUrl());
             Thread.currentThread().interrupt();
         }
+    }
 
-        logger.debug("Browser at {} closed.", this.driver.getCurrentUrl());
+    private void switchToDefaultWindow() throws BrowserException {
+        if (this.driver == null) {
+            throw new BrowserException("Driver is not available.");
+        }
+
+        try {
+            this.driver.switchTo().window(this.initialHandle);
+        } catch (NoSuchWindowException e) {
+            throw new BrowserException("Default window not found.", e);
+        }
     }
 
     @Override
@@ -83,11 +117,16 @@ public class DrivenBrowser implements Browser {
 
     @Override
     public State getCurrentBrowserState() {
-        return new StateImpl(URI.create(this.driver.getCurrentUrl()), this.getDOM(), this.extractor);
+        return new StateImpl(
+                URI.create(this.driver.getCurrentUrl()),
+                this.getDOM(),
+                this.extractor,
+                this.driver.getWindowHandle()
+        );
     }
 
     @Override
-    public File takeScreenShot() {
+    public File getScreenShotFile() {
         logger.debug("Capturing screen for " + this.driver.getCurrentUrl());
 
         TakesScreenshot screenshotDriver = (TakesScreenshot) this.driver;
@@ -95,6 +134,18 @@ public class DrivenBrowser implements Browser {
         removeScreenShotCanvas();
 
         logger.debug("Screen capture for " + this.driver.getCurrentUrl() + " saved to " + screenshot.getName() + ".");
+        return screenshot;
+    }
+
+    @Override
+    public byte[] getScreenShotBytes() {
+        logger.debug("Capturing screen for " + this.driver.getCurrentUrl());
+
+        TakesScreenshot screenshotDriver = (TakesScreenshot) this.driver;
+        byte[] screenshot = screenshotDriver.getScreenshotAs(OutputType.BYTES);
+        removeScreenShotCanvas();
+
+        logger.debug("Screen capture for " + this.driver.getCurrentUrl() + " returned.");
         return screenshot;
     }
 
@@ -139,9 +190,13 @@ public class DrivenBrowser implements Browser {
     @Override
     public Document triggerEvent(Eventable event, Map<String, String> inputs) throws UnsupportedEventTypeException, InvalidArgumentException {
         logger.debug("Attempting to trigger event {}...", event.getIdentifier());
+        WebElement element = null;
 
-        // Check element is present in current web interface
-        WebElement element = this.driver.findElement(By.xpath(event.getXpath()));
+        try {
+            // Check element is present in current web interface
+            element = this.driver.findElement(By.xpath(event.getXpath()));
+        } catch (NoSuchElementException e) { }
+
         if (element == null) {
             logger.debug("Element not found for event {} in {}", event.getIdentifier(), this.driver.getCurrentUrl());
             throw new InvalidArgumentException("Selected event is not present in current interface.");
@@ -164,7 +219,14 @@ public class DrivenBrowser implements Browser {
 
     public Document triggerClickableEvent(Eventable event, WebElement element) {
         try {
+            int handleCount = this.driver.getWindowHandles().size();
+
             element.click();
+
+            if (this.driver.getWindowHandles().size() > handleCount) {
+                String newest = (String)this.driver.getWindowHandles().toArray()[this.driver.getWindowHandles().size() - 1];
+                this.driver.switchTo().window(newest);
+            }
         } catch (StaleElementReferenceException|ElementNotInteractableException e) {
             logger.debug(
                     "Element for event {} is unavailable in {}. Error: {}",

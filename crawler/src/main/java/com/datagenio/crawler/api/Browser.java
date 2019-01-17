@@ -15,12 +15,15 @@ public interface Browser {
 
     void navigateTo(URI uri) throws BrowserException;
     void back() throws BrowserException;
+    void backOrClose() throws BrowserException;
     void close() throws BrowserException;
+    void quit() throws BrowserException;
     void pause() throws BrowserException;
 
     State getCurrentBrowserState();
     Document triggerEvent(Eventable event, Map<String, String> inputs) throws UnsupportedEventTypeException, InvalidArgumentException;
     Document getDOM();
     Object executeJavaScript(String code) throws BrowserException;
-    File takeScreenShot();
+    File getScreenShotFile();
+    byte[] getScreenShotBytes();
 }

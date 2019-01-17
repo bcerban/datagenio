@@ -7,4 +7,9 @@ import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 public class CompositeInputBuilderTest {
+
+    @Test
+    public void testBuildInputsElementIsInput() {
+
+    }
 }

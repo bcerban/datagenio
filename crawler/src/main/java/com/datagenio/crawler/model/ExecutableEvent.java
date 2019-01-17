@@ -1,6 +1,6 @@
 package com.datagenio.crawler.model;
 
-import com.datagenio.crawler.util.XPathParser;
+import com.datagenio.databank.util.XPathParser;
 import com.datagenio.crawler.api.Eventable;
 import org.apache.commons.lang.StringUtils;
 import org.jsoup.nodes.Element;
@@ -26,6 +26,7 @@ public class ExecutableEvent implements Eventable {
         this.source = e;
         this.eventType = event;
         this.parent = this.source.ownerDocument();
+        this.xpath = XPathParser.getXPathFor(this.source);
     }
 
     @Override
@@ -69,9 +70,6 @@ public class ExecutableEvent implements Eventable {
 
     @Override
     public String getXpath() {
-        if (StringUtils.isEmpty(this.xpath)) {
-            this.xpath = XPathParser.getXPathFor(this.source);
-        }
         return xpath;
     }
 
@@ -94,5 +92,10 @@ public class ExecutableEvent implements Eventable {
         return Objects.equals(getEventType(), e.getEventType()) &&
                 Objects.equals(getIdentifier(), e.getIdentifier()) &&
                 Objects.equals(getHandler(), e.getHandler());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getIdentifier(), getEventType());
     }
 }

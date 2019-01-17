@@ -1,17 +1,17 @@
 package com.datagenio.crawler;
 
 import com.datagenio.crawler.api.*;
-import com.datagenio.crawler.exception.BrowserException;
-import com.datagenio.crawler.exception.UncrawlablePathException;
-import com.datagenio.crawler.exception.UncrawlableStateException;
-import com.datagenio.crawler.exception.UnsupportedEventTypeException;
+import com.datagenio.crawler.exception.*;
 import com.datagenio.crawler.model.EventFlowGraphImpl;
 import com.datagenio.crawler.model.ExecutedEvent;
 import com.datagenio.crawler.model.StateImpl;
 import com.datagenio.crawler.model.Transition;
 import com.datagenio.crawler.util.EventExtractorFactory;
+import com.datagenio.crawler.util.ScreenShotSaver;
+import com.datagenio.crawler.util.SiteBoundChecker;
 import com.datagenio.databank.api.InputBuilder;
 import org.jgrapht.GraphPath;
+import org.openqa.selenium.InvalidArgumentException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,27 +58,33 @@ public class Crawler {
         return logger;
     }
 
-    public EventFlowGraph crawl(String rootUrl) {
-        logger.debug("Begin crawling {}...", rootUrl);
+    public EventFlowGraph crawl() {
+        logger.debug("Begin crawling {}...", this.context.getRootUrl());
 
         try {
-            this.initCrawl(URI.create(rootUrl));
+            this.initCrawl(URI.create(this.context.getRootUrl()));
             while (!this.getGraph().getCurrentState().isFinished()) {
                 State current = this.getGraph().getCurrentState();
                 Eventable event = current.getNextEventToFire();
 
                 try {
                     Map<String, String> inputs = this.inputBuilder.buildInputs(event.getSource());
-                    this.browser.triggerEvent(event, inputs);
-                    State newState = this.browser.getCurrentBrowserState();
+                    State newState = this.executeEvent(event, inputs);
 
                     if (this.getGraph().isNewState(newState)) {
                         this.getGraph().addStateAsCurrent(newState);
-                        this.getGraph().addTransition(new Transition(current, newState, new ExecutedEvent(event, inputs)));
+                        this.persistState(newState);
                     }
-                } catch (UnsupportedEventTypeException e) {
+
+                    // Transition added regardless, as this is a multigraph
+                    this.getGraph().addTransition(new Transition(current, newState, new ExecutedEvent(event, inputs)));
+
+                } catch (UnsupportedEventTypeException| InvalidArgumentException e) {
                     logger.info("Removing event from crawl because its type is invalid. Event ID: {}", event.getIdentifier());
-                    this.getGraph().getCurrentState().getEventables().remove(event);
+//                    this.getGraph().getCurrentState().getEventables().remove(event);
+                } catch (OutOfBoundsException e) {
+                    logger.info(e.getMessage());
+                    this.browser.backOrClose();
                 }
 
                 if (this.getGraph().getCurrentState().isFinished()) {
@@ -88,19 +94,34 @@ public class Crawler {
                     }
                 }
             }
-        } catch (UncrawlableStateException e) { }
+        } catch (UncrawlableStateException|BrowserException e) {
+            logger.info("Crawl aborted due to exception.", e);
+        } finally {
+            this.handleClosing();
+        }
 
         logger.debug("Crawl finished!");
         return this.getGraph();
     }
 
+    private State executeEvent(Eventable event, Map<String, String> inputs) throws UnsupportedEventTypeException, OutOfBoundsException {
+        this.browser.triggerEvent(event, inputs);
+        State newState = this.browser.getCurrentBrowserState();
+
+        if (SiteBoundChecker.isOutOfBounds(newState.getUri(), this.context)) {
+            throw new OutOfBoundsException("Trying to access " + newState.getUri().toString());
+        }
+
+        return newState;
+    }
 
     private void initCrawl(URI root) throws UncrawlableStateException {
         try {
             this.browser.navigateTo(root);
-            State initial = new StateImpl(root, this.browser.getDOM(), this.extractor);
+            State initial = this.browser.getCurrentBrowserState();
             this.getGraph().addStateAsCurrent(initial);
             this.getGraph().setRoot(initial);
+            this.persistState(initial);
         } catch (BrowserException e) {
             logger.debug("Exception happened while trying to initialize EventFlowGraph. Error: {}", e.getMessage());
             throw new UncrawlableStateException(e);
@@ -110,7 +131,7 @@ public class Crawler {
     public boolean relocateFrom(State current) throws UncrawlableStateException {
         boolean relocated = false;
 
-        State next = this.getGraph().findNearestUnfinishedStateFrom(current);
+        State next = this.getGraph().findNearestUnfinishedStateFrom(this.getGraph().getRoot());
         if (next != null) {
             try {
                 var path = this.getGraph().findPath(this.getGraph().getRoot(), next);
@@ -147,6 +168,27 @@ public class Crawler {
             }
         } catch (BrowserException|UnsupportedEventTypeException e) {
             throw new UncrawlablePathException("Stopped path crawling due to unexpected exception.", e);
+        }
+    }
+
+    private void persistState(State state) {
+        //TODO: add state persistence
+        try {
+            if (this.context.isPrintScreen()) {
+                ScreenShotSaver.saveScreenShot(this.browser.getScreenShotBytes(), state.getIdentifier(), this.context.getOutputDirName());
+            }
+        } catch (PersistenceException e) {
+            logger.info(e.getMessage(), e);
+        }
+
+    }
+
+    private void handleClosing() {
+        try {
+            logger.info("Trying to close browser sessions.");
+            this.browser.quit();
+        } catch (BrowserException e) {
+            logger.info("Browser closing failed.", e);
         }
     }
 }

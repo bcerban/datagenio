@@ -15,4 +15,8 @@ public class BrowserException extends Exception {
     public BrowserException(Throwable e) {
         super(e);
     }
+
+    public BrowserException(String message, Throwable e) {
+        super(message, e);
+    }
 }
