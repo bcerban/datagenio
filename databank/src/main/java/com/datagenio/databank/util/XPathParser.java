@@ -1,4 +1,4 @@
-package com.datagenio.crawler.util;
+package com.datagenio.databank.util;
 
 import org.jsoup.nodes.Element;
 
@@ -12,8 +12,7 @@ public class XPathParser {
             String tag = current.tagName();
 
             if (hasSiblingsWithSameTag(current)) {
-                var index = current.elementSiblingIndex() + 1;
-                tag = tag + '[' + index + ']';
+                tag = tag + '[' + getIndexAmongSiblingsWithSameTag(current) + ']';
             }
 
             if (!xpath.isEmpty()) {
@@ -33,5 +32,13 @@ public class XPathParser {
      */
     private static boolean hasSiblingsWithSameTag(Element e) {
         return e.siblingElements().is(e.tagName());
+    }
+
+    private static int getIndexAmongSiblingsWithSameTag(Element e) {
+        int index = 1 + (int)e.siblingElements().stream()
+                .limit(e.elementSiblingIndex())
+                .filter((x) -> x.tagName().equals(e.tagName()))
+                .count();
+        return index;
     }
 }

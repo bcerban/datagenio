@@ -8,10 +8,7 @@ import com.datagenio.crawler.exception.UncrawlableStateException;
 import org.jsoup.nodes.Document;
 
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.Queue;
+import java.util.*;
 
 public class StateImpl implements State {
 
@@ -20,6 +17,8 @@ public class StateImpl implements State {
     private Collection<Eventable> eventables;
     private Document document;
     private URI uri;
+    private String handler;
+    private final String uid;
 
     public StateImpl(URI uri, Document view, EventableExtractor extractor) {
         this.uri = uri;
@@ -27,6 +26,12 @@ public class StateImpl implements State {
         this.eventables = extractor.extract(this, this.document);
         this.unfiredEventables = new LinkedList<>(this.eventables);
         this.executedEventables = new ArrayList<>();
+        this.uid = UUID.randomUUID().toString();
+    }
+
+    public StateImpl(URI uri, Document view, EventableExtractor extractor, String handler) {
+        this(uri, view, extractor);
+        this.handler = handler;
     }
 
     @Override
@@ -73,6 +78,11 @@ public class StateImpl implements State {
     }
 
     @Override
+    public String getIdentifier() {
+        return this.uid;
+    }
+
+    @Override
     public URI getUri() {
         return this.uri;
     }
@@ -93,11 +103,26 @@ public class StateImpl implements State {
     }
 
     @Override
+    public String getHandler() {
+        return handler;
+    }
+
+    @Override
+    public void setHandler(String handler) {
+        this.handler = handler;
+    }
+
+    @Override
     public boolean equals(Object obj) {
         if (this == obj) return true;
         if (obj == null || getClass() != obj.getClass()) return false;
 
         StateImpl s = (StateImpl) obj;
         return this.getEventables().equals(s.getEventables());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(this.getEventables());
     }
 }

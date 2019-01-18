@@ -9,11 +9,15 @@ import com.datagenio.crawler.exception.UncrawlableStateException;
 import org.jgrapht.GraphPath;
 import org.jgrapht.graph.DirectedPseudograph;
 import org.openqa.selenium.InvalidArgumentException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Collection;
 
 public class EventFlowGraphImpl implements EventFlowGraph {
+
+    private static Logger logger = LoggerFactory.getLogger(EventFlowGraphImpl.class);
 
     private DirectedPseudograph<State, Transitionable> graph;
     private Collection<Eventable> events;
@@ -66,23 +70,25 @@ public class EventFlowGraphImpl implements EventFlowGraph {
 
     @Override
     public boolean isNewState(State state) {
-        return this.getStates().contains(state);
+        return !this.getStates().contains(state);
     }
 
     @Override
     public void addState(State state) {
         this.graph.addVertex(state);
+        logger.debug("Adding state {} to graph.", state.getIdentifier());
     }
 
     @Override
     public void addStateAsCurrent(State state) {
-        this.graph.addVertex(state);
+        this.addState(state);
         this.setCurrentState(state);
     }
 
     @Override
     public void addTransition(Transitionable transition) {
         this.graph.addEdge(transition.getOrigin(), transition.getDestination(), transition);
+        this.addEvent(transition.getExecutedEvent().getEvent());
     }
 
     @Override
@@ -100,6 +106,6 @@ public class EventFlowGraphImpl implements EventFlowGraph {
 
     @Override
     public void setRoot(State state) {
-        this.root = root;
+        this.root = state;
     }
 }

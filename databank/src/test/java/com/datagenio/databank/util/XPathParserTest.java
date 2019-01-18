@@ -1,5 +1,6 @@
-package com.datagenio.crawler.util;
+package com.datagenio.databank.util;
 
+import com.datagenio.databank.util.XPathParser;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;

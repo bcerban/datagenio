@@ -1,11 +1,17 @@
 package com.datagenio.crawler.browser;
 
 import com.datagenio.crawler.api.Browser;
+import org.openqa.selenium.UnexpectedAlertBehaviour;
 import org.openqa.selenium.firefox.FirefoxDriver;
+import org.openqa.selenium.firefox.FirefoxOptions;
 
 public class BrowserFactory {
 
     public static Browser drivenByFirefox() {
-        return new DrivenBrowser(new FirefoxDriver());
+        // TODO: add all other required driver options
+        FirefoxOptions options = new FirefoxOptions();
+        options.setUnhandledPromptBehaviour(UnexpectedAlertBehaviour.ACCEPT);
+
+        return new DrivenBrowser(new FirefoxDriver(options));
     }
 }

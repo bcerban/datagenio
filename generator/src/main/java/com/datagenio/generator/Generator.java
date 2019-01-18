@@ -18,8 +18,8 @@ public class Generator {
         this.converter = converter;
     }
 
-    public WebFlowGraph generateWebModel(String rootUrl) {
-        EventFlowGraph eventGraph = this.crawler.crawl(rootUrl);
+    public WebFlowGraph generateWebModel() {
+        EventFlowGraph eventGraph = this.crawler.crawl();
         return this.converter.convert(eventGraph);
     }
 

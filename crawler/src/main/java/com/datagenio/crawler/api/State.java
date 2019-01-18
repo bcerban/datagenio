@@ -8,6 +8,8 @@ import java.util.Collection;
 
 public interface State {
 
+    String getIdentifier();
+    String getHandler();
     URI getUri();
     Document getDocument();
     Collection<Eventable> getEventables();
@@ -15,6 +17,7 @@ public interface State {
     Eventable getNextEventToFire() throws UncrawlableStateException;
     boolean isFinished();
 
+    void setHandler(String handler);
     void setUri(URI uri);
     void setDocument(Document document);
     void setEventables(Collection<Eventable> eventables);

@@ -5,13 +5,13 @@ import com.datagenio.crawler.exception.BrowserException;
 import com.datagenio.crawler.exception.UnsupportedEventTypeException;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mockito;
 import org.openqa.selenium.*;
 import org.openqa.selenium.firefox.FirefoxDriver;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
+import java.util.HashMap;
 
 import static org.mockito.Mockito.*;
 import static org.junit.Assert.*;
@@ -48,7 +48,7 @@ public class DrivenBrowserTest {
         screenShot.deleteOnExit();
 
         when(((TakesScreenshot)this.driver).getScreenshotAs(OutputType.FILE)).thenReturn(screenShot);
-        assertEquals(screenShot, this.browser.takeScreenShot());
+        assertEquals(screenShot, this.browser.getScreenShotFile());
     }
 
     @Test
@@ -139,7 +139,7 @@ public class DrivenBrowserTest {
         when(this.driver.findElement(any(By.class))).thenReturn(element);
         doThrow(new StaleElementReferenceException("")).when(element).submit();
 
-        this.browser.triggerEvent(event, null);
+        this.browser.triggerEvent(event, new HashMap<>());
 
         verify(event, times(2)).getIdentifier();
         verify(event, times(1)).getXpath();
@@ -155,7 +155,7 @@ public class DrivenBrowserTest {
         when(this.driver.findElement(any(By.class))).thenReturn(element);
         doThrow(new ElementNotInteractableException("")).when(element).submit();
 
-        this.browser.triggerEvent(event, null);
+        this.browser.triggerEvent(event, new HashMap<>());
 
         verify(event, times(2)).getIdentifier();
         verify(event, times(1)).getXpath();
@@ -171,7 +171,7 @@ public class DrivenBrowserTest {
         when(this.driver.findElement(any(By.class))).thenReturn(element);
         doThrow(new NoSuchElementException("")).when(element).submit();
 
-        this.browser.triggerEvent(event, null);
+        this.browser.triggerEvent(event, new HashMap<>());
 
         verify(event, times(2)).getIdentifier();
         verify(event, times(1)).getXpath();
@@ -187,11 +187,10 @@ public class DrivenBrowserTest {
         when(this.driver.findElement(any(By.class))).thenReturn(element);
         when(this.driver.getPageSource()).thenReturn("");
 
-        this.browser.triggerEvent(event, null);
+        this.browser.triggerEvent(event, new HashMap<>());
 
         verify(event, times(1)).getIdentifier();
         verify(event, times(1)).getXpath();
-        verify(element, times(1)).clear();
         verify(element, times(1)).submit();
         verify(this.driver, times(1)).getPageSource();
     }
@@ -205,7 +204,7 @@ public class DrivenBrowserTest {
         when(event.getEventType()).thenReturn(Eventable.EventType.hover);
         when(this.driver.findElement(any(By.class))).thenReturn(element);
 
-        this.browser.triggerEvent(event, null);
+        this.browser.triggerEvent(event, new HashMap<>());
 
         verify(event, times(1)).getIdentifier();
         verify(event, times(1)).getXpath();
