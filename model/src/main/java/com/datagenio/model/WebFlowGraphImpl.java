@@ -9,12 +9,18 @@ import java.util.Collection;
 
 public class WebFlowGraphImpl implements WebFlowGraph {
 
+    private WebState root;
     private Collection<WebState> states;
     private Collection<WebTransition> transitions;
 
     public WebFlowGraphImpl() {
         this.states = new ArrayList<>();
         this.transitions = new ArrayList<>();
+    }
+
+    @Override
+    public WebState getRoot() {
+        return root;
     }
 
     @Override
@@ -29,6 +35,11 @@ public class WebFlowGraphImpl implements WebFlowGraph {
     @Override
     public Collection<WebTransition> getTransitions() {
         return transitions;
+    }
+
+    @Override
+    public void setRoot(WebState root) {
+        this.root = root;
     }
 
     public void setTransitions(Collection<WebTransition> transitions) {

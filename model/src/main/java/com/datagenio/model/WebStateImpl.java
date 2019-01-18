@@ -8,19 +8,28 @@ import com.datagenio.model.request.AbstractUrlImpl;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Objects;
+import java.util.UUID;
 
 public class WebStateImpl implements WebState {
 
+    private final String identifier;
     private AbstractUrl url;
     private Collection<AbstractHttpRequest> requests;
 
     public WebStateImpl() {
         this.requests = new ArrayList<>();
+        this.identifier = UUID.randomUUID().toString();
     }
 
     public WebStateImpl(AbstractUrl url) {
         this.url = url;
         this.requests = new ArrayList<>();
+        this.identifier = UUID.randomUUID().toString();
+    }
+
+    @Override
+    public String getIdentifier() {
+        return identifier;
     }
 
     @Override

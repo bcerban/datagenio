@@ -23,6 +23,7 @@
         <module>databank</module>
         <module>generator</module>
         <module>model</module>
+        <module>storage</module>
     </modules>
 
     <build>
