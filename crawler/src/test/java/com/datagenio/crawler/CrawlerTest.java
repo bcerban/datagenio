@@ -113,7 +113,7 @@ public class CrawlerTest {
 
         doCallRealMethod().when(mockCrawler).relocateFrom(state);
         doReturn(graph).when(mockCrawler).getGraph();
-        doReturn(state).when(graph).findNearestUnfinishedStateFrom(state);
+        doReturn(state).when(graph).findNearestUnfinishedStateFrom(any());
         doReturn(path).when(graph).findPath(any(), any());
 
         assertTrue(mockCrawler.relocateFrom(state));

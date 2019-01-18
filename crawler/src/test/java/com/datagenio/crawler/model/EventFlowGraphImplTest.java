@@ -46,12 +46,14 @@ public class EventFlowGraphImplTest {
     public void testAddTransition() {
         State origin = mock(State.class);
         State destination = mock(State.class);
+        ExecutedEvent executedEvent = mock(ExecutedEvent.class);
         this.graph.addState(origin);
         this.graph.addState(destination);
 
         Transitionable transition = mock(Transitionable.class);
         when(transition.getOrigin()).thenReturn(origin);
         when(transition.getDestination()).thenReturn(destination);
+        when(transition.getExecutedEvent()).thenReturn(executedEvent);
 
         this.graph.addTransition(transition);
         assertTrue(this.graph.getTransitions().contains(transition));
