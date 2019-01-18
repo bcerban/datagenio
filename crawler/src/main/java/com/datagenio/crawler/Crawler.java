@@ -80,8 +80,7 @@ public class Crawler {
                     this.getGraph().addTransition(new Transition(current, newState, new ExecutedEvent(event, inputs)));
 
                 } catch (UnsupportedEventTypeException| InvalidArgumentException e) {
-                    logger.info("Removing event from crawl because its type is invalid. Event ID: {}", event.getIdentifier());
-//                    this.getGraph().getCurrentState().getEventables().remove(event);
+                    logger.info("Tried to crawl invalid event with ID '{}' from {}", event.getIdentifier(), current.getIdentifier());
                 } catch (OutOfBoundsException e) {
                     logger.info(e.getMessage());
                     this.browser.backOrClose();
