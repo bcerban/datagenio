@@ -1,14 +1,9 @@
 package com.datagenio.crawler;
 
 import com.datagenio.crawler.api.*;
-import com.datagenio.crawler.exception.BrowserException;
-import com.datagenio.crawler.exception.UncrawlablePathException;
-import com.datagenio.crawler.exception.UncrawlableStateException;
-import com.datagenio.crawler.exception.UnsupportedEventTypeException;
+import com.datagenio.crawler.exception.*;
 import com.datagenio.databank.api.InputBuilder;
 import org.jgrapht.GraphPath;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -18,14 +13,14 @@ import java.util.List;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
-public class CrawlerTest {
+public class SimpleCrawlerTest {
 
     private static String OUTPUT_DIR = "/tmp/test";
     private static String ROOT_URL = "http://test.com";
 
     private Browser browser;
     private CrawlContext context;
-    private Crawler crawler;
+    private SimpleCrawler crawler;
     private InputBuilder inputBuilder;
 
 
@@ -34,7 +29,7 @@ public class CrawlerTest {
         this.browser = mock(Browser.class);
         this.inputBuilder = mock(InputBuilder.class);
         this.context = new CrawlContext(ROOT_URL, OUTPUT_DIR);
-        this.crawler = new Crawler(this.context, this.browser, this.inputBuilder);
+        this.crawler = new SimpleCrawler(this.context, this.browser, this.inputBuilder);
     }
 
     @Test
@@ -56,7 +51,7 @@ public class CrawlerTest {
 
     @Test
     public void testGetLogger() {
-        assertNotNull(Crawler.getLogger());
+        assertNotNull(SimpleCrawler.getLogger());
     }
 
 //    @Test
@@ -79,7 +74,7 @@ public class CrawlerTest {
     public void testRelocateNoNearestState() throws UncrawlableStateException {
         State state = mock(State.class);
         EventFlowGraph graph = mock(EventFlowGraph.class);
-        Crawler mockCrawler = mock(Crawler.class);
+        SimpleCrawler mockCrawler = mock(SimpleCrawler.class);
 
         doCallRealMethod().when(mockCrawler).relocateFrom(state);
         doReturn(graph).when(mockCrawler).getGraph();
@@ -93,7 +88,7 @@ public class CrawlerTest {
         State state = mock(State.class);
         EventFlowGraph graph = mock(EventFlowGraph.class);
         GraphPath path = mock(GraphPath.class);
-        Crawler mockCrawler = mock(Crawler.class);
+        SimpleCrawler mockCrawler = mock(SimpleCrawler.class);
 
         doCallRealMethod().when(mockCrawler).relocateFrom(state);
         doReturn(graph).when(mockCrawler).getGraph();
@@ -109,7 +104,7 @@ public class CrawlerTest {
         State state = mock(State.class);
         EventFlowGraph graph = mock(EventFlowGraph.class);
         GraphPath path = mock(GraphPath.class);
-        Crawler mockCrawler = mock(Crawler.class);
+        SimpleCrawler mockCrawler = mock(SimpleCrawler.class);
 
         doCallRealMethod().when(mockCrawler).relocateFrom(state);
         doReturn(graph).when(mockCrawler).getGraph();
@@ -135,7 +130,7 @@ public class CrawlerTest {
     }
 
     @Test(expected = UncrawlablePathException.class)
-    public void testWalkUnsupportedType() throws UncrawlablePathException, BrowserException, UnsupportedEventTypeException {
+    public void testWalkUnsupportedType() throws UncrawlablePathException, BrowserException, UnsupportedEventTypeException, EventTriggerException {
         URI uri = URI.create(ROOT_URL);
         State first = mock(State.class);
         Transitionable firstToSecond = mock(Transitionable.class);

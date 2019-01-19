@@ -36,15 +36,21 @@
 
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>databank</artifactId>
+            <artifactId>crawler-api</artifactId>
             <version>${project.version}</version>
         </dependency>
 
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>model</artifactId>
+            <artifactId>databank</artifactId>
             <version>${project.version}</version>
         </dependency>
+
+        <!--<dependency>-->
+            <!--<groupId>${project.groupId}</groupId>-->
+            <!--<artifactId>model</artifactId>-->
+            <!--<version>${project.version}</version>-->
+        <!--</dependency>-->
 
         <dependency>
             <groupId>org.apache.commons</groupId>

@@ -14,7 +14,7 @@
     <artifactId>model</artifactId>
     <packaging>jar</packaging>
 
-    <name>Model</name>
+    <name>Datagenio Model</name>
     <description>Model definition for the Datagenio application</description>
 
     <build>

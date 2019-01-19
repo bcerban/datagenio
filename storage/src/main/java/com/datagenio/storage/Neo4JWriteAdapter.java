@@ -1,5 +1,8 @@
 package com.datagenio.storage;
 
+import com.datagenio.crawler.api.EventFlowGraph;
+import com.datagenio.crawler.api.State;
+import com.datagenio.crawler.api.Transitionable;
 import com.datagenio.model.api.WebFlowGraph;
 import com.datagenio.model.api.WebState;
 import com.datagenio.model.api.WebTransition;
@@ -28,15 +31,32 @@ public class Neo4JWriteAdapter implements WriteAdapter {
 
     @Override
     public void save(WebFlowGraph graph) {
-        connection.connectTo(graph.getRoot().getUrl().toString());
-        addStates(graph.getStates());
-        addTransitions(graph.getTransitions());
+        connection.connectToWebFlowGraph(graph.getRoot().getUrl().toString());
+        addWebStates(graph.getStates());
+        addWebTransitions(graph.getTransitions());
     }
 
-    private void addStates(Collection<WebState> states) {
+    @Override
+    public void save(EventFlowGraph graph) {
+        connection.connectToEventGraph(graph.getRoot().getUri().toString());
+        addEventStates(graph.getStates());
+        addEventTransitions(graph.getTransitions());
+    }
+
+    private void addWebStates(Collection<WebState> states) {
         states.forEach((state) -> {
             try {
                 connection.addNode(Label.label(Labels.WEB_STATE), buildStateProperties(state));
+            } catch (StorageException e) {
+                logger.info("Failed to save state: " + e.getMessage(), e);
+            }
+        });
+    }
+
+    private void addEventStates(Collection<State> states) {
+        states.forEach((state) -> {
+            try {
+                connection.addNode(Label.label(Labels.EVENT_STATE), buildStateProperties(state));
             } catch (StorageException e) {
                 logger.info("Failed to save state: " + e.getMessage(), e);
             }
@@ -49,12 +69,20 @@ public class Neo4JWriteAdapter implements WriteAdapter {
         return properties;
     }
 
-    private void addTransitions(Collection<WebTransition> transitions) {
+    private Map<String, Object> buildStateProperties(State state) {
+        Map<String, Object> properties = new HashMap<>();
+        properties.put(Properties.IDENTIFICATION, state.getIdentifier());
+        return properties;
+    }
+
+    private void addWebTransitions(Collection<WebTransition> transitions) {
         transitions.forEach((transition) -> {
             try {
-                Node from = connection.findStateNode(transition.getOrigin());
-                Node to = connection.findStateNode(transition.getDestination());
-                connection.addEdge(from, to, Relationships.WEB_TRANSITION, buildTransitionProperties(transition));
+                connection.addEdge(
+                        findWebNode(transition.getOrigin()),
+                        findWebNode(transition.getDestination()),
+                        Relationships.WEB_TRANSITION, buildTransitionProperties(transition)
+                );
             } catch (StorageException e) {
                 logger.info(
                         "Transition between {} and {} not added due to unexpected exception.",
@@ -65,10 +93,47 @@ public class Neo4JWriteAdapter implements WriteAdapter {
         });
     }
 
+    private void addEventTransitions(Collection<Transitionable> transitions) {
+        transitions.forEach((transition) -> {
+            try {
+                connection.addEdge(
+                        findEventNode(transition.getOrigin()),
+                        findEventNode(transition.getDestination()),
+                        Relationships.EVENT_TRANSITION, buildTransitionProperties(transition)
+                );
+            } catch (StorageException e) {
+                logger.info(
+                        "Transition between {} and {} not added due to unexpected exception.",
+                        transition.getOrigin().getIdentifier(),
+                        transition.getDestination().getIdentifier()
+                );
+            }
+        });
+    }
+
+    private Node findWebNode(WebState state) throws StorageException {
+        Map<String, Object> properties = new HashMap<>();
+        properties.put(Properties.IDENTIFICATION, state.getIdentifier());
+        return connection.findWebNode(properties);
+    }
+
+    private Node findEventNode(State state) throws StorageException {
+        Map<String, Object> properties = new HashMap<>();
+        properties.put(Properties.IDENTIFICATION, state.getIdentifier());
+        return connection.findEventNode(properties);
+    }
+
     private Map<String, Object> buildTransitionProperties(WebTransition transition) {
         Map<String, Object> properties = new HashMap<>();
         properties.put(Properties.ABSTRACT_REQUESTS, transition.getAbstractRequests());
         properties.put(Properties.CONCRETE_REQUESTS, transition.getConcreteRequests());
+        return properties;
+    }
+
+    private Map<String, Object> buildTransitionProperties(Transitionable transition) {
+        Map<String, Object> properties = new HashMap<>();
+        properties.put(Properties.EXECUTED_EVENT, transition.getExecutedEvent());
+        properties.put(Properties.CONCRETE_REQUESTS, transition.getRequests());
         return properties;
     }
 

@@ -47,7 +47,7 @@
 
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>crawler</artifactId>
+            <artifactId>crawler-api</artifactId>
             <version>${project.version}</version>
         </dependency>
 

@@ -7,4 +7,7 @@ public interface Properties {
     // WebTransition Properties
     String ABSTRACT_REQUESTS = "abstract_requests";
     String CONCRETE_REQUESTS = "concrete_requests";
+
+    // Event Transition properties
+    String EXECUTED_EVENT = "executed_event";
 }

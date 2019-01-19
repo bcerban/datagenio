@@ -1,12 +1,14 @@
 package com.datagenio.cli;
 
 import com.datagenio.crawler.CrawlContext;
-import com.datagenio.crawler.Crawler;
+import com.datagenio.crawler.SimpleCrawler;
 import com.datagenio.crawler.api.EventFlowGraph;
 import com.datagenio.crawler.browser.BrowserFactory;
-import com.datagenio.crawler.util.GraphConverterImpl;
 import com.datagenio.databank.InputBuilderFactory;
 import com.datagenio.generator.Generator;
+import com.datagenio.generator.GraphConverterImpl;
+import com.datagenio.storage.Neo4JReadAdapter;
+import com.datagenio.storage.Neo4JWriteAdapter;
 import com.google.common.base.Charsets;
 import com.google.common.io.Resources;
 import org.apache.commons.cli.CommandLine;
@@ -78,18 +80,21 @@ public class CrawlRunner {
             return;
         }
 
+        System.out.println("Preparing dependencies...");
+        var crawlContext = new CrawlContext(url, directory, isVerbose(arguments), true);
+        var crawler = new SimpleCrawler(crawlContext, BrowserFactory.drivenByFirefox(), InputBuilderFactory.get());
+        var readAdapter = new Neo4JReadAdapter();
+        var writeAdapter = new Neo4JWriteAdapter();
+
         // Begin modeling site
         System.out.println("Beginning modeling process...");
 
-        var crawlContext = new CrawlContext(url, directory, isVerbose(arguments), true);
-        var crawler = new Crawler(crawlContext, BrowserFactory.drivenByFirefox(), InputBuilderFactory.get());
+        var generator = new Generator(crawler, new GraphConverterImpl(), readAdapter, writeAdapter);
+        EventFlowGraph graph = generator.crawlSite();
 
-        EventFlowGraph graph = crawler.crawl();
+//        EventFlowGraph graph = crawler.crawl();
         System.out.println("Finished crawling site.");
         System.out.println("Found " + graph.getStates().size() + " states, and " + graph.getTransitions().size() + " transitions.");
-
-//        var generator = new Generator(crawler, new GraphConverterImpl());
-//        generator.generateWebModel();
 
         System.out.println("Finished modeling site.");
     }

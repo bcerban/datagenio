@@ -1,9 +1,9 @@
 package com.datagenio.crawler.api;
 
 import com.datagenio.crawler.exception.BrowserException;
+import com.datagenio.crawler.exception.EventTriggerException;
 import com.datagenio.crawler.exception.UnsupportedEventTypeException;
 import org.jsoup.nodes.Document;
-import org.openqa.selenium.InvalidArgumentException;
 
 import java.io.File;
 import java.net.URI;
@@ -21,7 +21,7 @@ public interface Browser {
     void pause() throws BrowserException;
 
     State getCurrentBrowserState();
-    Document triggerEvent(Eventable event, Map<String, String> inputs) throws UnsupportedEventTypeException, InvalidArgumentException;
+    Document triggerEvent(Eventable event, Map<String, String> inputs) throws UnsupportedEventTypeException, EventTriggerException;
     Document getDOM();
     Object executeJavaScript(String code) throws BrowserException;
     File getScreenShotFile();

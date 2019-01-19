@@ -17,9 +17,9 @@ public interface EventFlowGraph {
     boolean isNewState(State state);
 
     void addState(State state);
-    void addStateAsCurrent(State state);
+    void addStateAsCurrent(State state) throws UncrawlableStateException;
     void addTransition(Transitionable transition);
     void addEvent(Eventable event);
-    void setCurrentState(State state);
+    void setCurrentState(State state) throws UncrawlableStateException;
     void setRoot(State state);
 }

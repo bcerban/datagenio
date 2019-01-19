@@ -8,7 +8,6 @@ import com.datagenio.crawler.api.Transitionable;
 import com.datagenio.crawler.exception.UncrawlableStateException;
 import org.jgrapht.GraphPath;
 import org.jgrapht.graph.DirectedPseudograph;
-import org.openqa.selenium.InvalidArgumentException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -80,7 +79,7 @@ public class EventFlowGraphImpl implements EventFlowGraph {
     }
 
     @Override
-    public void addStateAsCurrent(State state) {
+    public void addStateAsCurrent(State state) throws UncrawlableStateException {
         this.addState(state);
         this.setCurrentState(state);
     }
@@ -97,9 +96,9 @@ public class EventFlowGraphImpl implements EventFlowGraph {
     }
 
     @Override
-    public void setCurrentState(State state) {
+    public void setCurrentState(State state) throws UncrawlableStateException {
         if (!this.graph.containsVertex(state)) {
-            throw new InvalidArgumentException("Selected state does not belong to graph!");
+            throw new UncrawlableStateException("Selected state does not belong to graph!");
         }
         this.current = state;
     }
