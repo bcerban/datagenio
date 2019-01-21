@@ -4,34 +4,29 @@ import com.datagenio.crawler.api.*;
 import com.datagenio.crawler.exception.*;
 import com.datagenio.crawler.model.EventFlowGraphImpl;
 import com.datagenio.crawler.model.ExecutedEvent;
-import com.datagenio.crawler.model.StateImpl;
 import com.datagenio.crawler.model.Transition;
-import com.datagenio.crawler.util.EventExtractorFactory;
 import com.datagenio.crawler.util.ScreenShotSaver;
 import com.datagenio.crawler.util.SiteBoundChecker;
 import com.datagenio.databank.api.InputBuilder;
 import org.jgrapht.GraphPath;
-import org.openqa.selenium.InvalidArgumentException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.URI;
 import java.util.Map;
 
-public class Crawler {
+public class SimpleCrawler implements com.datagenio.crawler.api.Crawler {
 
-    private static Logger logger = LoggerFactory.getLogger(Crawler.class);
+    private static Logger logger = LoggerFactory.getLogger(SimpleCrawler.class);
 
     private CrawlContext context;
     private Browser browser;
-    private EventableExtractor extractor;
     private EventFlowGraph graph;
     private InputBuilder inputBuilder;
 
-    public Crawler(CrawlContext context, Browser browser, InputBuilder inputBuilder) {
+    public SimpleCrawler(CrawlContext context, Browser browser, InputBuilder inputBuilder) {
         this.context = context;
         this.browser = browser;
-        this.extractor = EventExtractorFactory.get();
         this.inputBuilder = inputBuilder;
     }
 
@@ -73,13 +68,16 @@ public class Crawler {
 
                     if (this.getGraph().isNewState(newState)) {
                         this.getGraph().addStateAsCurrent(newState);
-                        this.persistState(newState);
+                        this.saveStateScreenShot(newState);
+                    } else {
+                        // TODO: Find saved state to set in transition
+                        newState = this.getGraph().find(newState);
                     }
 
                     // Transition added regardless, as this is a multigraph
                     this.getGraph().addTransition(new Transition(current, newState, new ExecutedEvent(event, inputs)));
 
-                } catch (UnsupportedEventTypeException| InvalidArgumentException e) {
+                } catch (UnsupportedEventTypeException| EventTriggerException e) {
                     logger.info("Tried to crawl invalid event with ID '{}' from {}", event.getIdentifier(), current.getIdentifier());
                 } catch (OutOfBoundsException e) {
                     logger.info(e.getMessage());
@@ -103,7 +101,7 @@ public class Crawler {
         return this.getGraph();
     }
 
-    private State executeEvent(Eventable event, Map<String, String> inputs) throws UnsupportedEventTypeException, OutOfBoundsException {
+    private State executeEvent(Eventable event, Map<String, String> inputs) throws UnsupportedEventTypeException, OutOfBoundsException, EventTriggerException {
         this.browser.triggerEvent(event, inputs);
         State newState = this.browser.getCurrentBrowserState();
 
@@ -120,7 +118,7 @@ public class Crawler {
             State initial = this.browser.getCurrentBrowserState();
             this.getGraph().addStateAsCurrent(initial);
             this.getGraph().setRoot(initial);
-            this.persistState(initial);
+            this.saveStateScreenShot(initial);
         } catch (BrowserException e) {
             logger.debug("Exception happened while trying to initialize EventFlowGraph. Error: {}", e.getMessage());
             throw new UncrawlableStateException(e);
@@ -165,21 +163,25 @@ public class Crawler {
 
                 previous = current;
             }
-        } catch (BrowserException|UnsupportedEventTypeException e) {
+        } catch (BrowserException|UnsupportedEventTypeException|EventTriggerException|UncrawlableStateException e) {
             throw new UncrawlablePathException("Stopped path crawling due to unexpected exception.", e);
         }
     }
 
-    private void persistState(State state) {
-        //TODO: add state persistence
+    private void saveStateScreenShot(State state) {
         try {
             if (this.context.isPrintScreen()) {
-                ScreenShotSaver.saveScreenShot(this.browser.getScreenShotBytes(), state.getIdentifier(), this.context.getOutputDirName());
+                state.setScreenShot(
+                    ScreenShotSaver.saveScreenShot(
+                            this.browser.getScreenShotBytes(),
+                            state.getIdentifier(),
+                            this.context.getOutputDirName()
+                    )
+                );
             }
         } catch (PersistenceException e) {
             logger.info(e.getMessage(), e);
         }
-
     }
 
     private void handleClosing() {

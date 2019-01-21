@@ -5,6 +5,7 @@ import com.datagenio.crawler.api.Eventable;
 import com.datagenio.crawler.api.EventableExtractor;
 import com.datagenio.crawler.api.State;
 import com.datagenio.crawler.exception.BrowserException;
+import com.datagenio.crawler.exception.EventTriggerException;
 import com.datagenio.crawler.exception.UnsupportedEventTypeException;
 import com.datagenio.crawler.model.StateImpl;
 import com.datagenio.crawler.util.EventExtractorFactory;
@@ -188,7 +189,7 @@ public class DrivenBrowser implements Browser {
     }
 
     @Override
-    public Document triggerEvent(Eventable event, Map<String, String> inputs) throws UnsupportedEventTypeException, InvalidArgumentException {
+    public Document triggerEvent(Eventable event, Map<String, String> inputs) throws UnsupportedEventTypeException, EventTriggerException {
         logger.debug("Attempting to trigger event {}...", event.getIdentifier());
         WebElement element = null;
 
@@ -199,13 +200,13 @@ public class DrivenBrowser implements Browser {
 
         if (element == null) {
             logger.debug("Element not found for event {} in {}", event.getIdentifier(), this.driver.getCurrentUrl());
-            throw new InvalidArgumentException("Selected event is not present in current interface.");
+            throw new EventTriggerException("Selected event is not present in current interface.");
         }
 
         return handleEventByType(event, element, inputs);
     }
 
-    private Document handleEventByType(Eventable event, WebElement element, Map<String, String> inputs) throws UnsupportedEventTypeException {
+    private Document handleEventByType(Eventable event, WebElement element, Map<String, String> inputs) throws UnsupportedEventTypeException, EventTriggerException {
         Eventable.EventType type = event.getEventType();
         switch (type) {
             case click:
@@ -217,7 +218,7 @@ public class DrivenBrowser implements Browser {
         }
     }
 
-    public Document triggerClickableEvent(Eventable event, WebElement element) {
+    public Document triggerClickableEvent(Eventable event, WebElement element) throws EventTriggerException {
         try {
             int handleCount = this.driver.getWindowHandles().size();
 
@@ -232,13 +233,13 @@ public class DrivenBrowser implements Browser {
                     "Element for event {} is unavailable in {}. Error: {}",
                     event.getIdentifier(), this.driver.getCurrentUrl(), e.getMessage()
             );
-            throw new InvalidArgumentException("Selected event is unavailable.", e);
+            throw new EventTriggerException("Selected event is unavailable.", e);
         }
 
         return getDOM();
     }
 
-    public Document triggerSubmitEvent(Eventable event, WebElement element, Map<String, String> inputs) {
+    public Document triggerSubmitEvent(Eventable event, WebElement element, Map<String, String> inputs) throws EventTriggerException {
         try {
             this.fillElementInputs(element, inputs);
             element.submit();
@@ -247,7 +248,7 @@ public class DrivenBrowser implements Browser {
                     "Element for event {} is unavailable in {}. Error: {}",
                     event.getIdentifier(), this.driver.getCurrentUrl(), e.getMessage()
             );
-            throw new InvalidArgumentException("Selected event is stale.", e);
+            throw new EventTriggerException("Selected event is stale.", e);
         }
 
         return getDOM();

@@ -8,12 +8,12 @@ import com.datagenio.crawler.api.Transitionable;
 import com.datagenio.crawler.exception.UncrawlableStateException;
 import org.jgrapht.GraphPath;
 import org.jgrapht.graph.DirectedPseudograph;
-import org.openqa.selenium.InvalidArgumentException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.function.Predicate;
 
 public class EventFlowGraphImpl implements EventFlowGraph {
 
@@ -55,6 +55,16 @@ public class EventFlowGraphImpl implements EventFlowGraph {
     }
 
     @Override
+    public State find(State state) {
+        return getStates().stream().filter(new Predicate<State>() {
+            @Override
+            public boolean test(State candidate) {
+                return candidate.equals(state);
+            }
+        }).findFirst().get();
+    }
+
+    @Override
     public State findNearestUnfinishedStateFrom(State state) throws UncrawlableStateException {
         if (state == null || !this.getStates().contains(state)) {
             throw new UncrawlableStateException("Trying to navigate from nonexistent state.");
@@ -80,7 +90,7 @@ public class EventFlowGraphImpl implements EventFlowGraph {
     }
 
     @Override
-    public void addStateAsCurrent(State state) {
+    public void addStateAsCurrent(State state) throws UncrawlableStateException {
         this.addState(state);
         this.setCurrentState(state);
     }
@@ -97,9 +107,9 @@ public class EventFlowGraphImpl implements EventFlowGraph {
     }
 
     @Override
-    public void setCurrentState(State state) {
+    public void setCurrentState(State state) throws UncrawlableStateException {
         if (!this.graph.containsVertex(state)) {
-            throw new InvalidArgumentException("Selected state does not belong to graph!");
+            throw new UncrawlableStateException("Selected state does not belong to graph!");
         }
         this.current = state;
     }

@@ -4,6 +4,7 @@ import java.util.Collection;
 
 public interface WebState {
 
+    String getIdentifier();
     AbstractUrl getUrl();
     Collection<AbstractHttpRequest> getRequests();
 

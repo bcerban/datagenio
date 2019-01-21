@@ -2,6 +2,7 @@ package com.datagenio.crawler.browser;
 
 import com.datagenio.crawler.api.Eventable;
 import com.datagenio.crawler.exception.BrowserException;
+import com.datagenio.crawler.exception.EventTriggerException;
 import com.datagenio.crawler.exception.UnsupportedEventTypeException;
 import org.junit.Before;
 import org.junit.Test;
@@ -68,8 +69,8 @@ public class DrivenBrowserTest {
         verify(this.navigation, times(1)).back();
     }
 
-    @Test(expected = InvalidArgumentException.class)
-    public void testTriggerEventElementNotFound() throws UnsupportedEventTypeException {
+    @Test(expected = EventTriggerException.class)
+    public void testTriggerEventElementNotFound() throws UnsupportedEventTypeException, EventTriggerException {
         Eventable event = mock(Eventable.class);
 
         when(event.getXpath()).thenReturn("/html/body/span[1]/button");
@@ -80,8 +81,8 @@ public class DrivenBrowserTest {
         verify(event, times(1)).getXpath();
     }
 
-    @Test(expected = InvalidArgumentException.class)
-    public void testTriggerClickableEventStale() throws UnsupportedEventTypeException {
+    @Test(expected = EventTriggerException.class)
+    public void testTriggerClickableEventStale() throws UnsupportedEventTypeException, EventTriggerException {
         Eventable event = mock(Eventable.class);
         WebElement element = mock(WebElement.class);
 
@@ -96,8 +97,8 @@ public class DrivenBrowserTest {
         verify(event, times(1)).getXpath();
     }
 
-    @Test(expected = InvalidArgumentException.class)
-    public void testTriggerClickableEventNotInteractable() throws UnsupportedEventTypeException {
+    @Test(expected = EventTriggerException.class)
+    public void testTriggerClickableEventNotInteractable() throws UnsupportedEventTypeException, EventTriggerException {
         Eventable event = mock(Eventable.class);
         WebElement element = mock(WebElement.class);
 
@@ -113,7 +114,7 @@ public class DrivenBrowserTest {
     }
 
     @Test
-    public void testTriggerClickableEvent() throws UnsupportedEventTypeException {
+    public void testTriggerClickableEvent() throws UnsupportedEventTypeException, EventTriggerException {
         Eventable event = mock(Eventable.class);
         WebElement element = mock(WebElement.class);
 
@@ -129,8 +130,8 @@ public class DrivenBrowserTest {
         verify(this.driver, times(1)).getPageSource();
     }
 
-    @Test(expected = InvalidArgumentException.class)
-    public void testTriggerSubmitEventStale() throws UnsupportedEventTypeException {
+    @Test(expected = EventTriggerException.class)
+    public void testTriggerSubmitEventStale() throws UnsupportedEventTypeException, EventTriggerException {
         Eventable event = mock(Eventable.class);
         WebElement element = mock(WebElement.class);
 
@@ -145,8 +146,8 @@ public class DrivenBrowserTest {
         verify(event, times(1)).getXpath();
     }
 
-    @Test(expected = InvalidArgumentException.class)
-    public void testTriggerSubmitEventNotInteractable() throws UnsupportedEventTypeException {
+    @Test(expected = EventTriggerException.class)
+    public void testTriggerSubmitEventNotInteractable() throws UnsupportedEventTypeException, EventTriggerException {
         Eventable event = mock(Eventable.class);
         WebElement element = mock(WebElement.class);
 
@@ -161,8 +162,8 @@ public class DrivenBrowserTest {
         verify(event, times(1)).getXpath();
     }
 
-    @Test(expected = InvalidArgumentException.class)
-    public void testTriggerSubmitEventNoSuchElement() throws UnsupportedEventTypeException {
+    @Test(expected = EventTriggerException.class)
+    public void testTriggerSubmitEventNoSuchElement() throws UnsupportedEventTypeException, EventTriggerException {
         Eventable event = mock(Eventable.class);
         WebElement element = mock(WebElement.class);
 
@@ -178,7 +179,7 @@ public class DrivenBrowserTest {
     }
 
     @Test
-    public void testTriggerSubmitEvent() throws UnsupportedEventTypeException {
+    public void testTriggerSubmitEvent() throws UnsupportedEventTypeException, EventTriggerException {
         Eventable event = mock(Eventable.class);
         WebElement element = mock(WebElement.class);
 
@@ -196,7 +197,7 @@ public class DrivenBrowserTest {
     }
 
     @Test(expected = UnsupportedEventTypeException.class)
-    public void testTriggerEventUnsupportedType() throws UnsupportedEventTypeException {
+    public void testTriggerEventUnsupportedType() throws UnsupportedEventTypeException, EventTriggerException {
         Eventable event = mock(Eventable.class);
         WebElement element = mock(WebElement.class);
 

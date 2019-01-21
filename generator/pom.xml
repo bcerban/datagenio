@@ -25,11 +25,21 @@
                     <artifactId>maven-surefire-plugin</artifactId>
                     <configuration>
                         <testFailureIgnore>true</testFailureIgnore>
-                        <argLine>-Djdk.net.URLClassPath.disableClassPathURLCheck=true</argLine>
+                        <argLine>-Djdk.net.URLClassPath.disableClassPathURLCheck=true --illegal-access=permit</argLine>
                     </configuration>
                 </plugin>
             </plugins>
         </pluginManagement>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>11</source>
+                    <target>11</target>
+                </configuration>
+            </plugin>
+        </plugins>
     </build>
 
     <dependencies>
@@ -47,15 +57,14 @@
 
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>crawler</artifactId>
+            <artifactId>crawler-api</artifactId>
             <version>${project.version}</version>
         </dependency>
 
         <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-lang3</artifactId>
-            <version>3.3.2</version>
-            <scope>test</scope>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>storage</artifactId>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
 </project>

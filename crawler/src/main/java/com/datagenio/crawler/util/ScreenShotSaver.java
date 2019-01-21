@@ -14,12 +14,13 @@ public class ScreenShotSaver {
     public static String SCREEN_SHOTS_DIRECTORY = "screenshots";
     public static String JPG_SUFFIX = "jpg";
 
-    public static void saveScreenShot(byte[] screenShot, String name, String outputDirectoryName) throws PersistenceException {
+    public static File saveScreenShot(byte[] screenShot, String name, String outputDirectoryName) throws PersistenceException {
         File outputDirectory = getValidOutputDirectory(outputDirectoryName);
         File screenShotFile = new File(outputDirectory, name + "." + JPG_SUFFIX);
 
         try {
             writeScreenShotImage(screenShot, screenShotFile);
+            return screenShotFile;
         } catch (IOException e) {
             throw new PersistenceException("Unexpected exception while trying to save image " + screenShotFile.getName(), e);
         }

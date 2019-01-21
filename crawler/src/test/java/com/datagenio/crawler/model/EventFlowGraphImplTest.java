@@ -4,6 +4,7 @@ import com.datagenio.crawler.api.EventFlowGraph;
 import com.datagenio.crawler.api.Eventable;
 import com.datagenio.crawler.api.State;
 import com.datagenio.crawler.api.Transitionable;
+import com.datagenio.crawler.exception.UncrawlableStateException;
 import org.junit.Before;
 import org.junit.Test;
 import org.openqa.selenium.InvalidArgumentException;
@@ -71,15 +72,15 @@ public class EventFlowGraphImplTest {
         assertNull(this.graph.getCurrentState());
     }
 
-    @Test(expected = InvalidArgumentException.class)
-    public void testSetCurrentStateNotInGraph() {
+    @Test(expected = UncrawlableStateException.class)
+    public void testSetCurrentStateNotInGraph() throws UncrawlableStateException {
         State state = mock(State.class);
         this.graph.setCurrentState(state);
         assertEquals(state, this.graph.getCurrentState());
     }
 
     @Test
-    public void testSetCurrentState() {
+    public void testSetCurrentState() throws UncrawlableStateException {
         State state = mock(State.class);
         this.graph.addState(state);
         this.graph.setCurrentState(state);
@@ -87,7 +88,7 @@ public class EventFlowGraphImplTest {
     }
 
     @Test
-    public void testAddStateAsCurrent() {
+    public void testAddStateAsCurrent() throws UncrawlableStateException {
         State state = mock(State.class);
         this.graph.addStateAsCurrent(state);
         assertEquals(state, this.graph.getCurrentState());
