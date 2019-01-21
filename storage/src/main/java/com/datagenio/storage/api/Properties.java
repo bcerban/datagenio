@@ -1,8 +1,9 @@
 package com.datagenio.storage.api;
 
 public interface Properties {
-    // WebState Properties
+    // State Properties
     String IDENTIFICATION = "id";
+    String SCREEN_SHOT_PATH = "screen_shot";
 
     // WebTransition Properties
     String ABSTRACT_REQUESTS = "abstract_requests";

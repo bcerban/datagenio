@@ -75,6 +75,11 @@ public class Neo4JWriteAdapter implements WriteAdapter {
     private Map<String, Object> buildStateProperties(State state) {
         Map<String, Object> properties = new HashMap<>();
         properties.put(Properties.IDENTIFICATION, state.getIdentifier());
+
+        if (state.getScreenShot() != null) {
+            properties.put(Properties.SCREEN_SHOT_PATH, state.getScreenShot().getAbsolutePath());
+        }
+
         return properties;
     }
 

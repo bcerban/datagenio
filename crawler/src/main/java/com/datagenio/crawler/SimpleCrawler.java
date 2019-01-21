@@ -68,8 +68,7 @@ public class SimpleCrawler implements com.datagenio.crawler.api.Crawler {
 
                     if (this.getGraph().isNewState(newState)) {
                         this.getGraph().addStateAsCurrent(newState);
-                        this.persistState(newState);
-                        this.getGraph().addTransition(new Transition(current, newState, new ExecutedEvent(event, inputs)));
+                        this.saveStateScreenShot(newState);
                     } else {
                         // TODO: Find saved state to set in transition
                         newState = this.getGraph().find(newState);
@@ -119,7 +118,7 @@ public class SimpleCrawler implements com.datagenio.crawler.api.Crawler {
             State initial = this.browser.getCurrentBrowserState();
             this.getGraph().addStateAsCurrent(initial);
             this.getGraph().setRoot(initial);
-            this.persistState(initial);
+            this.saveStateScreenShot(initial);
         } catch (BrowserException e) {
             logger.debug("Exception happened while trying to initialize EventFlowGraph. Error: {}", e.getMessage());
             throw new UncrawlableStateException(e);
@@ -169,16 +168,20 @@ public class SimpleCrawler implements com.datagenio.crawler.api.Crawler {
         }
     }
 
-    private void persistState(State state) {
-        //TODO: add state persistence
+    private void saveStateScreenShot(State state) {
         try {
             if (this.context.isPrintScreen()) {
-                ScreenShotSaver.saveScreenShot(this.browser.getScreenShotBytes(), state.getIdentifier(), this.context.getOutputDirName());
+                state.setScreenShot(
+                    ScreenShotSaver.saveScreenShot(
+                            this.browser.getScreenShotBytes(),
+                            state.getIdentifier(),
+                            this.context.getOutputDirName()
+                    )
+                );
             }
         } catch (PersistenceException e) {
             logger.info(e.getMessage(), e);
         }
-
     }
 
     private void handleClosing() {

@@ -7,6 +7,7 @@ import com.datagenio.crawler.api.State;
 import com.datagenio.crawler.exception.UncrawlableStateException;
 import org.jsoup.nodes.Document;
 
+import java.io.File;
 import java.net.URI;
 import java.util.*;
 
@@ -18,6 +19,7 @@ public class StateImpl implements State {
     private Document document;
     private URI uri;
     private String handler;
+    private File screenShot;
     private final String uid;
 
     public StateImpl(URI uri, Document view, EventableExtractor extractor) {
@@ -67,6 +69,11 @@ public class StateImpl implements State {
     }
 
     @Override
+    public File getScreenShot() {
+        return screenShot;
+    }
+
+    @Override
     public void setEventables(Collection<Eventable> eventables) {
         this.eventables = eventables;
     }
@@ -75,6 +82,11 @@ public class StateImpl implements State {
     public void markEventAsFired(ExecutedEventable event) {
         this.unfiredEventables.remove(event.getEvent());
         this.executedEventables.add(event);
+    }
+
+    @Override
+    public void setScreenShot(File screenshot) {
+        this.screenShot = screenshot;
     }
 
     @Override
