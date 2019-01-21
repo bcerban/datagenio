@@ -72,7 +72,7 @@ public class EventFlowGraphImplTest {
         assertNull(this.graph.getCurrentState());
     }
 
-    @Test(expected = InvalidArgumentException.class)
+    @Test(expected = UncrawlableStateException.class)
     public void testSetCurrentStateNotInGraph() throws UncrawlableStateException {
         State state = mock(State.class);
         this.graph.setCurrentState(state);

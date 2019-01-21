@@ -1,4 +1,4 @@
-package com.datagenio.storage;
+package com.datagenio.storage.api;
 
 public interface Properties {
     // WebState Properties
@@ -10,4 +10,7 @@ public interface Properties {
 
     // Event Transition properties
     String EXECUTED_EVENT = "executed_event";
+    String XPATH = "xpath";
+    String EVENT_TYPE = "event_type";
+    String ELEMENT = "element";
 }

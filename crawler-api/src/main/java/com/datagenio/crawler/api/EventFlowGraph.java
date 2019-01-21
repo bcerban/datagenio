@@ -12,6 +12,7 @@ public interface EventFlowGraph {
     Collection<Eventable> getEvents();
     State getRoot();
     State getCurrentState();
+    State find(State state);
     State findNearestUnfinishedStateFrom(State state) throws UncrawlableStateException;
     GraphPath<State, Transitionable> findPath(State from, State to);
     boolean isNewState(State state);

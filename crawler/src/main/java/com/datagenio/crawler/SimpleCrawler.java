@@ -69,6 +69,10 @@ public class SimpleCrawler implements com.datagenio.crawler.api.Crawler {
                     if (this.getGraph().isNewState(newState)) {
                         this.getGraph().addStateAsCurrent(newState);
                         this.persistState(newState);
+                        this.getGraph().addTransition(new Transition(current, newState, new ExecutedEvent(event, inputs)));
+                    } else {
+                        // TODO: Find saved state to set in transition
+                        newState = this.getGraph().find(newState);
                     }
 
                     // Transition added regardless, as this is a multigraph

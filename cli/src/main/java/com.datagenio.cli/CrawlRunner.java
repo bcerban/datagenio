@@ -9,6 +9,8 @@ import com.datagenio.generator.Generator;
 import com.datagenio.generator.GraphConverterImpl;
 import com.datagenio.storage.Neo4JReadAdapter;
 import com.datagenio.storage.Neo4JWriteAdapter;
+import com.datagenio.storage.api.Configuration;
+import com.datagenio.storage.connection.ConnectionResolver;
 import com.google.common.base.Charsets;
 import com.google.common.io.Resources;
 import org.apache.commons.cli.CommandLine;
@@ -21,9 +23,13 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.HashMap;
+import java.util.Map;
 
 public class CrawlRunner {
 
+    private static final String HTTP = "http";
+    private static final String HTTPS = "https";
     private static final int WIDTH = 80;
 
     private static Logger logger = LoggerFactory.getLogger(CrawlRunner.class);
@@ -81,10 +87,12 @@ public class CrawlRunner {
         }
 
         System.out.println("Preparing dependencies...");
+
         var crawlContext = new CrawlContext(url, directory, isVerbose(arguments), true);
         var crawler = new SimpleCrawler(crawlContext, BrowserFactory.drivenByFirefox(), InputBuilderFactory.get());
-        var readAdapter = new Neo4JReadAdapter();
-        var writeAdapter = new Neo4JWriteAdapter();
+        var configuration = getStorageConfiguration(arguments);
+        var readAdapter = new Neo4JReadAdapter(configuration);
+        var writeAdapter = new Neo4JWriteAdapter(configuration, ConnectionResolver.get(configuration));
 
         // Begin modeling site
         System.out.println("Beginning modeling process...");
@@ -92,7 +100,6 @@ public class CrawlRunner {
         var generator = new Generator(crawler, new GraphConverterImpl(), readAdapter, writeAdapter);
         EventFlowGraph graph = generator.crawlSite();
 
-//        EventFlowGraph graph = crawler.crawl();
         System.out.println("Finished crawling site.");
         System.out.println("Found " + graph.getStates().size() + " states, and " + graph.getTransitions().size() + " transitions.");
 
@@ -103,8 +110,17 @@ public class CrawlRunner {
         return arguments.hasOption(ArgumentParser.VERBOSE);
     }
 
+    private static Configuration getStorageConfiguration(CommandLine arguments) {
+        Map<String, String> settings = new HashMap<>();
+        settings.put(Configuration.CONNECTION_MODE, Configuration.CONNECTION_MODE_EMBEDDED);
+        settings.put(Configuration.OUTPUT_DIRECTORY_NAME, arguments.getOptionValue(ArgumentParser.OUTPUT));
+        settings.put(Configuration.SITE_ROOT_URI, arguments.getOptionValue(ArgumentParser.URL));
+
+        return new Configuration(settings);
+    }
+
     public static boolean urlIsValid(String url) {
-        String[] schemes = {"http","https"};
+        String[] schemes = {HTTP, HTTPS};
         var validator = new UrlValidator(schemes);
 
         return validator.isValid(url);

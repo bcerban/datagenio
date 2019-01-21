@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.function.Predicate;
 
 public class EventFlowGraphImpl implements EventFlowGraph {
 
@@ -51,6 +52,16 @@ public class EventFlowGraphImpl implements EventFlowGraph {
     @Override
     public State getCurrentState() {
         return this.current;
+    }
+
+    @Override
+    public State find(State state) {
+        return getStates().stream().filter(new Predicate<State>() {
+            @Override
+            public boolean test(State candidate) {
+                return candidate.equals(state);
+            }
+        }).findFirst().get();
     }
 
     @Override

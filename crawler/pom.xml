@@ -26,10 +26,21 @@
                     <configuration>
                         <testFailureIgnore>true</testFailureIgnore>
                         <useSystemClassLoader>false</useSystemClassLoader>
+                        <argLine>--illegal-access=permit</argLine>
                     </configuration>
                 </plugin>
             </plugins>
         </pluginManagement>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>11</source>
+                    <target>11</target>
+                </configuration>
+            </plugin>
+        </plugins>
     </build>
 
     <dependencies>
@@ -44,19 +55,6 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>databank</artifactId>
             <version>${project.version}</version>
-        </dependency>
-
-        <!--<dependency>-->
-            <!--<groupId>${project.groupId}</groupId>-->
-            <!--<artifactId>model</artifactId>-->
-            <!--<version>${project.version}</version>-->
-        <!--</dependency>-->
-
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-lang3</artifactId>
-            <version>3.3.2</version>
-            <scope>test</scope>
         </dependency>
 
         <dependency>
