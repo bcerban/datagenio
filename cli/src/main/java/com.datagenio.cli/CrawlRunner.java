@@ -17,6 +17,7 @@ import com.google.gson.GsonBuilder;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.ParseException;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.validator.routines.UrlValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -137,6 +138,20 @@ public class CrawlRunner {
         }
 
         File directory = new File(dir);
+        if (!directory.exists()) {
+            directory.mkdir();
+        }
+
+        if (directory.list().length > 0) {
+            try {
+                FileUtils.deleteDirectory(directory);
+                directory.mkdir();
+            } catch (IOException e) {
+                System.out.println(e.getMessage());
+                return false;
+            }
+        }
+
         return directory.exists() && directory.isDirectory() && directory.canWrite();
     }
 }

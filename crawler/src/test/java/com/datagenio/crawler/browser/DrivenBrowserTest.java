@@ -76,7 +76,9 @@ public class DrivenBrowserTest {
     public void testTriggerEventElementNotFound() throws UnsupportedEventTypeException, EventTriggerException {
         Eventable event = mock(Eventable.class);
 
-        when(event.getXpath()).thenReturn("/html/body/span[1]/button");
+        String xpath = "/html/body/span[1]/button";
+        when(event.getXpath()).thenReturn(xpath);
+        when(event.getIdentifier()).thenReturn(xpath);
         when(this.driver.findElement(any(By.class))).thenReturn(null);
         this.browser.triggerEvent(event, null);
 
@@ -89,7 +91,9 @@ public class DrivenBrowserTest {
         Eventable event = mock(Eventable.class);
         WebElement element = mock(WebElement.class);
 
-        when(event.getXpath()).thenReturn("/html/body/span[1]/button");
+        String xpath = "/html/body/span[1]/button";
+        when(event.getXpath()).thenReturn(xpath);
+        when(event.getIdentifier()).thenReturn(xpath);
         when(event.getEventType()).thenReturn(Eventable.EventType.click);
         when(this.driver.findElement(any(By.class))).thenReturn(element);
         doThrow(new StaleElementReferenceException("")).when(element).click();
@@ -105,7 +109,9 @@ public class DrivenBrowserTest {
         Eventable event = mock(Eventable.class);
         WebElement element = mock(WebElement.class);
 
-        when(event.getXpath()).thenReturn("/html/body/span[1]/button");
+        String xpath = "/html/body/span[1]/button";
+        when(event.getXpath()).thenReturn(xpath);
+        when(event.getIdentifier()).thenReturn(xpath);
         when(event.getEventType()).thenReturn(Eventable.EventType.click);
         when(this.driver.findElement(any(By.class))).thenReturn(element);
         doThrow(new ElementNotInteractableException("")).when(element).click();
@@ -121,14 +127,16 @@ public class DrivenBrowserTest {
         Eventable event = mock(Eventable.class);
         WebElement element = mock(WebElement.class);
 
-        when(event.getXpath()).thenReturn("/html/body/span[1]/button");
+        String xpath = "/html/body/span[1]/button";
+        when(event.getXpath()).thenReturn(xpath);
+        when(event.getIdentifier()).thenReturn(xpath);
         when(event.getEventType()).thenReturn(Eventable.EventType.click);
         when(this.driver.findElement(any(By.class))).thenReturn(element);
         when(this.driver.getPageSource()).thenReturn("");
 
         this.browser.triggerEvent(event, null);
 
-        verify(event, times(1)).getIdentifier();
+        verify(event, times(2)).getIdentifier();
         verify(event, times(1)).getXpath();
         verify(this.driver, times(1)).getPageSource();
     }
@@ -138,7 +146,9 @@ public class DrivenBrowserTest {
         Eventable event = mock(Eventable.class);
         WebElement element = mock(WebElement.class);
 
-        when(event.getXpath()).thenReturn("/html/body/span[1]/button");
+        String xpath = "/html/body/span[1]/button";
+        when(event.getXpath()).thenReturn(xpath);
+        when(event.getIdentifier()).thenReturn(xpath);
         when(event.getEventType()).thenReturn(Eventable.EventType.submit);
         when(this.driver.findElement(any(By.class))).thenReturn(element);
         doThrow(new StaleElementReferenceException("")).when(element).submit();
@@ -154,7 +164,9 @@ public class DrivenBrowserTest {
         Eventable event = mock(Eventable.class);
         WebElement element = mock(WebElement.class);
 
-        when(event.getXpath()).thenReturn("/html/body/span[1]/button");
+        String xpath = "/html/body/span[1]/button";
+        when(event.getXpath()).thenReturn(xpath);
+        when(event.getIdentifier()).thenReturn(xpath);
         when(event.getEventType()).thenReturn(Eventable.EventType.submit);
         when(this.driver.findElement(any(By.class))).thenReturn(element);
         doThrow(new ElementNotInteractableException("")).when(element).submit();
@@ -170,7 +182,9 @@ public class DrivenBrowserTest {
         Eventable event = mock(Eventable.class);
         WebElement element = mock(WebElement.class);
 
-        when(event.getXpath()).thenReturn("/html/body/span[1]/button");
+        String xpath = "/html/body/span[1]/button";
+        when(event.getXpath()).thenReturn(xpath);
+        when(event.getIdentifier()).thenReturn(xpath);
         when(event.getEventType()).thenReturn(Eventable.EventType.submit);
         when(this.driver.findElement(any(By.class))).thenReturn(element);
         doThrow(new NoSuchElementException("")).when(element).submit();
@@ -186,14 +200,16 @@ public class DrivenBrowserTest {
         Eventable event = mock(Eventable.class);
         WebElement element = mock(WebElement.class);
 
-        when(event.getXpath()).thenReturn("/html/body/span[1]/button");
+        String xpath = "/html/body/span[1]/button";
+        when(event.getXpath()).thenReturn(xpath);
+        when(event.getIdentifier()).thenReturn(xpath);
         when(event.getEventType()).thenReturn(Eventable.EventType.submit);
         when(this.driver.findElement(any(By.class))).thenReturn(element);
         when(this.driver.getPageSource()).thenReturn("");
 
         this.browser.triggerEvent(event, new HashMap<>());
 
-        verify(event, times(1)).getIdentifier();
+        verify(event, times(2)).getIdentifier();
         verify(event, times(1)).getXpath();
         verify(element, times(1)).submit();
         verify(this.driver, times(1)).getPageSource();
@@ -204,7 +220,9 @@ public class DrivenBrowserTest {
         Eventable event = mock(Eventable.class);
         WebElement element = mock(WebElement.class);
 
-        when(event.getXpath()).thenReturn("/html/body/span[1]/button");
+        String xpath = "/html/body/span[1]/button";
+        when(event.getXpath()).thenReturn(xpath);
+        when(event.getIdentifier()).thenReturn(xpath);
         when(event.getEventType()).thenReturn(Eventable.EventType.hover);
         when(this.driver.findElement(any(By.class))).thenReturn(element);
 

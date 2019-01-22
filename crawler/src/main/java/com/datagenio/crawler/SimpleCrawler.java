@@ -64,28 +64,7 @@ public class SimpleCrawler implements com.datagenio.crawler.api.Crawler {
                 State current = getGraph().getCurrentState();
                 Eventable event = current.getNextEventToFire();
 
-                try {
-                    Map<String, String> inputs = inputBuilder.buildInputs(event.getSource());
-                    State newState = executeEvent(event, inputs);
-
-                    if (getGraph().isNewState(newState)) {
-                        getGraph().addStateAsCurrent(newState);
-                        saveStateScreenShot(newState);
-                    } else {
-                        newState = getGraph().find(newState);
-                    }
-
-                    // Transition added regardless, as this is a multigraph
-                    var transition = new Transition(current, newState, new ExecutedEvent(event, inputs));
-                    transition.setRequests(getRequestsForEvent(event, newState));
-                    getGraph().addTransition(transition);
-
-                } catch (UnsupportedEventTypeException| EventTriggerException e) {
-                    logger.info("Tried to crawl invalid event with ID '{}' from {}", event.getIdentifier(), current.getIdentifier());
-                } catch (OutOfBoundsException e) {
-                    logger.info(e.getMessage());
-                    browser.backOrClose();
-                }
+                crawlState(current, event);
 
                 if (this.getGraph().getCurrentState().isFinished()) {
                     boolean relocated = relocateFrom(getGraph().getCurrentState());
@@ -102,6 +81,31 @@ public class SimpleCrawler implements com.datagenio.crawler.api.Crawler {
 
         logger.debug("Crawl finished!");
         return getGraph();
+    }
+
+    private void crawlState(State current, Eventable event) throws UncrawlableStateException, BrowserException {
+        try {
+            Map<String, String> inputs = inputBuilder.buildInputs(event.getSource());
+            State newState = executeEvent(event, inputs);
+
+            if (getGraph().isNewState(newState)) {
+                getGraph().addStateAsCurrent(newState);
+                saveStateScreenShot(newState);
+            } else {
+                newState = getGraph().find(newState);
+            }
+
+            // Transition added regardless, as this is a multigraph
+            var transition = new Transition(current, newState, new ExecutedEvent(event, inputs));
+            transition.setRequests(getRequestsForEvent(event, newState));
+            getGraph().addTransition(transition);
+
+        } catch (UnsupportedEventTypeException | EventTriggerException e) {
+            logger.info("Tried to crawl invalid event with ID '{}' from {}", event.getIdentifier(), current.getIdentifier());
+        } catch (OutOfBoundsException e) {
+            logger.info(e.getMessage());
+            browser.backOrClose();
+        }
     }
 
     private Collection<RemoteRequest> getRequestsForEvent(Eventable event, State state) {

@@ -255,7 +255,7 @@ public class DrivenBrowser implements Browser {
 
     public Document triggerSubmitEvent(Eventable event, WebElement element, Map<String, String> inputs) throws EventTriggerException {
         try {
-            this.fillElementInputs(element, inputs);
+            fillElementInputs(element, inputs);
             element.submit();
         } catch (StaleElementReferenceException|ElementNotInteractableException|NoSuchElementException e) {
             logger.debug(
