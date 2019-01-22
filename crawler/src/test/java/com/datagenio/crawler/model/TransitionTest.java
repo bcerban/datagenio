@@ -1,6 +1,7 @@
 package com.datagenio.crawler.model;
 
 import com.datagenio.crawler.api.ExecutedEventable;
+import com.datagenio.crawler.api.RemoteRequest;
 import com.datagenio.crawler.api.State;
 import org.apache.http.*;
 import org.apache.http.message.BasicHttpRequest;
@@ -79,7 +80,7 @@ public class TransitionTest {
     @Test
     public void testSetRequests()
     {
-        Collection<HttpRequest> newRequestCollection = new LinkedList<>();
+        Collection<RemoteRequest> newRequestCollection = new LinkedList<>();
         this.transition.setRequests(newRequestCollection);
         assertEquals(newRequestCollection, this.transition.getRequests());
     }
@@ -87,7 +88,7 @@ public class TransitionTest {
     @Test
     public void testAddRequest()
     {
-        HttpRequest request = new BasicHttpRequest("GET", "http://example.com");
+        var request = mock(RemoteRequest.class);
         this.transition.addRequest(request);
         assertTrue(this.transition.getRequests().contains(request));
     }

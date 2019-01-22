@@ -17,6 +17,7 @@ public interface State {
     Collection<Eventable> getUnfiredEventables();
     Eventable getNextEventToFire() throws UncrawlableStateException;
     boolean isFinished();
+    boolean isRoot();
     File getScreenShot();
 
     void setHandler(String handler);
@@ -25,4 +26,5 @@ public interface State {
     void setEventables(Collection<Eventable> eventables);
     void markEventAsFired(ExecutedEventable event);
     void setScreenShot(File screenshot);
+    void setIsRoot(boolean isRoot);
 }

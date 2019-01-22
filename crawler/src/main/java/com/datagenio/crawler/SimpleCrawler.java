@@ -13,7 +13,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.URI;
+import java.util.Collection;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class SimpleCrawler implements com.datagenio.crawler.api.Crawler {
 
@@ -43,10 +45,10 @@ public class SimpleCrawler implements com.datagenio.crawler.api.Crawler {
     }
 
     public EventFlowGraph getGraph() {
-        if (this.graph == null) {
-            this.graph = new EventFlowGraphImpl();
+        if (graph == null) {
+            graph = new EventFlowGraphImpl();
         }
-        return this.graph;
+        return graph;
     }
 
     public static Logger getLogger() {
@@ -54,38 +56,39 @@ public class SimpleCrawler implements com.datagenio.crawler.api.Crawler {
     }
 
     public EventFlowGraph crawl() {
-        logger.debug("Begin crawling {}...", this.context.getRootUrl());
+        logger.debug("Begin crawling {}...", context.getRootUrl());
 
         try {
-            this.initCrawl(URI.create(this.context.getRootUrl()));
-            while (!this.getGraph().getCurrentState().isFinished()) {
-                State current = this.getGraph().getCurrentState();
+            initCrawl(URI.create(context.getRootUrl()));
+            while (!getGraph().getCurrentState().isFinished()) {
+                State current = getGraph().getCurrentState();
                 Eventable event = current.getNextEventToFire();
 
                 try {
-                    Map<String, String> inputs = this.inputBuilder.buildInputs(event.getSource());
-                    State newState = this.executeEvent(event, inputs);
+                    Map<String, String> inputs = inputBuilder.buildInputs(event.getSource());
+                    State newState = executeEvent(event, inputs);
 
-                    if (this.getGraph().isNewState(newState)) {
-                        this.getGraph().addStateAsCurrent(newState);
-                        this.saveStateScreenShot(newState);
+                    if (getGraph().isNewState(newState)) {
+                        getGraph().addStateAsCurrent(newState);
+                        saveStateScreenShot(newState);
                     } else {
-                        // TODO: Find saved state to set in transition
-                        newState = this.getGraph().find(newState);
+                        newState = getGraph().find(newState);
                     }
 
                     // Transition added regardless, as this is a multigraph
-                    this.getGraph().addTransition(new Transition(current, newState, new ExecutedEvent(event, inputs)));
+                    var transition = new Transition(current, newState, new ExecutedEvent(event, inputs));
+                    transition.setRequests(getRequestsForEvent(event, newState));
+                    getGraph().addTransition(transition);
 
                 } catch (UnsupportedEventTypeException| EventTriggerException e) {
                     logger.info("Tried to crawl invalid event with ID '{}' from {}", event.getIdentifier(), current.getIdentifier());
                 } catch (OutOfBoundsException e) {
                     logger.info(e.getMessage());
-                    this.browser.backOrClose();
+                    browser.backOrClose();
                 }
 
                 if (this.getGraph().getCurrentState().isFinished()) {
-                    boolean relocated = relocateFrom(this.getGraph().getCurrentState());
+                    boolean relocated = relocateFrom(getGraph().getCurrentState());
                     if (!relocated) {
                         break;
                     }
@@ -94,18 +97,29 @@ public class SimpleCrawler implements com.datagenio.crawler.api.Crawler {
         } catch (UncrawlableStateException|BrowserException e) {
             logger.info("Crawl aborted due to exception.", e);
         } finally {
-            this.handleClosing();
+            handleClosing();
         }
 
         logger.debug("Crawl finished!");
-        return this.getGraph();
+        return getGraph();
+    }
+
+    private Collection<RemoteRequest> getRequestsForEvent(Eventable event, State state) {
+        // Save har
+        String fileName = state.getIdentifier() + "-" + event.getIdentifier().replaceAll("/", ".");
+        return browser.getCapturedRequests(context.getRootUri(), fileName, context.getOutputDirName());
+    }
+
+    private Collection<RemoteRequest> getRequestsForEvent(State state) {
+        // Save har
+        return browser.getCapturedRequests(context.getRootUri(), state.getIdentifier(), context.getOutputDirName());
     }
 
     private State executeEvent(Eventable event, Map<String, String> inputs) throws UnsupportedEventTypeException, OutOfBoundsException, EventTriggerException {
-        this.browser.triggerEvent(event, inputs);
-        State newState = this.browser.getCurrentBrowserState();
+        browser.triggerEvent(event, inputs);
+        State newState = browser.getCurrentBrowserState();
 
-        if (SiteBoundChecker.isOutOfBounds(newState.getUri(), this.context)) {
+        if (SiteBoundChecker.isOutOfBounds(newState.getUri(), context)) {
             throw new OutOfBoundsException("Trying to access " + newState.getUri().toString());
         }
 
@@ -114,11 +128,16 @@ public class SimpleCrawler implements com.datagenio.crawler.api.Crawler {
 
     private void initCrawl(URI root) throws UncrawlableStateException {
         try {
-            this.browser.navigateTo(root);
-            State initial = this.browser.getCurrentBrowserState();
-            this.getGraph().addStateAsCurrent(initial);
-            this.getGraph().setRoot(initial);
-            this.saveStateScreenShot(initial);
+            browser.navigateTo(root);
+            State initial = browser.getCurrentBrowserState();
+            getGraph().addStateAsCurrent(initial);
+            getGraph().setRoot(initial);
+            saveStateScreenShot(initial);
+
+            // TODO: save to init event
+            Collection<RemoteRequest> requests = getRequestsForEvent(initial);
+            String requestString = requests.stream().map((r) -> r.toString()).collect(Collectors.joining("\n"));
+            logger.info("Requests that should be saved to init event: {}", requestString);
         } catch (BrowserException e) {
             logger.debug("Exception happened while trying to initialize EventFlowGraph. Error: {}", e.getMessage());
             throw new UncrawlableStateException(e);
@@ -146,17 +165,17 @@ public class SimpleCrawler implements com.datagenio.crawler.api.Crawler {
     public void walk(GraphPath<State, Transitionable> path) throws UncrawlablePathException {
         try {
             // Reset browser to site root
-            this.browser.navigateTo(path.getStartVertex().getUri());
+            browser.navigateTo(path.getStartVertex().getUri());
 
             // Walk to destination
             State previous = path.getStartVertex();
             var edges = path.getEdgeList();
             for (Transitionable edge : edges) {
-                this.getGraph().setCurrentState(edge.getOrigin());
-                this.browser.triggerEvent(edge.getExecutedEvent().getEvent(), edge.getExecutedEvent().getDataInputs());
+                getGraph().setCurrentState(edge.getOrigin());
+                browser.triggerEvent(edge.getExecutedEvent().getEvent(), edge.getExecutedEvent().getDataInputs());
 
                 // Check a new state is reached after event execution
-                State current = this.browser.getCurrentBrowserState();
+                State current = browser.getCurrentBrowserState();
                 if (previous.equals(current)) {
                     throw new UncrawlablePathException("Stopped crawling at state " + current.toString());
                 }
@@ -170,12 +189,12 @@ public class SimpleCrawler implements com.datagenio.crawler.api.Crawler {
 
     private void saveStateScreenShot(State state) {
         try {
-            if (this.context.isPrintScreen()) {
+            if (context.isPrintScreen()) {
                 state.setScreenShot(
                     ScreenShotSaver.saveScreenShot(
-                            this.browser.getScreenShotBytes(),
+                            browser.getScreenShotBytes(),
                             state.getIdentifier(),
-                            this.context.getOutputDirName()
+                            context.getOutputDirName()
                     )
                 );
             }
@@ -187,7 +206,7 @@ public class SimpleCrawler implements com.datagenio.crawler.api.Crawler {
     private void handleClosing() {
         try {
             logger.info("Trying to close browser sessions.");
-            this.browser.quit();
+            browser.quit();
         } catch (BrowserException e) {
             logger.info("Browser closing failed.", e);
         }

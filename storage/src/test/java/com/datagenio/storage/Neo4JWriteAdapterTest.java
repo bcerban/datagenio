@@ -7,6 +7,8 @@ import com.datagenio.model.api.WebTransition;
 import com.datagenio.storage.api.Configuration;
 import com.datagenio.storage.api.Connection;
 import com.datagenio.storage.exception.StorageException;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import org.jsoup.nodes.Element;
 import org.junit.After;
 import org.junit.Before;
@@ -25,6 +27,7 @@ public class Neo4JWriteAdapterTest {
 
     private Connection connection;
     private Configuration configuration;
+    private Gson gson;
     private GraphDatabaseService webDatabase;
     private GraphDatabaseService eventDatabase;
     private Neo4JWriteAdapter writeAdapter;
@@ -35,12 +38,13 @@ public class Neo4JWriteAdapterTest {
         connection = mock(Connection.class);
         webDatabase = mock(GraphDatabaseService.class);
         eventDatabase = mock(GraphDatabaseService.class);
+        gson = new GsonBuilder().create();
 
         doReturn(TEST_URL).when(configuration).get(Configuration.SITE_ROOT_URI);
         doReturn(webDatabase).when(connection).createWebFlowGraph(TEST_URL);
         doReturn(eventDatabase).when(connection).createEventGraph(TEST_URL);
 
-        writeAdapter = new Neo4JWriteAdapter(configuration, connection);
+        writeAdapter = new Neo4JWriteAdapter(configuration, connection, gson);
     }
 
     @Test

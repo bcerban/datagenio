@@ -116,6 +116,7 @@ public class EventFlowGraphImpl implements EventFlowGraph {
 
     @Override
     public void setRoot(State state) {
+        state.setIsRoot(true);
         this.root = state;
     }
 }

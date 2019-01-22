@@ -1,5 +1,7 @@
 package com.datagenio.crawler;
 
+import java.net.URI;
+
 public class CrawlContext {
     public static int REQUEST_TIMEOUT = 300;
 
@@ -73,6 +75,10 @@ public class CrawlContext {
 
     public String getRootUrl() {
         return rootUrl;
+    }
+
+    public URI getRootUri() {
+        return URI.create(rootUrl);
     }
 
     public int getRequestTimeout() {

@@ -1,6 +1,7 @@
 package com.datagenio.crawler.browser;
 
 import com.datagenio.crawler.api.Eventable;
+import com.datagenio.crawler.api.NetworkProxy;
 import com.datagenio.crawler.exception.BrowserException;
 import com.datagenio.crawler.exception.EventTriggerException;
 import com.datagenio.crawler.exception.UnsupportedEventTypeException;
@@ -22,14 +23,16 @@ public class DrivenBrowserTest {
     private static String TEST_URI = "http://test.com";
 
     private FirefoxDriver driver;
+    private NetworkProxy proxy;
     private DrivenBrowser browser;
     private WebDriver.Navigation navigation;
 
     @Before
     public void setUp() {
-        this.navigation = mock(WebDriver.Navigation.class);
-        this.driver = mock(FirefoxDriver.class);
-        this.browser = new DrivenBrowser(this.driver);
+        navigation = mock(WebDriver.Navigation.class);
+        driver = mock(FirefoxDriver.class);
+        proxy = mock(NetworkProxy.class);
+        browser = new DrivenBrowser(driver, proxy);
 
         when(this.driver.navigate()).thenReturn(this.navigation);
     }

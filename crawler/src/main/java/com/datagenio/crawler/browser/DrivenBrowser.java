@@ -1,15 +1,13 @@
 package com.datagenio.crawler.browser;
 
-import com.datagenio.crawler.api.Browser;
-import com.datagenio.crawler.api.Eventable;
-import com.datagenio.crawler.api.EventableExtractor;
-import com.datagenio.crawler.api.State;
+import com.datagenio.crawler.api.*;
 import com.datagenio.crawler.exception.BrowserException;
 import com.datagenio.crawler.exception.EventTriggerException;
 import com.datagenio.crawler.exception.UnsupportedEventTypeException;
 import com.datagenio.crawler.model.StateImpl;
 import com.datagenio.crawler.util.EventExtractorFactory;
 import org.apache.commons.lang.NotImplementedException;
+import org.apache.http.HttpRequest;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.openqa.selenium.*;
@@ -18,6 +16,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.net.URI;
+import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.*;
 import java.util.concurrent.TimeoutException;
@@ -29,12 +28,14 @@ public class DrivenBrowser implements Browser {
     private static Logger logger = LoggerFactory.getLogger(DrivenBrowser.class);
     private static ExecutorService closeExecutor = Executors.newCachedThreadPool(new BrowserCloserFactory());
 
+    private NetworkProxy proxy;
     private WebDriver driver;
     private EventableExtractor extractor;
-    private String initialHandle;
+    private final String initialHandle;
 
-    public DrivenBrowser(WebDriver driver) {
+    public DrivenBrowser(WebDriver driver, NetworkProxy proxy) {
         this.driver = driver;
+        this.proxy = proxy;
         this.extractor = EventExtractorFactory.get();
         this.initialHandle = driver.getWindowHandle();
     }
@@ -44,7 +45,7 @@ public class DrivenBrowser implements Browser {
         try {
             logger.debug("Navigating back from {}.", this.driver.getCurrentUrl());
 
-            this.driver.navigate().back();
+            driver.navigate().back();
             Thread.sleep(DEFAULT_WAIT_AFTER_LOAD);
 
             logger.debug("Back page loaded successfully.");
@@ -71,15 +72,16 @@ public class DrivenBrowser implements Browser {
 
     @Override
     public void close() throws BrowserException {
-        logger.debug("Closing browser at {}.", this.driver.getCurrentUrl());
-        handleClosingTask(closeExecutor.submit(this.driver::close));
+        logger.debug("Closing browser at {}.", driver.getCurrentUrl());
+        handleClosingTask(closeExecutor.submit(driver::close));
         logger.debug("Browser session closed.");
     }
 
     @Override
     public void quit() throws BrowserException {
         logger.debug("Closing all browser windows.");
-        handleClosingTask(closeExecutor.submit(this.driver::quit));
+        proxy.stop();
+        handleClosingTask(closeExecutor.submit(driver::quit));
         logger.debug("All browser sessions finished.");
     }
 
@@ -100,12 +102,12 @@ public class DrivenBrowser implements Browser {
     }
 
     private void switchToDefaultWindow() throws BrowserException {
-        if (this.driver == null) {
+        if (driver == null) {
             throw new BrowserException("Driver is not available.");
         }
 
         try {
-            this.driver.switchTo().window(this.initialHandle);
+            driver.switchTo().window(initialHandle);
         } catch (NoSuchWindowException e) {
             throw new BrowserException("Default window not found.", e);
         }
@@ -119,35 +121,45 @@ public class DrivenBrowser implements Browser {
     @Override
     public State getCurrentBrowserState() {
         return new StateImpl(
-                URI.create(this.driver.getCurrentUrl()),
-                this.getDOM(),
-                this.extractor,
-                this.driver.getWindowHandle()
+                URI.create(driver.getCurrentUrl()),
+                getDOM(),
+                extractor,
+                driver.getWindowHandle()
         );
     }
 
     @Override
     public File getScreenShotFile() {
-        logger.debug("Capturing screen for " + this.driver.getCurrentUrl());
+        logger.debug("Capturing screen for " + driver.getCurrentUrl());
 
-        TakesScreenshot screenshotDriver = (TakesScreenshot) this.driver;
+        TakesScreenshot screenshotDriver = (TakesScreenshot) driver;
         File screenshot = screenshotDriver.getScreenshotAs(OutputType.FILE);
         removeScreenShotCanvas();
 
-        logger.debug("Screen capture for " + this.driver.getCurrentUrl() + " saved to " + screenshot.getName() + ".");
+        logger.debug("Screen capture for " + driver.getCurrentUrl() + " saved to " + screenshot.getName() + ".");
         return screenshot;
     }
 
     @Override
     public byte[] getScreenShotBytes() {
-        logger.debug("Capturing screen for " + this.driver.getCurrentUrl());
+        logger.debug("Capturing screen for " + driver.getCurrentUrl());
 
-        TakesScreenshot screenshotDriver = (TakesScreenshot) this.driver;
+        TakesScreenshot screenshotDriver = (TakesScreenshot) driver;
         byte[] screenshot = screenshotDriver.getScreenshotAs(OutputType.BYTES);
         removeScreenShotCanvas();
 
-        logger.debug("Screen capture for " + this.driver.getCurrentUrl() + " returned.");
+        logger.debug("Screen capture for " + driver.getCurrentUrl() + " returned.");
         return screenshot;
+    }
+
+    @Override
+    public Collection<RemoteRequest> getCapturedRequests(URI domain) {
+        return proxy.getLoggedRequestsForDomain(domain);
+    }
+
+    @Override
+    public Collection<RemoteRequest> getCapturedRequests(URI domain, String fileName, String saveToDirectory) {
+        return proxy.getLoggedRequestsForDomain(domain, fileName, saveToDirectory);
     }
 
     /**
@@ -173,7 +185,8 @@ public class DrivenBrowser implements Browser {
         try {
             logger.debug("Navigating to {}.", uri.toString());
 
-            this.driver.navigate().to(uri.toString());
+            proxy.saveFor(uri.toString());
+            driver.navigate().to(uri.toString());
             Thread.sleep(DEFAULT_WAIT_AFTER_LOAD);
             handlePopups();
 
@@ -189,21 +202,22 @@ public class DrivenBrowser implements Browser {
     }
 
     @Override
-    public Document triggerEvent(Eventable event, Map<String, String> inputs) throws UnsupportedEventTypeException, EventTriggerException {
+    public void triggerEvent(Eventable event, Map<String, String> inputs) throws UnsupportedEventTypeException, EventTriggerException {
         logger.debug("Attempting to trigger event {}...", event.getIdentifier());
         WebElement element = null;
 
         try {
             // Check element is present in current web interface
-            element = this.driver.findElement(By.xpath(event.getXpath()));
+            element = driver.findElement(By.xpath(event.getXpath()));
         } catch (NoSuchElementException e) { }
 
         if (element == null) {
-            logger.debug("Element not found for event {} in {}", event.getIdentifier(), this.driver.getCurrentUrl());
+            logger.debug("Element not found for event {} in {}", event.getIdentifier(), driver.getCurrentUrl());
             throw new EventTriggerException("Selected event is not present in current interface.");
         }
 
-        return handleEventByType(event, element, inputs);
+        proxy.saveFor(event.getIdentifier().replaceAll("/", "-"));
+        handleEventByType(event, element, inputs);
     }
 
     private Document handleEventByType(Eventable event, WebElement element, Map<String, String> inputs) throws UnsupportedEventTypeException, EventTriggerException {
@@ -220,18 +234,18 @@ public class DrivenBrowser implements Browser {
 
     public Document triggerClickableEvent(Eventable event, WebElement element) throws EventTriggerException {
         try {
-            int handleCount = this.driver.getWindowHandles().size();
+            int handleCount = driver.getWindowHandles().size();
 
             element.click();
 
-            if (this.driver.getWindowHandles().size() > handleCount) {
-                String newest = (String)this.driver.getWindowHandles().toArray()[this.driver.getWindowHandles().size() - 1];
-                this.driver.switchTo().window(newest);
+            if (driver.getWindowHandles().size() > handleCount) {
+                String newest = (String)driver.getWindowHandles().toArray()[driver.getWindowHandles().size() - 1];
+                driver.switchTo().window(newest);
             }
         } catch (StaleElementReferenceException|ElementNotInteractableException e) {
             logger.debug(
                     "Element for event {} is unavailable in {}. Error: {}",
-                    event.getIdentifier(), this.driver.getCurrentUrl(), e.getMessage()
+                    event.getIdentifier(), driver.getCurrentUrl(), e.getMessage()
             );
             throw new EventTriggerException("Selected event is unavailable.", e);
         }
@@ -246,7 +260,7 @@ public class DrivenBrowser implements Browser {
         } catch (StaleElementReferenceException|ElementNotInteractableException|NoSuchElementException e) {
             logger.debug(
                     "Element for event {} is unavailable in {}. Error: {}",
-                    event.getIdentifier(), this.driver.getCurrentUrl(), e.getMessage()
+                    event.getIdentifier(), driver.getCurrentUrl(), e.getMessage()
             );
             throw new EventTriggerException("Selected event is stale.", e);
         }
@@ -266,7 +280,7 @@ public class DrivenBrowser implements Browser {
 
     @Override
     public Document getDOM() {
-        return Jsoup.parse(this.driver.getPageSource());
+        return Jsoup.parse(driver.getPageSource());
     }
 
     /**
