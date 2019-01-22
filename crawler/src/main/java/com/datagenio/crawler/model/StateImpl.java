@@ -20,6 +20,7 @@ public class StateImpl implements State {
     private URI uri;
     private String handler;
     private File screenShot;
+    private boolean isRoot;
     private final String uid;
 
     public StateImpl(URI uri, Document view, EventableExtractor extractor) {
@@ -69,6 +70,11 @@ public class StateImpl implements State {
     }
 
     @Override
+    public boolean isRoot() {
+        return isRoot;
+    }
+
+    @Override
     public File getScreenShot() {
         return screenShot;
     }
@@ -87,6 +93,11 @@ public class StateImpl implements State {
     @Override
     public void setScreenShot(File screenshot) {
         this.screenShot = screenshot;
+    }
+
+    @Override
+    public void setIsRoot(boolean isRoot) {
+        this.isRoot = isRoot;
     }
 
     @Override

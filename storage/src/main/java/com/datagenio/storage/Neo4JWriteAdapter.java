@@ -9,9 +9,11 @@ import com.datagenio.model.api.WebState;
 import com.datagenio.model.api.WebTransition;
 import com.datagenio.storage.api.*;
 import com.datagenio.storage.exception.StorageException;
+import com.google.gson.Gson;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Label;
 import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.Relationship;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,11 +25,13 @@ public class Neo4JWriteAdapter implements WriteAdapter {
 
     private static Logger logger = LoggerFactory.getLogger(Neo4JWriteAdapter.class);
 
+    private Gson gson;
     private Connection connection;
     private GraphDatabaseService eventGraphService;
     private GraphDatabaseService webFlowGraphService;
 
-    public Neo4JWriteAdapter(Configuration configuration, Connection connection) {
+    public Neo4JWriteAdapter(Configuration configuration, Connection connection, Gson gson) {
+        this.gson = gson;
         this.connection = connection;
         eventGraphService = connection.createEventGraph(configuration.get(Configuration.SITE_ROOT_URI));
         webFlowGraphService = connection.createWebFlowGraph(configuration.get(Configuration.SITE_ROOT_URI));
@@ -41,6 +45,7 @@ public class Neo4JWriteAdapter implements WriteAdapter {
 
     @Override
     public void save(EventFlowGraph graph) {
+        logger.info("Attempting to save {} states and {} transitions.", graph.getStates().size(), graph.getTransitions().size());
         addEventStates(graph.getStates());
         addEventTransitions(graph.getTransitions());
     }
@@ -75,6 +80,7 @@ public class Neo4JWriteAdapter implements WriteAdapter {
     private Map<String, Object> buildStateProperties(State state) {
         Map<String, Object> properties = new HashMap<>();
         properties.put(Properties.IDENTIFICATION, state.getIdentifier());
+        properties.put(Properties.IS_ROOT, state.isRoot() ? "True" : "False");
 
         if (state.getScreenShot() != null) {
             properties.put(Properties.SCREEN_SHOT_PATH, state.getScreenShot().getAbsolutePath());
@@ -112,33 +118,52 @@ public class Neo4JWriteAdapter implements WriteAdapter {
             );
 
             try {
-                Node through = connection.addNode(
-                        eventGraphService,
-                        Label.label(Labels.EVENT),
-                        buildEventProperties(transition.getExecutedEvent().getEvent())
-                );
-
-                connection.addEdge(
-                        eventGraphService,
-                        findEventNode(transition.getOrigin()),
-                        through,
-                        Relationships.EXECUTED_EVENT,
-                        buildTransitionProperties(transition)
-                );
-
-                connection.addEdge(
-                        eventGraphService,
-                        through,
-                        findEventNode(transition.getDestination()),
-                        Relationships.LEADS_TO,
-                        new HashMap<>()
-                );
+                addEventTransitionWithRequests(transition);
             } catch (StorageException e) {
                 logger.info(
                         "Transition between {} and {} not added due to unexpected exception.",
                         transition.getOrigin().getIdentifier(),
                         transition.getDestination().getIdentifier(), e
                 );
+            }
+        });
+    }
+
+    private void addEventTransitionWithRequests(Transitionable transition) throws StorageException {
+        Node through = connection.addNode(
+                eventGraphService,
+                Label.label(Labels.EVENT),
+                buildEventProperties(transition.getExecutedEvent().getEvent())
+        );
+
+        saveTransitionRequests(transition, through);
+
+        connection.addEdge(
+                eventGraphService,
+                findEventNode(transition.getOrigin()),
+                through,
+                Relationships.EXECUTED_EVENT,
+                buildTransitionProperties(transition)
+        );
+
+        connection.addEdge(
+                eventGraphService,
+                through,
+                findEventNode(transition.getDestination()),
+                Relationships.LEADS_TO,
+                new HashMap<>()
+        );
+    }
+
+    private void saveTransitionRequests(Transitionable transition, Node from) {
+        transition.getRequests().forEach(request -> {
+            var properties = new HashMap<String, Object>();
+            properties.put(Properties.REQUEST_JSON, gson.toJson(request));
+            try {
+                Node requestNode = connection.addNode(eventGraphService, Label.label(Labels.REQUEST), properties);
+                connection.addEdge(eventGraphService, from, requestNode, Relationships.HAS_REQUEST, new HashMap<>());
+            } catch (StorageException e) {
+                logger.info("Failed to add event request or edge.", e);
             }
         });
     }
@@ -164,8 +189,7 @@ public class Neo4JWriteAdapter implements WriteAdapter {
 
     private Map<String, Object> buildTransitionProperties(Transitionable transition) {
         Map<String, Object> properties = new HashMap<>();
-//        properties.put(Properties.EXECUTED_EVENT, transition.getExecutedEvent());
-//        properties.put(Properties.CONCRETE_REQUESTS, transition.getRequests());
+        properties.put(Properties.EXECUTED_EVENT_ID, transition.getExecutedEvent().getEvent().getIdentifier());
         return properties;
     }
 

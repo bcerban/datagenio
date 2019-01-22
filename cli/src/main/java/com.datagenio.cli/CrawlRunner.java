@@ -13,6 +13,7 @@ import com.datagenio.storage.api.Configuration;
 import com.datagenio.storage.connection.ConnectionResolver;
 import com.google.common.base.Charsets;
 import com.google.common.io.Resources;
+import com.google.gson.GsonBuilder;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.ParseException;
@@ -88,11 +89,15 @@ public class CrawlRunner {
 
         System.out.println("Preparing dependencies...");
 
+        var jsonBuilder = new GsonBuilder();
+        jsonBuilder.setPrettyPrinting();
+        var gson = jsonBuilder.create();
+
         var crawlContext = new CrawlContext(url, directory, isVerbose(arguments), true);
         var crawler = new SimpleCrawler(crawlContext, BrowserFactory.drivenByFirefox(), InputBuilderFactory.get());
         var configuration = getStorageConfiguration(arguments);
         var readAdapter = new Neo4JReadAdapter(configuration);
-        var writeAdapter = new Neo4JWriteAdapter(configuration, ConnectionResolver.get(configuration));
+        var writeAdapter = new Neo4JWriteAdapter(configuration, ConnectionResolver.get(configuration), gson);
 
         // Begin modeling site
         System.out.println("Beginning modeling process...");
