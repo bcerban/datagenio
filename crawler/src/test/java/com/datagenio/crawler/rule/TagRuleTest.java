@@ -1,6 +1,5 @@
 package com.datagenio.crawler.rule;
 
-import com.datagenio.crawler.rule.TagRule;
 import org.jsoup.nodes.Element;
 import org.junit.Before;
 import org.junit.Test;
@@ -17,31 +16,37 @@ public class TagRuleTest {
 
     @Before
     public void setUp() {
-        this.allowedTags = List.of("a", "button", "form");
-        this.tagRule = new TagRule(this.allowedTags);
+        allowedTags = List.of("button", "form");
+        tagRule = new TagRule(allowedTags);
     }
 
     @Test
     public void testGetAllowedTags() {
-        assertEquals(this.allowedTags, this.tagRule.getAllowedTags());
+        assertEquals(allowedTags, tagRule.getAllowedTags());
     }
 
     @Test
     public void testSetAllowedTags() {
         var newTags = List.of("input");
-        this.tagRule.setAllowedTags(newTags);
-        assertEquals(newTags, this.tagRule.getAllowedTags());
+        tagRule.setAllowedTags(newTags);
+        assertEquals(newTags, tagRule.getAllowedTags());
     }
 
     @Test
-    public void testMatchesTrue() {
+    public void testMatchesButton() {
         Element matched = new Element("button");
-        assertTrue(this.tagRule.matches(matched));
+        assertTrue(tagRule.matches(matched));
+    }
+
+    @Test
+    public void testMatchesForm() {
+        Element matched = new Element("form");
+        assertTrue(tagRule.matches(matched));
     }
 
     @Test
     public void testMatchesFalse() {
         Element notMatched = new Element("div");
-        assertFalse(this.tagRule.matches(notMatched));
+        assertFalse(tagRule.matches(notMatched));
     }
 }
