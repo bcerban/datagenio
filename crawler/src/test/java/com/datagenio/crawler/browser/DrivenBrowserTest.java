@@ -138,7 +138,6 @@ public class DrivenBrowserTest {
 
         verify(event, times(2)).getIdentifier();
         verify(event, times(1)).getXpath();
-        verify(this.driver, times(1)).getPageSource();
     }
 
     @Test(expected = EventTriggerException.class)
@@ -212,7 +211,6 @@ public class DrivenBrowserTest {
         verify(event, times(2)).getIdentifier();
         verify(event, times(1)).getXpath();
         verify(element, times(1)).submit();
-        verify(this.driver, times(1)).getPageSource();
     }
 
     @Test(expected = UnsupportedEventTypeException.class)

@@ -26,49 +26,33 @@ public class SimpleCrawlerTest {
 
     @Before
     public void setUp() {
-        this.browser = mock(Browser.class);
-        this.inputBuilder = mock(InputBuilder.class);
-        this.context = new CrawlContext(ROOT_URL, OUTPUT_DIR);
-        this.crawler = new SimpleCrawler(this.context, this.browser, this.inputBuilder);
+        browser = mock(Browser.class);
+        inputBuilder = mock(InputBuilder.class);
+        context = new CrawlContext(ROOT_URL, OUTPUT_DIR);
+        crawler = new SimpleCrawler(context, browser, inputBuilder);
     }
 
     @Test
     public void testGetContext() {
-        assertEquals(this.context, this.crawler.getContext());
+        assertEquals(context, crawler.getContext());
     }
 
     @Test
     public void testGetBrowser() {
-        assertEquals(this.browser, this.crawler.getBrowser());
+        assertEquals(browser, crawler.getBrowser());
     }
 
     @Test
     public void testSetBrowser() {
         var newBrowser = mock(Browser.class);
-        this.crawler.setBrowser(newBrowser);
-        assertEquals(newBrowser, this.crawler.getBrowser());
+        crawler.setBrowser(newBrowser);
+        assertEquals(newBrowser, crawler.getBrowser());
     }
 
     @Test
     public void testGetLogger() {
         assertNotNull(SimpleCrawler.getLogger());
     }
-
-//    @Test
-//    public void testCrawl() {
-//        String html = "<html><head><title>Test html document</title></head>"
-//                + "<body><span><button id=\"button-id\">Click me!</button></span>"
-//                + "<span><img src=\"/avatar.jpg\" alt=\"Avatar\"></span></body></html>";
-//        Document document = Jsoup.parse(html);
-//        State newState = mock(State.class);
-//
-//        when(newState.getUri()).thenReturn(URI.create(ROOT_URL));
-//        when(this.browser.getDOM()).thenReturn(document);
-//        when(this.browser.getCurrentBrowserState()).thenReturn(newState);
-//
-//        var graph = this.crawler.crawl();
-//        assertTrue(graph instanceof EventFlowGraph);
-//    }
 
     @Test
     public void testRelocateNoNearestState() throws UncrawlableStateException {
@@ -124,9 +108,9 @@ public class SimpleCrawlerTest {
 
         doReturn(uri).when(first).getUri();
         doReturn(first).when(path).getStartVertex();
-        doThrow(new BrowserException("")).when(this.browser).navigateTo(uri);
+        doThrow(new BrowserException("")).when(browser).navigateTo(uri);
 
-        this.crawler.walk(path);
+        crawler.walk(path);
     }
 
     @Test(expected = UncrawlablePathException.class)
@@ -138,7 +122,7 @@ public class SimpleCrawlerTest {
         ExecutedEventable executedEvent = mock(ExecutedEventable.class);
         GraphPath path = mock(GraphPath.class);
 
-        this.crawler.getGraph().addState(first);
+        crawler.getGraph().addState(first);
 
         doReturn(uri).when(first).getUri();
         doReturn(first).when(path).getStartVertex();
@@ -146,11 +130,11 @@ public class SimpleCrawlerTest {
         doReturn(List.of(firstToSecond)).when(path).getEdgeList();
         doReturn(executedEvent).when(firstToSecond).getExecutedEvent();
         doReturn(event).when(executedEvent).getEvent();
-        doThrow(new UnsupportedEventTypeException("")).when(this.browser).triggerEvent(any(), any());
+        doThrow(new UnsupportedEventTypeException("")).when(browser).triggerEvent(any(), any());
 
-        this.crawler.walk(path);
+        crawler.walk(path);
 
-        verify(this.browser, times(1)).navigateTo(uri);
+        verify(browser, times(1)).navigateTo(uri);
     }
 
     @Test(expected = UncrawlablePathException.class)
@@ -162,7 +146,7 @@ public class SimpleCrawlerTest {
         ExecutedEventable executedEvent = mock(ExecutedEventable.class);
         GraphPath path = mock(GraphPath.class);
 
-        this.crawler.getGraph().addState(first);
+        crawler.getGraph().addState(first);
 
         doReturn(uri).when(first).getUri();
         doReturn(first).when(path).getStartVertex();
@@ -170,11 +154,11 @@ public class SimpleCrawlerTest {
         doReturn(List.of(firstToSecond)).when(path).getEdgeList();
         doReturn(executedEvent).when(firstToSecond).getExecutedEvent();
         doReturn(event).when(executedEvent).getEvent();
-        doReturn(first).when(this.browser).getCurrentBrowserState();
+        doReturn(first).when(browser).getCurrentBrowserState();
 
-        this.crawler.walk(path);
+        crawler.walk(path);
 
-        verify(this.browser, times(1)).navigateTo(uri);
+        verify(browser, times(1)).navigateTo(uri);
     }
 
     @Test
@@ -187,8 +171,8 @@ public class SimpleCrawlerTest {
         ExecutedEventable executedEvent = mock(ExecutedEventable.class);
         GraphPath path = mock(GraphPath.class);
 
-        this.crawler.getGraph().addState(first);
-        this.crawler.getGraph().addState(second);
+        crawler.getGraph().addState(first);
+        crawler.getGraph().addState(second);
 
         doReturn(uri).when(first).getUri();
         doReturn(first).when(path).getStartVertex();
@@ -196,10 +180,10 @@ public class SimpleCrawlerTest {
         doReturn(List.of(firstToSecond)).when(path).getEdgeList();
         doReturn(executedEvent).when(firstToSecond).getExecutedEvent();
         doReturn(event).when(executedEvent).getEvent();
-        doReturn(second).when(this.browser).getCurrentBrowserState();
+        doReturn(second).when(browser).getCurrentBrowserState();
 
-        this.crawler.walk(path);
+        crawler.walk(path);
 
-        verify(this.browser, times(1)).navigateTo(uri);
+        verify(browser, times(1)).navigateTo(uri);
     }
 }

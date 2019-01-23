@@ -119,7 +119,7 @@ public class DrivenBrowser implements Browser {
     }
 
     @Override
-    public State getCurrentBrowserState() {
+    public State getCurrentBrowserState() throws BrowserException {
         return new StateImpl(
                 URI.create(driver.getCurrentUrl()),
                 getDOM(),
@@ -164,7 +164,6 @@ public class DrivenBrowser implements Browser {
 
     /**
      * Copied from Crawljax.
-     * TODO: verify needed
      */
     private void removeScreenShotCanvas() {
         String js = "";
@@ -220,19 +219,21 @@ public class DrivenBrowser implements Browser {
         handleEventByType(event, element, inputs);
     }
 
-    private Document handleEventByType(Eventable event, WebElement element, Map<String, String> inputs) throws UnsupportedEventTypeException, EventTriggerException {
+    private void handleEventByType(Eventable event, WebElement element, Map<String, String> inputs) throws UnsupportedEventTypeException, EventTriggerException {
         Eventable.EventType type = event.getEventType();
         switch (type) {
             case click:
-                return triggerClickableEvent(event, element);
+                triggerClickableEvent(event, element);
+                break;
             case submit:
-                return triggerSubmitEvent(event, element, inputs);
+                triggerSubmitEvent(event, element, inputs);
+                break;
             default:
                 throw new UnsupportedEventTypeException("Type " + type.toString() + " is not supported.");
         }
     }
 
-    public Document triggerClickableEvent(Eventable event, WebElement element) throws EventTriggerException {
+    public void triggerClickableEvent(Eventable event, WebElement element) throws EventTriggerException {
         try {
             int handleCount = driver.getWindowHandles().size();
 
@@ -249,11 +250,9 @@ public class DrivenBrowser implements Browser {
             );
             throw new EventTriggerException("Selected event is unavailable.", e);
         }
-
-        return getDOM();
     }
 
-    public Document triggerSubmitEvent(Eventable event, WebElement element, Map<String, String> inputs) throws EventTriggerException {
+    public void triggerSubmitEvent(Eventable event, WebElement element, Map<String, String> inputs) throws EventTriggerException {
         try {
             fillElementInputs(element, inputs);
             element.submit();
@@ -264,8 +263,6 @@ public class DrivenBrowser implements Browser {
             );
             throw new EventTriggerException("Selected event is stale.", e);
         }
-
-        return getDOM();
     }
 
     private void fillElementInputs(WebElement element, Map<String, String> inputs) {
@@ -279,20 +276,24 @@ public class DrivenBrowser implements Browser {
     }
 
     @Override
-    public Document getDOM() {
-        return Jsoup.parse(driver.getPageSource());
+    public Document getDOM() throws BrowserException {
+        try {
+            return Jsoup.parse(driver.getPageSource());
+        } catch (NoSuchWindowException e) {
+            throw new BrowserException("Can't access browser.", e);
+        }
     }
 
     /**
      * alert, prompt, and confirm behave as if the OK button is always clicked.
      * Copied from Crawljax.
-     * TODO: verify needed
      */
     private void handlePopups() {
         try {
             executeJavaScript("window.alert = function(msg){return true;};"
                     + "window.confirm = function(msg){return true;};"
-                    + "window.prompt = function(msg){return true;};");
+                    + "window.prompt = function(msg){return true;};"
+                    + "window.print=function(){};");
         } catch (BrowserException e) {
             logger.error("Handling of PopUp windows failed", e);
         }

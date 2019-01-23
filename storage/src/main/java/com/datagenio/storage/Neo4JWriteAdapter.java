@@ -190,6 +190,7 @@ public class Neo4JWriteAdapter implements WriteAdapter {
     private Map<String, Object> buildTransitionProperties(Transitionable transition) {
         Map<String, Object> properties = new HashMap<>();
         properties.put(Properties.EXECUTED_EVENT_ID, transition.getExecutedEvent().getEvent().getIdentifier());
+        properties.put(Properties.STATUS, transition.getStatus().toString());
         return properties;
     }
 
@@ -199,6 +200,11 @@ public class Neo4JWriteAdapter implements WriteAdapter {
         properties.put(Properties.XPATH, eventable.getXpath());
         properties.put(Properties.EVENT_TYPE, eventable.getEventType().toString());
         properties.put(Properties.ELEMENT, eventable.getSource().toString());
+        properties.put(Properties.STATUS, eventable.getStatus().toString());
+
+        if (eventable.getStatus().equals(Eventable.Status.FAILED)) {
+            properties.put(Properties.REASON_FOR_FAILRE, eventable.getReasonForFailure());
+        }
         return properties;
     }
 }

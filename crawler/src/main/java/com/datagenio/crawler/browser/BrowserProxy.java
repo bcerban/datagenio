@@ -14,6 +14,7 @@ import org.openqa.selenium.Proxy;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -27,13 +28,7 @@ public class BrowserProxy implements NetworkProxy {
         proxy.setTrustAllServers(true);
         proxy.start(0);
 
-        proxy.enableHarCaptureTypes(
-                CaptureType.REQUEST_HEADERS,
-                CaptureType.REQUEST_CONTENT,
-                CaptureType.RESPONSE_CONTENT,
-                CaptureType.RESPONSE_HEADERS,
-                CaptureType.RESPONSE_COOKIES
-        );
+        proxy.enableHarCaptureTypes(EnumSet.allOf(CaptureType.class));
     }
 
     @Override

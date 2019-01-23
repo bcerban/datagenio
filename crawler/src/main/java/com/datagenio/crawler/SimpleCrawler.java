@@ -30,6 +30,7 @@ public class SimpleCrawler implements com.datagenio.crawler.api.Crawler {
         this.context = context;
         this.browser = browser;
         this.inputBuilder = inputBuilder;
+        graph = new EventFlowGraphImpl();
     }
 
     public CrawlContext getContext() {
@@ -44,15 +45,13 @@ public class SimpleCrawler implements com.datagenio.crawler.api.Crawler {
         this.browser = browser;
     }
 
-    public EventFlowGraph getGraph() {
-        if (graph == null) {
-            graph = new EventFlowGraphImpl();
-        }
-        return graph;
-    }
-
     public static Logger getLogger() {
         return logger;
+    }
+
+    @Override
+    public EventFlowGraph getGraph() {
+        return graph;
     }
 
     public EventFlowGraph crawl() {
@@ -64,16 +63,20 @@ public class SimpleCrawler implements com.datagenio.crawler.api.Crawler {
                 State current = getGraph().getCurrentState();
                 Eventable event = current.getNextEventToFire();
 
-                crawlState(current, event);
+                if (shouldSkip(event)) {
+                    addSuspectedTransition(current, event);
+                } else {
+                    crawlState(current, event);
+                }
 
-                if (this.getGraph().getCurrentState().isFinished()) {
+                if (getGraph().getCurrentState().isFinished()) {
                     boolean relocated = relocateFrom(getGraph().getCurrentState());
                     if (!relocated) {
                         break;
                     }
                 }
             }
-        } catch (UncrawlableStateException|BrowserException e) {
+        } catch (Exception e) {
             logger.info("Crawl aborted due to exception.", e);
         } finally {
             handleClosing();
@@ -95,17 +98,40 @@ public class SimpleCrawler implements com.datagenio.crawler.api.Crawler {
                 newState = getGraph().find(newState);
             }
 
+            event.setStatus(Eventable.Status.SUCCEEDED);
+
             // Transition added regardless, as this is a multigraph
             var transition = new Transition(current, newState, new ExecutedEvent(event, inputs));
             transition.setRequests(getRequestsForEvent(event, newState));
+            transition.setStatus(Transitionable.Status.TRAVERSED);
             getGraph().addTransition(transition);
 
         } catch (UnsupportedEventTypeException | EventTriggerException e) {
             logger.info("Tried to crawl invalid event with ID '{}' from {}", event.getIdentifier(), current.getIdentifier());
+            event.setStatus(Eventable.Status.FAILED);
+            event.setReasonForFailure(e.getMessage());
         } catch (OutOfBoundsException e) {
             logger.info(e.getMessage());
+            event.setStatus(Eventable.Status.FAILED);
+            event.setReasonForFailure(e.getMessage());
             browser.backOrClose();
         }
+    }
+
+    private boolean shouldSkip(Eventable event) {
+        // Skip navigation events if they have already been executed from some other state
+        return getGraph().isRegistered(event);
+    }
+
+    private void addSuspectedTransition(State state, Eventable event) {
+        try {
+            // find event destination in graph and set tentative transition
+            var transition = getGraph().findTransition(event);
+            var suspectedTransition = new Transition(state, transition.getDestination(), transition.getExecutedEvent());
+            suspectedTransition.setStatus(Transitionable.Status.SUSPECTED);
+            getGraph().addTransition(suspectedTransition);
+        } catch (InvalidTransitionException e) { }
+
     }
 
     private Collection<RemoteRequest> getRequestsForEvent(Eventable event, State state) {
@@ -120,14 +146,18 @@ public class SimpleCrawler implements com.datagenio.crawler.api.Crawler {
     }
 
     private State executeEvent(Eventable event, Map<String, String> inputs) throws UnsupportedEventTypeException, OutOfBoundsException, EventTriggerException {
-        browser.triggerEvent(event, inputs);
-        State newState = browser.getCurrentBrowserState();
+        try {
+            browser.triggerEvent(event, inputs);
+            State newState = browser.getCurrentBrowserState();
 
-        if (SiteBoundChecker.isOutOfBounds(newState.getUri(), context)) {
-            throw new OutOfBoundsException("Trying to access " + newState.getUri().toString());
+            if (SiteBoundChecker.isOutOfBounds(newState.getUri(), context)) {
+                throw new OutOfBoundsException("Trying to access " + newState.getUri().toString());
+            }
+
+            return newState;
+        } catch (BrowserException e) {
+            throw new EventTriggerException(e.getMessage(), e);
         }
-
-        return newState;
     }
 
     private void initCrawl(URI root) throws UncrawlableStateException {
@@ -151,12 +181,12 @@ public class SimpleCrawler implements com.datagenio.crawler.api.Crawler {
     public boolean relocateFrom(State current) throws UncrawlableStateException {
         boolean relocated = false;
 
-        State next = this.getGraph().findNearestUnfinishedStateFrom(this.getGraph().getRoot());
+        State next = getGraph().findNearestUnfinishedStateFrom(getGraph().getRoot());
         if (next != null) {
             try {
-                var path = this.getGraph().findPath(this.getGraph().getRoot(), next);
-                this.walk(path);
-                this.getGraph().setCurrentState(next);
+                var path = getGraph().findPath(getGraph().getRoot(), next);
+                walk(path);
+                getGraph().setCurrentState(next);
                 relocated = true;
             } catch (UncrawlablePathException e) {
                 logger.info("Exception encountered while trying to walk from root.", e);

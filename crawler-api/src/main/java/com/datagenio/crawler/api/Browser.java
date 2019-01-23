@@ -23,8 +23,8 @@ public interface Browser {
     void pause() throws BrowserException;
     void triggerEvent(Eventable event, Map<String, String> inputs) throws UnsupportedEventTypeException, EventTriggerException;
 
-    State getCurrentBrowserState();
-    Document getDOM();
+    State getCurrentBrowserState() throws BrowserException;
+    Document getDOM() throws BrowserException;
     Object executeJavaScript(String code) throws BrowserException;
     File getScreenShotFile();
     byte[] getScreenShotBytes();

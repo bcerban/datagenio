@@ -12,6 +12,8 @@ public interface Properties {
 
     // Event Transition properties
     String EXECUTED_EVENT_ID = "executed_event";
+    String STATUS = "status";
+    String REASON_FOR_FAILRE = "reason_for_failure";
 
     // Event properties
     String XPATH = "xpath";

@@ -1,5 +1,6 @@
 package com.datagenio.crawler.api;
 
+import com.datagenio.crawler.exception.InvalidTransitionException;
 import com.datagenio.crawler.exception.UncrawlableStateException;
 import org.jgrapht.GraphPath;
 
@@ -15,7 +16,9 @@ public interface EventFlowGraph {
     State find(State state);
     State findNearestUnfinishedStateFrom(State state) throws UncrawlableStateException;
     GraphPath<State, Transitionable> findPath(State from, State to);
+    Transitionable findTransition(Eventable eventable) throws InvalidTransitionException;
     boolean isNewState(State state);
+    boolean isRegistered(Eventable eventable);
 
     void addState(State state);
     void addStateAsCurrent(State state) throws UncrawlableStateException;
