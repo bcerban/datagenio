@@ -1,5 +1,6 @@
 package com.datagenio.crawler.api;
 
+import java.net.URI;
 import java.util.Collection;
 
 public interface Transitionable {
@@ -13,6 +14,7 @@ public interface Transitionable {
     ExecutedEventable getExecutedEvent();
     Collection<RemoteRequest> getRequests();
     Status getStatus();
+    boolean hasRemoteRequest(URI uri);
 
     void setOrigin(State origin);
     void setDestination(State destination);
