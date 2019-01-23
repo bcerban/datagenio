@@ -121,6 +121,7 @@ public class CrawlRunner {
         settings.put(Configuration.CONNECTION_MODE, Configuration.CONNECTION_MODE_EMBEDDED);
         settings.put(Configuration.OUTPUT_DIRECTORY_NAME, arguments.getOptionValue(ArgumentParser.OUTPUT));
         settings.put(Configuration.SITE_ROOT_URI, arguments.getOptionValue(ArgumentParser.URL));
+        settings.put(Configuration.REQUEST_SAVE_MODE, Configuration.REQUEST_SAVE_AS_JSON);
 
         return new Configuration(settings);
     }

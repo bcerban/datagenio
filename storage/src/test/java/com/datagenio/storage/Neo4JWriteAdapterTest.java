@@ -74,6 +74,7 @@ public class Neo4JWriteAdapterTest {
         var executedEvent = mock(ExecutedEventable.class);
         var event = mock(Eventable.class);
 
+        doReturn(Configuration.REQUEST_SAVE_AS_NODE).when(configuration).get(Configuration.REQUEST_SAVE_MODE);
         doReturn(first).when(transition).getOrigin();
         doReturn(second).when(transition).getDestination();
         doReturn(executedEvent).when(transition).getExecutedEvent();

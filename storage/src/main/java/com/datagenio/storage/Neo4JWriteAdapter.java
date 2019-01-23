@@ -13,7 +13,6 @@ import com.google.gson.Gson;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Label;
 import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.Relationship;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,12 +26,14 @@ public class Neo4JWriteAdapter implements WriteAdapter {
 
     private Gson gson;
     private Connection connection;
+    private Configuration configuration;
     private GraphDatabaseService eventGraphService;
     private GraphDatabaseService webFlowGraphService;
 
     public Neo4JWriteAdapter(Configuration configuration, Connection connection, Gson gson) {
         this.gson = gson;
         this.connection = connection;
+        this.configuration = configuration;
         eventGraphService = connection.createEventGraph(configuration.get(Configuration.SITE_ROOT_URI));
         webFlowGraphService = connection.createWebFlowGraph(configuration.get(Configuration.SITE_ROOT_URI));
     }
@@ -130,13 +131,8 @@ public class Neo4JWriteAdapter implements WriteAdapter {
     }
 
     private void addEventTransitionWithRequests(Transitionable transition) throws StorageException {
-        Node through = connection.addNode(
-                eventGraphService,
-                Label.label(Labels.EVENT),
-                buildEventProperties(transition.getExecutedEvent().getEvent())
-        );
 
-        saveTransitionRequests(transition, through);
+        Node through = addEventTransitionNode(transition);
 
         connection.addEdge(
                 eventGraphService,
@@ -155,7 +151,18 @@ public class Neo4JWriteAdapter implements WriteAdapter {
         );
     }
 
-    private void saveTransitionRequests(Transitionable transition, Node from) {
+    private Node addEventTransitionNode(Transitionable transition) throws StorageException {
+        var addAsJson = addEventNodeAsJson();
+        var eventProperties = buildEventProperties(transition.getExecutedEvent().getEvent());
+        if (addAsJson) eventProperties.put(Properties.CONCRETE_REQUESTS, gson.toJson(transition.getRequests()));
+
+        Node node = connection.addNode(eventGraphService, Label.label(Labels.EVENT), eventProperties);
+        if (!addAsJson) saveTransitionRequestsAsNodes(transition, node);
+
+        return node;
+    }
+
+    private void saveTransitionRequestsAsNodes(Transitionable transition, Node from) {
         transition.getRequests().forEach(request -> {
             var properties = new HashMap<String, Object>();
             properties.put(Properties.REQUEST_JSON, gson.toJson(request));
@@ -166,6 +173,10 @@ public class Neo4JWriteAdapter implements WriteAdapter {
                 logger.info("Failed to add event request or edge.", e);
             }
         });
+    }
+
+    private boolean addEventNodeAsJson() {
+        return configuration.get(Configuration.REQUEST_SAVE_MODE).equals(Configuration.REQUEST_SAVE_AS_JSON);
     }
 
     private Node findWebNode(WebState state) throws StorageException {
@@ -205,6 +216,7 @@ public class Neo4JWriteAdapter implements WriteAdapter {
         if (eventable.getStatus().equals(Eventable.Status.FAILED)) {
             properties.put(Properties.REASON_FOR_FAILRE, eventable.getReasonForFailure());
         }
+
         return properties;
     }
 }
