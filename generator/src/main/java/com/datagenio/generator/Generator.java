@@ -41,7 +41,7 @@ public class Generator {
     }
 
     public EventFlowGraph crawlSite() {
-        var graph = this.crawler.crawl();
+        var graph = crawler.crawl();
 
         logger.info("Saving generated graph...");
         writeAdapter.save(graph);
@@ -50,8 +50,12 @@ public class Generator {
     }
 
     public WebFlowGraph generateWebModel() {
-        EventFlowGraph eventGraph = this.crawler.crawl();
-        return this.converter.convert(eventGraph);
+        var webModel =  converter.convert(crawlSite());
+
+        logger.info("Saving generated graph...");
+        writeAdapter.save(webModel);
+
+        return webModel;
     }
 
     public void generateDataset(WebFlowGraph webModel) {

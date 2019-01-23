@@ -10,6 +10,7 @@ import org.apache.http.HttpRequest;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.stream.Collectors;
 
 public class Transition implements Transitionable {
 
@@ -44,6 +45,13 @@ public class Transition implements Transitionable {
     @Override
     public Collection<RemoteRequest> getRequests() {
         return requests;
+    }
+
+    @Override
+    public Collection<RemoteRequest> getFilteredRequests(URI uri) {
+        return getRequests().stream()
+                .filter(r -> !SiteBoundChecker.isOutOfBounds(URI.create(r.getUrl()), uri))
+                .collect(Collectors.toList());
     }
 
     @Override

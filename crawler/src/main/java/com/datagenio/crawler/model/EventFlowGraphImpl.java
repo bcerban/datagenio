@@ -43,6 +43,11 @@ public class EventFlowGraphImpl implements EventFlowGraph {
     }
 
     @Override
+    public Collection<Transitionable> getOutgoingTransitions(State state) {
+        return graph.outgoingEdgesOf(state);
+    }
+
+    @Override
     public Collection<Eventable> getEvents() {
         return events;
     }

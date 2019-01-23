@@ -13,6 +13,7 @@ public interface Transitionable {
     State getDestination();
     ExecutedEventable getExecutedEvent();
     Collection<RemoteRequest> getRequests();
+    Collection<RemoteRequest> getFilteredRequests(URI uri);
     Status getStatus();
     boolean hasRemoteRequest(URI uri);
 

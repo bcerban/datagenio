@@ -10,6 +10,7 @@ public interface EventFlowGraph {
 
     Collection<State> getStates();
     Collection<Transitionable> getTransitions();
+    Collection<Transitionable> getOutgoingTransitions(State state);
     Collection<Eventable> getEvents();
     State getRoot();
     State getCurrentState();

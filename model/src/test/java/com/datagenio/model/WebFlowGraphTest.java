@@ -1,13 +1,10 @@
 package com.datagenio.model;
 
-import com.datagenio.model.api.WebState;
-import com.datagenio.model.api.WebTransition;
-import com.datagenio.model.request.AbstractRequest;
+import com.datagenio.model.exception.InvalidTransitionException;
 import com.datagenio.model.request.AbstractUrlImpl;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.ArrayList;
 
 import static org.junit.Assert.*;
 
@@ -26,58 +23,29 @@ public class WebFlowGraphTest {
     }
 
     @Test
-    public void testSetStates() {
-        var states = new ArrayList<WebState>();
-        states.add(new WebStateImpl(new AbstractUrlImpl("state_url")));
-        this.graph.setStates(states);
-
-        assertEquals(states, this.graph.getStates());
-    }
-
-    @Test
     public void testGetTransitions() {
         assertNotNull(this.graph.getTransitions());
-    }
-
-    @Test
-    public void testSetTransitions() {
-        var transitions = new ArrayList<WebTransition>();
-
-        var origin = new WebStateImpl(new AbstractUrlImpl("origin"));
-        var destination = new WebStateImpl(new AbstractUrlImpl("destination"));
-        var request = new AbstractRequest("GET", destination.getUrl());
-
-        transitions.add(new WebTransitionImpl(origin, destination));
-        this.graph.setTransitions(transitions);
-
-        assertEquals(transitions, this.graph.getTransitions());
     }
 
     @Test
     public void testAddStateNew() {
         var state = new WebStateImpl(new AbstractUrlImpl("added_state_url"));
         this.graph.addState(state);
-
-        assertEquals(1, this.graph.getStateCount());
         assertTrue(this.graph.getStates().contains(state));
     }
 
     @Test
     public void testAddStateAlreadyExists() {
-        var states = new ArrayList<WebState>();
         var state = new WebStateImpl(new AbstractUrlImpl("added_state_url"));
         var newState = new WebStateImpl(state.getUrl());
-        states.add(state);
 
-        this.graph.setStates(states);
+        this.graph.addState(state);
         this.graph.addState(newState);
-
-        assertEquals(1, this.graph.getStateCount());
         assertTrue(this.graph.getStates().contains(newState));
     }
 
-    @Test
-    public void testAddTransitionMissingOrigin() {
+    @Test(expected = InvalidTransitionException.class)
+    public void testAddTransitionMissingOrigin() throws InvalidTransitionException {
         var transition = getTestTransition();
 
         this.graph.addState(transition.getDestination());
@@ -86,8 +54,8 @@ public class WebFlowGraphTest {
         assertEquals(0, this.graph.getTransitions().size());
     }
 
-    @Test
-    public void testAddTransitionMissingDestination() {
+    @Test(expected = InvalidTransitionException.class)
+    public void testAddTransitionMissingDestination() throws InvalidTransitionException {
         var transition = getTestTransition();
 
         this.graph.addState(transition.getOrigin());
@@ -97,7 +65,7 @@ public class WebFlowGraphTest {
     }
 
     @Test
-    public void testAddTransitionDuplicate() {
+    public void testAddTransitionDuplicate() throws InvalidTransitionException {
         var transition = getTestTransition();
 
         this.graph.addState(transition.getOrigin());
@@ -111,7 +79,6 @@ public class WebFlowGraphTest {
     private WebTransitionImpl getTestTransition() {
         var origin = new WebStateImpl(new AbstractUrlImpl("origin"));
         var destination = new WebStateImpl(new AbstractUrlImpl("destination"));
-        var request = new AbstractRequest("GET", destination.getUrl());
         return new WebTransitionImpl(origin, destination);
     }
 }

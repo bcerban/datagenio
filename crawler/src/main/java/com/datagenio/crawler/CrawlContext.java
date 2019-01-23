@@ -1,8 +1,10 @@
 package com.datagenio.crawler;
 
+import com.datagenio.crawler.api.Context;
+
 import java.net.URI;
 
-public class CrawlContext {
+public class CrawlContext implements Context {
     public static int REQUEST_TIMEOUT = 300;
 
     private final int requestTimeout;

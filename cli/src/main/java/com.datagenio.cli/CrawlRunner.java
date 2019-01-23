@@ -7,6 +7,9 @@ import com.datagenio.crawler.browser.BrowserFactory;
 import com.datagenio.databank.InputBuilderFactory;
 import com.datagenio.generator.Generator;
 import com.datagenio.generator.GraphConverterImpl;
+import com.datagenio.generator.converter.HttpRequestAbstractor;
+import com.datagenio.generator.converter.StateConverter;
+import com.datagenio.generator.converter.UrlAbstractor;
 import com.datagenio.storage.Neo4JReadAdapter;
 import com.datagenio.storage.Neo4JWriteAdapter;
 import com.datagenio.storage.api.Configuration;
@@ -90,20 +93,22 @@ public class CrawlRunner {
 
         System.out.println("Preparing dependencies...");
 
-        var jsonBuilder = new GsonBuilder();
-        jsonBuilder.setPrettyPrinting();
+        var jsonBuilder = new GsonBuilder().setPrettyPrinting();
         var gson = jsonBuilder.create();
 
-        var crawlContext = new CrawlContext(url, directory, isVerbose(arguments), true);
-        var crawler = new SimpleCrawler(crawlContext, BrowserFactory.drivenByFirefox(), InputBuilderFactory.get());
+        var context = new CrawlContext(url, directory, isVerbose(arguments), true);
+        var crawler = new SimpleCrawler(context, BrowserFactory.drivenByFirefox(), InputBuilderFactory.get());
         var configuration = getStorageConfiguration(arguments);
         var readAdapter = new Neo4JReadAdapter(configuration);
         var writeAdapter = new Neo4JWriteAdapter(configuration, ConnectionResolver.get(configuration), gson);
+        var urlAbstractor = new UrlAbstractor();
+        var requestAbstractor = new HttpRequestAbstractor(urlAbstractor);
+        var stateConverter = new StateConverter(urlAbstractor, requestAbstractor);
 
         // Begin modeling site
         System.out.println("Beginning modeling process...");
 
-        var generator = new Generator(crawler, new GraphConverterImpl(), readAdapter, writeAdapter);
+        var generator = new Generator(crawler, new GraphConverterImpl(context, stateConverter, requestAbstractor), readAdapter, writeAdapter);
         EventFlowGraph graph = generator.crawlSite();
 
         System.out.println("Finished crawling site.");
