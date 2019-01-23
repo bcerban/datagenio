@@ -18,15 +18,18 @@ public class ExecutableEvent implements Eventable {
     private EventType eventType;
     private String handler = "";
     private String xpath;
+    private boolean isNav;
+    private Status status = Status.NOT_EXECUTED;
+    private String reasonForFailure = "";
 
     /** Not sure whether saving the full DOM is necessary, but it can be removed later. */
     private Document parent;
 
     public ExecutableEvent(Element e, EventType event) {
-        this.source = e;
-        this.eventType = event;
-        this.parent = this.source.ownerDocument();
-        this.xpath = XPathParser.getXPathFor(this.source);
+        source = e;
+        eventType = event;
+        parent = source.ownerDocument();
+        xpath = XPathParser.getXPathFor(source);
     }
 
     @Override
@@ -50,8 +53,8 @@ public class ExecutableEvent implements Eventable {
     }
 
     public String getHandler() {
-        if (StringUtils.isEmpty(this.handler) && this.source.hasAttr("action")) {
-            this.handler = this.source.attr("action");
+        if (StringUtils.isEmpty(handler) && source.hasAttr("action")) {
+            handler = source.attr("action");
         }
         return handler;
     }
@@ -69,18 +72,48 @@ public class ExecutableEvent implements Eventable {
     }
 
     @Override
+    public boolean isNavigation() {
+        return isNav;
+    }
+
+    @Override
+    public void setIsNavigation(boolean isNavigation) {
+        isNav = isNavigation;
+    }
+
+    @Override
     public String getXpath() {
         return xpath;
     }
 
     @Override
     public String getIdentifier() {
-        String identifier = this.source.id();
+        String identifier = source.id();
 
         if (StringUtils.isEmpty(identifier)) {
-            identifier = this.getXpath();
+            identifier = getXpath();
         }
         return identifier;
+    }
+
+    @Override
+    public Status getStatus() {
+        return status;
+    }
+
+    @Override
+    public void setStatus(Status status) {
+        this.status = status;
+    }
+
+    @Override
+    public String getReasonForFailure() {
+        return reasonForFailure;
+    }
+
+    @Override
+    public void setReasonForFailure(String reasonForFailure) {
+        this.reasonForFailure = reasonForFailure;
     }
 
     @Override

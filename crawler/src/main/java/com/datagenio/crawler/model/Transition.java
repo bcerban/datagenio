@@ -15,6 +15,7 @@ public class Transition implements Transitionable {
     private State destination;
     private ExecutedEventable executedEvent;
     private Collection<RemoteRequest> requests;
+    private Status status;
 
     public Transition(State origin, State destination, ExecutedEventable event) {
         this.origin = origin;
@@ -66,5 +67,15 @@ public class Transition implements Transitionable {
     @Override
     public void addRequest(RemoteRequest request) {
         this.requests.add(request);
+    }
+
+    @Override
+    public Status getStatus() {
+        return status;
+    }
+
+    @Override
+    public void setStatus(Status status) {
+        this.status = status;
     }
 }

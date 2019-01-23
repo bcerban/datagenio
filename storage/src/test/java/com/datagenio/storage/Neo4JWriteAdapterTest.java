@@ -77,8 +77,10 @@ public class Neo4JWriteAdapterTest {
         doReturn(first).when(transition).getOrigin();
         doReturn(second).when(transition).getDestination();
         doReturn(executedEvent).when(transition).getExecutedEvent();
+        doReturn(Transitionable.Status.TRAVERSED).when(transition).getStatus();
         doReturn(event).when(executedEvent).getEvent();
         doReturn(Eventable.EventType.click).when(event).getEventType();
+        doReturn(Eventable.Status.SUCCEEDED).when(event).getStatus();
         doReturn(mock(Element.class)).when(event).getSource();
         doReturn(mock(Node.class)).when(connection).findNode(eq(eventDatabase), any(), any());
 

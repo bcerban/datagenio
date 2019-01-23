@@ -30,7 +30,9 @@ public class ExecutableEventExtractor implements EventableExtractor {
         var eventables = new ArrayList<Eventable>();
 
         if (this.isEventableElement(node)) {
-            eventables.add(new ExecutableEvent(node, getEventTypeFor(node)));
+            var eventable = new ExecutableEvent(node, getEventTypeFor(node));
+            eventable.setIsNavigation(isNavigationElement(node));
+            eventables.add(eventable);
         } else {
             node.children().forEach(child -> eventables.addAll(extract(origin, child)));
         }
@@ -55,5 +57,18 @@ public class ExecutableEventExtractor implements EventableExtractor {
         }
 
         return Eventable.EventType.click;
+    }
+
+    private boolean isNavigationElement(Element element) {
+        String matcher = "nav, header";
+        if (element.is(matcher)) return true;
+
+        Element current = element;
+        while (current.hasParent()) {
+            current = current.parent();
+            if (current.is(matcher)) return true;
+        }
+
+        return false;
     }
 }
