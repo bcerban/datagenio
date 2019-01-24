@@ -3,18 +3,24 @@ package com.datagenio.crawler.model;
 import com.datagenio.crawler.api.ExecutedEventable;
 import com.datagenio.crawler.api.RemoteRequest;
 import com.datagenio.crawler.api.State;
+import com.datagenio.crawler.browser.RemoteHttpRequest;
 import org.apache.http.*;
 import org.apache.http.message.BasicHttpRequest;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.net.URI;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
+import java.util.List;
 
 import static org.mockito.Mockito.*;
 import static org.junit.Assert.*;
 
 public class TransitionTest {
+
+    private static final String TEST_URL = "http://test.com";
 
     private State origin;
     private State destination;
@@ -91,5 +97,23 @@ public class TransitionTest {
         var request = mock(RemoteRequest.class);
         this.transition.addRequest(request);
         assertTrue(this.transition.getRequests().contains(request));
+    }
+
+    @Test
+    public void testHasRemoteRequestTrue() {
+        var remoteRequest = new RemoteHttpRequest();
+        remoteRequest.setUrl(TEST_URL);
+
+        transition.setRequests(List.of(remoteRequest));
+        assertTrue(transition.hasRemoteRequest(URI.create(TEST_URL)));
+    }
+
+    @Test
+    public void testHasRemoteRequestFalse() {
+        var remoteRequest = new RemoteHttpRequest();
+        remoteRequest.setUrl("https://someotherurl.test");
+
+        transition.setRequests(List.of(remoteRequest));
+        assertFalse(transition.hasRemoteRequest(URI.create(TEST_URL)));
     }
 }

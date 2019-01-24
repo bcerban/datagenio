@@ -2,11 +2,17 @@ package com.datagenio.cli;
 
 import com.datagenio.crawler.CrawlContext;
 import com.datagenio.crawler.SimpleCrawler;
+import com.datagenio.crawler.api.Context;
 import com.datagenio.crawler.api.EventFlowGraph;
 import com.datagenio.crawler.browser.BrowserFactory;
 import com.datagenio.databank.InputBuilderFactory;
 import com.datagenio.generator.Generator;
 import com.datagenio.generator.GraphConverterImpl;
+import com.datagenio.generator.converter.BodyConverter;
+import com.datagenio.generator.converter.HttpRequestAbstractor;
+import com.datagenio.generator.converter.StateConverter;
+import com.datagenio.generator.converter.UrlAbstractor;
+import com.datagenio.model.api.WebFlowGraph;
 import com.datagenio.storage.Neo4JReadAdapter;
 import com.datagenio.storage.Neo4JWriteAdapter;
 import com.datagenio.storage.api.Configuration;
@@ -90,30 +96,57 @@ public class CrawlRunner {
 
         System.out.println("Preparing dependencies...");
 
-        var jsonBuilder = new GsonBuilder();
-        jsonBuilder.setPrettyPrinting();
+        var jsonBuilder = new GsonBuilder().setPrettyPrinting();
         var gson = jsonBuilder.create();
 
-        var crawlContext = new CrawlContext(url, directory, isVerbose(arguments), true);
-        var crawler = new SimpleCrawler(crawlContext, BrowserFactory.drivenByFirefox(), InputBuilderFactory.get());
+        var context = getContext(arguments);
+        var crawler = new SimpleCrawler(context, BrowserFactory.drivenByFirefox(), InputBuilderFactory.get());
         var configuration = getStorageConfiguration(arguments);
         var readAdapter = new Neo4JReadAdapter(configuration);
         var writeAdapter = new Neo4JWriteAdapter(configuration, ConnectionResolver.get(configuration), gson);
+        var urlAbstractor = new UrlAbstractor();
+        var bodyConverter = new BodyConverter();
+        var requestAbstractor = new HttpRequestAbstractor(urlAbstractor, bodyConverter);
+        var stateConverter = new StateConverter(urlAbstractor, requestAbstractor, context.getRootUri());
 
         // Begin modeling site
         System.out.println("Beginning modeling process...");
 
-        var generator = new Generator(crawler, new GraphConverterImpl(), readAdapter, writeAdapter);
-        EventFlowGraph graph = generator.crawlSite();
+        var generator = new Generator(crawler, new GraphConverterImpl(context, stateConverter, requestAbstractor), readAdapter, writeAdapter);
+//        EventFlowGraph graph = generator.crawlSite();
+        WebFlowGraph model = generator.generateWebModel();
 
-        System.out.println("Finished crawling site.");
-        System.out.println("Found " + graph.getStates().size() + " states, and " + graph.getTransitions().size() + " transitions.");
+//        System.out.println("Finished crawling site.");
+//        System.out.println("Found " + graph.getStates().size() + " states, and " + graph.getTransitions().size() + " transitions.");
 
         System.out.println("Finished modeling site.");
+        System.out.println("Found " + model.getStates().size() + " states, and " + model.getTransitions().size() + " transitions.");
     }
 
     private static boolean isVerbose(CommandLine arguments) {
         return arguments.hasOption(ArgumentParser.VERBOSE);
+    }
+
+    private static int getMaxDepth(CommandLine arguments) {
+        String depth = arguments.getOptionValue(ArgumentParser.DEPTH);
+        try {
+            return Integer.parseInt(depth);
+        } catch (NumberFormatException e) {
+            return Context.NO_MAX_DEPTH;
+        }
+    }
+
+    private static Context getContext(CommandLine arguments) {
+        Context context = new CrawlContext(
+                arguments.getOptionValue(ArgumentParser.URL),
+                arguments.getOptionValue(ArgumentParser.OUTPUT),
+                isVerbose(arguments),
+                true,
+                getMaxDepth(arguments)
+        );
+
+        System.out.println("Max exploration depth: " + context.getCrawlDepth());
+        return context;
     }
 
     private static Configuration getStorageConfiguration(CommandLine arguments) {
@@ -121,6 +154,7 @@ public class CrawlRunner {
         settings.put(Configuration.CONNECTION_MODE, Configuration.CONNECTION_MODE_EMBEDDED);
         settings.put(Configuration.OUTPUT_DIRECTORY_NAME, arguments.getOptionValue(ArgumentParser.OUTPUT));
         settings.put(Configuration.SITE_ROOT_URI, arguments.getOptionValue(ArgumentParser.URL));
+        settings.put(Configuration.REQUEST_SAVE_MODE, Configuration.REQUEST_SAVE_AS_JSON);
 
         return new Configuration(settings);
     }

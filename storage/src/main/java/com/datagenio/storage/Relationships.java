@@ -6,5 +6,6 @@ public enum Relationships implements RelationshipType {
     WEB_TRANSITION,
     EXECUTED_EVENT,
     LEADS_TO,
-    HAS_REQUEST
+    HAS_REQUEST,
+    ABSTRACTED
 }

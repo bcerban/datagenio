@@ -18,6 +18,7 @@ public interface State {
     Eventable getNextEventToFire() throws UncrawlableStateException;
     boolean isFinished();
     boolean isRoot();
+    boolean hasScreenShot();
     File getScreenShot();
 
     void setHandler(String handler);

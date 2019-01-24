@@ -13,7 +13,7 @@ public class BrowserFactory {
 
         // TODO: add all other required driver options
         FirefoxOptions options = new FirefoxOptions();
-        options.setUnhandledPromptBehaviour(UnexpectedAlertBehaviour.ACCEPT);
+        options.setUnhandledPromptBehaviour(UnexpectedAlertBehaviour.DISMISS);
         options.setProxy(networkProxy.getDriverProxy());
 
         return new DrivenBrowser(new FirefoxDriver(options), networkProxy);

@@ -1,12 +1,12 @@
 package com.datagenio.crawler.util;
 
-import com.datagenio.crawler.CrawlContext;
+import com.datagenio.crawler.api.Context;
 
 import java.net.URI;
 
 public class SiteBoundChecker {
 
-    public static boolean isOutOfBounds(URI uri, CrawlContext context) {
+    public static boolean isOutOfBounds(URI uri, Context context) {
         if (uri == null || uri.getHost() == null) {
             return true;
         }

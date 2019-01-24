@@ -10,6 +10,7 @@ public interface EventFlowGraph {
 
     Collection<State> getStates();
     Collection<Transitionable> getTransitions();
+    Collection<Transitionable> getOutgoingTransitions(State state);
     Collection<Eventable> getEvents();
     State getRoot();
     State getCurrentState();
@@ -19,6 +20,7 @@ public interface EventFlowGraph {
     Transitionable findTransition(Eventable eventable) throws InvalidTransitionException;
     boolean isNewState(State state);
     boolean isRegistered(Eventable eventable);
+    int getGraphDiameter();
 
     void addState(State state);
     void addStateAsCurrent(State state) throws UncrawlableStateException;

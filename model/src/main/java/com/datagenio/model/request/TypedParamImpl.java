@@ -1,5 +1,6 @@
 package com.datagenio.model.request;
 
+import com.datagenio.model.api.ParamTypes;
 import com.datagenio.model.api.TypedParam;
 
 import java.util.Objects;
@@ -7,16 +8,15 @@ import java.util.Objects;
 public class TypedParamImpl implements TypedParam {
 
     private String name;
-    private String type;
-    private boolean required;
+    private ParamTypes type;
+    private boolean required = false;
 
-    public TypedParamImpl(String name, String type) {
+    public TypedParamImpl(String name, ParamTypes type) {
         this.name = name;
         this.type = type;
-        this.required = false;
     }
 
-    public TypedParamImpl(String name, String type, boolean required) {
+    public TypedParamImpl(String name, ParamTypes type, boolean required) {
         this.name = name;
         this.type = type;
         this.required = required;
@@ -33,12 +33,12 @@ public class TypedParamImpl implements TypedParam {
     }
 
     @Override
-    public String getType() {
+    public ParamTypes getType() {
         return type;
     }
 
     @Override
-    public void setType(String type) {
+    public void setType(ParamTypes type) {
         this.type = type;
     }
 
@@ -66,5 +66,10 @@ public class TypedParamImpl implements TypedParam {
     @Override
     public int hashCode() {
         return Objects.hash(name, type);
+    }
+
+    @Override
+    public String toString() {
+        return String.format("%s:[%s] (%)", name, type.toString(), required ? "required" : "not required");
     }
 }

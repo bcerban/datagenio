@@ -2,6 +2,7 @@ package com.datagenio.model.request;
 
 import java.util.ArrayList;
 
+import com.datagenio.model.api.ParamTypes;
 import com.datagenio.model.api.TypedParam;
 import org.junit.Before;
 import org.junit.Test;
@@ -41,15 +42,15 @@ public class AbstractUrlImplTest {
 
     @Test
     public void testAddParam() {
-        TypedParamImpl param = new TypedParamImpl("q", "string");
+        TypedParamImpl param = new TypedParamImpl("q", ParamTypes.ALPHANUMERIC);
         this.url.addTypedParam(param);
         assertTrue(this.url.getTypedParams().contains(param));
     }
 
     @Test
     public void testGetRequiredParams() {
-        var requiredParam = new TypedParamImpl("username", "string", true);
-        var optionalParam = new TypedParamImpl("password", "string", false);
+        var requiredParam = new TypedParamImpl("username", ParamTypes.ALPHANUMERIC, true);
+        var optionalParam = new TypedParamImpl("password", ParamTypes.ALPHANUMERIC, false);
 
         this.url.addTypedParam(requiredParam);
         this.url.addTypedParam(optionalParam);
@@ -72,14 +73,14 @@ public class AbstractUrlImplTest {
     @Test
     public void testEqualsDiffRequiredParams() {
         AbstractUrlImpl other = new AbstractUrlImpl(this.url.getBaseUrl());
-        other.addTypedParam(new TypedParamImpl("q", "string", true));
+        other.addTypedParam(new TypedParamImpl("q", ParamTypes.ALPHANUMERIC, true));
         assertFalse(this.url.equals(other));
     }
 
     @Test
     public void testEqualsDiffOptionalParams() {
         AbstractUrlImpl other = new AbstractUrlImpl(this.url.getBaseUrl());
-        other.addTypedParam(new TypedParamImpl("q", "string"));
+        other.addTypedParam(new TypedParamImpl("q", ParamTypes.ALPHANUMERIC));
         assertTrue(this.url.equals(other));
     }
 

@@ -13,6 +13,10 @@ public class Configuration {
     public static final String PASSWORD = "password";
     public static final String OUTPUT_DIRECTORY_NAME = "output_dir_name";
     public static final String SITE_ROOT_URI = "root_uri";
+    public static final String REQUEST_SAVE_MODE = "request_save_mode";
+    public static final String REQUEST_SAVE_AS_NODE = "as_node";
+    public static final String REQUEST_SAVE_AS_JSON = "as_json";
+    public static final String MAX_GRAPH_SIZE = "max_size";
 
     private Map<String, String> settings;
 

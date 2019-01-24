@@ -4,10 +4,13 @@ import com.datagenio.crawler.api.ExecutedEventable;
 import com.datagenio.crawler.api.RemoteRequest;
 import com.datagenio.crawler.api.State;
 import com.datagenio.crawler.api.Transitionable;
+import com.datagenio.crawler.util.SiteBoundChecker;
 import org.apache.http.HttpRequest;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.stream.Collectors;
 
 public class Transition implements Transitionable {
 
@@ -26,22 +29,29 @@ public class Transition implements Transitionable {
 
     @Override
     public State getOrigin() {
-        return this.origin;
+        return origin;
     }
 
     @Override
     public State getDestination() {
-        return this.destination;
+        return destination;
     }
 
     @Override
     public ExecutedEventable getExecutedEvent() {
-        return this.executedEvent;
+        return executedEvent;
     }
 
     @Override
     public Collection<RemoteRequest> getRequests() {
-        return this.requests;
+        return requests;
+    }
+
+    @Override
+    public Collection<RemoteRequest> getFilteredRequests(URI uri) {
+        return getRequests().stream()
+                .filter(r -> !SiteBoundChecker.isOutOfBounds(URI.create(r.getUrl()), uri))
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -66,12 +76,19 @@ public class Transition implements Transitionable {
 
     @Override
     public void addRequest(RemoteRequest request) {
-        this.requests.add(request);
+        requests.add(request);
     }
 
     @Override
     public Status getStatus() {
         return status;
+    }
+
+    @Override
+    public boolean hasRemoteRequest(URI uri) {
+        return getRequests().stream()
+                .filter(r -> !SiteBoundChecker.isOutOfBounds(URI.create(r.getUrl()), uri))
+                .count() > 0;
     }
 
     @Override

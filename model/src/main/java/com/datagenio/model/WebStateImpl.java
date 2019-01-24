@@ -5,6 +5,7 @@ import com.datagenio.model.api.AbstractUrl;
 import com.datagenio.model.api.WebState;
 import com.datagenio.model.request.AbstractUrlImpl;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Objects;
@@ -15,16 +16,20 @@ public class WebStateImpl implements WebState {
     private final String identifier;
     private AbstractUrl url;
     private Collection<AbstractHttpRequest> requests;
+    private Collection<String> externalIds;
+    private Collection<File> screenShots;
+    private boolean isRoot = false;
 
     public WebStateImpl() {
-        this.requests = new ArrayList<>();
-        this.identifier = UUID.randomUUID().toString();
+        identifier = UUID.randomUUID().toString();
+        requests = new ArrayList<>();
+        externalIds = new ArrayList<>();
+        screenShots = new ArrayList<>();
     }
 
     public WebStateImpl(AbstractUrl url) {
+        this();
         this.url = url;
-        this.requests = new ArrayList<>();
-        this.identifier = UUID.randomUUID().toString();
     }
 
     @Override
@@ -34,7 +39,7 @@ public class WebStateImpl implements WebState {
 
     @Override
     public AbstractUrl getUrl() {
-        return this.url;
+        return url;
     }
 
     @Override
@@ -48,13 +53,43 @@ public class WebStateImpl implements WebState {
     }
 
     @Override
+    public Collection<String> getExternalIds() {
+        return externalIds;
+    }
+
+    @Override
     public void setRequests(Collection<AbstractHttpRequest> requestSet) {
         this.requests = requestSet;
     }
 
     @Override
     public void addRequest(AbstractHttpRequest request) {
-        this.requests.add(request);
+        requests.add(request);
+    }
+
+    @Override
+    public void addExternalId(String id) {
+        externalIds.add(id);
+    }
+
+    @Override
+    public boolean isRoot() {
+        return isRoot;
+    }
+
+    @Override
+    public void setIsRoot(boolean isRoot) {
+        this.isRoot = isRoot;
+    }
+
+    @Override
+    public Collection<File> getScreenShots() {
+        return screenShots;
+    }
+
+    @Override
+    public void addScreenShot(File screenShot) {
+        screenShots.add(screenShot);
     }
 
     @Override

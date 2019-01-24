@@ -1,6 +1,7 @@
 package com.datagenio.model.request;
 
 import com.datagenio.model.Session;
+import com.datagenio.model.api.ParamTypes;
 import org.apache.http.Header;
 import org.apache.http.message.BasicHeader;
 import org.junit.Before;
@@ -133,7 +134,7 @@ public class AbstractRequestTest {
     @Test
     public void testEqualsDiffBody() {
         AbstractBody body = new AbstractBody();
-        body.addProperty(new TypedParamImpl("product", "object"));
+        body.addProperty(new TypedParamImpl("product", ParamTypes.OBJECT));
 
         AbstractRequest other = new AbstractRequest("POST", this.request.getUrl());
         other.setHeaders(this.request.getHeaders());

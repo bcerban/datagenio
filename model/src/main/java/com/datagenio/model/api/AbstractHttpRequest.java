@@ -11,10 +11,12 @@ public interface AbstractHttpRequest {
     AbstractUrl getUrl();
     AbstractBody getBody();
     Collection<Header> getHeaders();
+    int getSortOrder();
 
     void setMethod(String method);
     void setUrl(AbstractUrl url);
     void setBody(AbstractBody body);
+    void setSortOrder(int sortOrder);
     void setHeaders(Collection<Header> headers);
 
     void addHeader(Header header);

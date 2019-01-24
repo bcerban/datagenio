@@ -21,19 +21,19 @@ public class SimpleCrawler implements com.datagenio.crawler.api.Crawler {
 
     private static Logger logger = LoggerFactory.getLogger(SimpleCrawler.class);
 
-    private CrawlContext context;
+    private Context context;
     private Browser browser;
     private EventFlowGraph graph;
     private InputBuilder inputBuilder;
 
-    public SimpleCrawler(CrawlContext context, Browser browser, InputBuilder inputBuilder) {
+    public SimpleCrawler(Context context, Browser browser, InputBuilder inputBuilder) {
         this.context = context;
         this.browser = browser;
         this.inputBuilder = inputBuilder;
         graph = new EventFlowGraphImpl();
     }
 
-    public CrawlContext getContext() {
+    public Context getContext() {
         return context;
     }
 
@@ -54,11 +54,13 @@ public class SimpleCrawler implements com.datagenio.crawler.api.Crawler {
         return graph;
     }
 
+    @Override
     public EventFlowGraph crawl() {
         logger.debug("Begin crawling {}...", context.getRootUrl());
 
         try {
             initCrawl(URI.create(context.getRootUrl()));
+
             while (!getGraph().getCurrentState().isFinished()) {
                 State current = getGraph().getCurrentState();
                 Eventable event = current.getNextEventToFire();
@@ -67,6 +69,10 @@ public class SimpleCrawler implements com.datagenio.crawler.api.Crawler {
                     addSuspectedTransition(current, event);
                 } else {
                     crawlState(current, event);
+                }
+
+                if (reachedMaxGraphSize()) {
+                    break;
                 }
 
                 if (getGraph().getCurrentState().isFinished()) {
@@ -84,6 +90,14 @@ public class SimpleCrawler implements com.datagenio.crawler.api.Crawler {
 
         logger.debug("Crawl finished!");
         return getGraph();
+    }
+
+    private boolean reachedMaxGraphSize() {
+        if (context.getCrawlDepth() == Context.NO_MAX_DEPTH) return false;
+
+        // TODO: this is temporary. Graph diameter check should take into account disconnected components
+        return getGraph().getStates().size() >= context.getCrawlDepth();
+//        return getGraph().getGraphDiameter() >= context.getCrawlDepth();
     }
 
     private void crawlState(State current, Eventable event) throws UncrawlableStateException, BrowserException {
@@ -129,6 +143,7 @@ public class SimpleCrawler implements com.datagenio.crawler.api.Crawler {
             var transition = getGraph().findTransition(event);
             var suspectedTransition = new Transition(state, transition.getDestination(), transition.getExecutedEvent());
             suspectedTransition.setStatus(Transitionable.Status.SUSPECTED);
+            suspectedTransition.setRequests(transition.getRequests());
             getGraph().addTransition(suspectedTransition);
         } catch (InvalidTransitionException e) { }
 

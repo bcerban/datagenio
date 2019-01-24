@@ -14,6 +14,7 @@ public class AbstractRequest implements AbstractHttpRequest {
     private AbstractBody requestBody;
     private Collection<Header> headers;
     private Session session;
+    private int sortOrder;
 
     public AbstractRequest(String method, AbstractUrl requestUrl) {
         this.method = method;
@@ -69,6 +70,16 @@ public class AbstractRequest implements AbstractHttpRequest {
     @Override
     public void addHeader(String name, String value) {
         this.headers.add(new BasicHeader(name, value));
+    }
+
+    @Override
+    public int getSortOrder() {
+        return sortOrder;
+    }
+
+    @Override
+    public void setSortOrder(int sortOrder) {
+        this.sortOrder = sortOrder;
     }
 
     public Session getSession() {

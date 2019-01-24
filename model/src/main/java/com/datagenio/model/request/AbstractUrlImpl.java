@@ -1,7 +1,9 @@
 package com.datagenio.model.request;
 
 import com.datagenio.model.api.AbstractUrl;
+import com.datagenio.model.api.ParamTypes;
 import com.datagenio.model.api.TypedParam;
+import org.apache.commons.lang.StringUtils;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -47,12 +49,12 @@ public class AbstractUrlImpl implements AbstractUrl {
     }
 
     @Override
-    public void addTypedParam(String name, String type) {
+    public void addTypedParam(String name, ParamTypes type) {
         this.addTypedParam(new TypedParamImpl(name, type, false));
     }
 
     @Override
-    public void addTypedParam(String name, String type, boolean required) {
+    public void addTypedParam(String name, ParamTypes type, boolean required) {
         this.params.add(new TypedParamImpl(name, type, required));
     }
 
@@ -74,5 +76,11 @@ public class AbstractUrlImpl implements AbstractUrl {
     @Override
     public int hashCode() {
         return Objects.hash(baseUrl, params);
+    }
+
+    @Override
+    public String toString() {
+        String ps = params.stream().map(p -> "{" + p.getName() + "}").collect(Collectors.joining("&"));
+        return params.isEmpty() ? baseUrl : String.format("%s?%s", baseUrl, ps);
     }
 }
