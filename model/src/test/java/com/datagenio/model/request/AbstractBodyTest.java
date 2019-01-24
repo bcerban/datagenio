@@ -1,5 +1,6 @@
 package com.datagenio.model.request;
 
+import com.datagenio.model.api.ParamTypes;
 import com.datagenio.model.api.TypedParam;
 import org.junit.Before;
 import org.junit.Test;
@@ -24,7 +25,7 @@ public class AbstractBodyTest {
 
     @Test
     public void testAddProperty() {
-        TypedParamImpl property = new TypedParamImpl("name", "string");
+        TypedParamImpl property = new TypedParamImpl("name", ParamTypes.ALPHANUMERIC);
         this.body.addProperty(property);
         assertTrue(this.body.getProperties().contains(property));
     }
@@ -38,8 +39,8 @@ public class AbstractBodyTest {
 
     @Test
     public void testGetRequiredProperties() {
-        var requiredProp = new TypedParamImpl("username", "string", true);
-        var optionalProp = new TypedParamImpl("password", "string", false);
+        var requiredProp = new TypedParamImpl("username", ParamTypes.ALPHANUMERIC, true);
+        var optionalProp = new TypedParamImpl("password", ParamTypes.ALPHANUMERIC, false);
 
         this.body.addProperty(requiredProp);
         this.body.addProperty(optionalProp);
@@ -56,14 +57,14 @@ public class AbstractBodyTest {
     @Test
     public void testEqualsDiffRequired() {
         AbstractBody other = new AbstractBody();
-        other.addProperty(new TypedParamImpl("person", "object", true));
+        other.addProperty(new TypedParamImpl("person", ParamTypes.ALPHANUMERIC, true));
         assertFalse(this.body.equals(other));
     }
 
     @Test
     public void testEqualsDiffOptional() {
         AbstractBody other = new AbstractBody();
-        other.addProperty(new TypedParamImpl("person", "object", false));
+        other.addProperty(new TypedParamImpl("person", ParamTypes.ALPHANUMERIC, false));
         assertTrue(this.body.equals(other));
     }
 

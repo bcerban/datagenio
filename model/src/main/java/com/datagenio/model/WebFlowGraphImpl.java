@@ -8,6 +8,8 @@ import org.jgrapht.graph.DirectedPseudograph;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.NoSuchElementException;
+import java.util.Optional;
 
 public class WebFlowGraphImpl implements WebFlowGraph {
 
@@ -43,8 +45,13 @@ public class WebFlowGraphImpl implements WebFlowGraph {
     }
 
     @Override
-    public WebState find(WebState state) {
+    public WebState findStateBy(WebState state) {
         return getStates().stream().filter(s -> s.equals(state)).findFirst().get();
+    }
+
+    @Override
+    public WebState findStateBy(String externalId) {
+        return getStates().stream().filter(s -> s.getExternalIds().contains(externalId)).findFirst().get();
     }
 
     @Override

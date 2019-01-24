@@ -9,18 +9,23 @@ import java.net.URI;
 public class HttpRequestAbstractor {
 
     private UrlAbstractor urlAbstractor;
+    private BodyConverter bodyConverter;
 
-    public HttpRequestAbstractor(UrlAbstractor urlAbstractor) {
+    public HttpRequestAbstractor(UrlAbstractor urlAbstractor, BodyConverter bodyConverter) {
         this.urlAbstractor = urlAbstractor;
+        this.bodyConverter = bodyConverter;
     }
 
     public AbstractHttpRequest process(RemoteRequest remoteRequest) {
         var remoteUri = URI.create(remoteRequest.getUrl());
         AbstractHttpRequest request = new AbstractRequest(remoteRequest.getMethod(), urlAbstractor.process(remoteUri));
-
+        request.setSortOrder(remoteRequest.getSortOrder());
         remoteRequest.getHeaders().forEach((name, value) -> request.addHeader(name, value));
 
-        // TODO: add abstracted body
+        if (remoteRequest.hasBody()) {
+            request.setBody(bodyConverter.process(remoteRequest));
+        }
+
         return request;
     }
 }

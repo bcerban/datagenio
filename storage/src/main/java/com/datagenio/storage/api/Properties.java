@@ -5,6 +5,11 @@ public interface Properties {
     String IDENTIFICATION = "identifier";
     String IS_ROOT = "is_root";
     String SCREEN_SHOT_PATH = "screen_shot";
+    String SCREEN_SHOTS = "screen_shots";
+    String URL = "url";
+    String FINISHED = "finished";
+    String UNFINISHED = "unfinished";
+    String EXTERNAL_IDS = "external_ids";
 
     // WebTransition Properties
     String ABSTRACT_REQUESTS = "abstract_requests";

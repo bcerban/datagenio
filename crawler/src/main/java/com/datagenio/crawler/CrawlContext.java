@@ -5,7 +5,6 @@ import com.datagenio.crawler.api.Context;
 import java.net.URI;
 
 public class CrawlContext implements Context {
-    public static int REQUEST_TIMEOUT = 300;
 
     private final int requestTimeout;
     private final int crawlTimeout;
@@ -20,7 +19,7 @@ public class CrawlContext implements Context {
         this.requestTimeout = REQUEST_TIMEOUT;
         this.crawlTimeout = 0;
         this.outputDirName = outputDirName;
-        this.crawlDepth = 0;
+        this.crawlDepth = NO_MAX_DEPTH;
         this.verbose = false;
         this.printScreen = false;
     }
@@ -30,7 +29,7 @@ public class CrawlContext implements Context {
         this.requestTimeout = REQUEST_TIMEOUT;
         this.crawlTimeout = 0;
         this.outputDirName = outputDirName;
-        this.crawlDepth = 0;
+        this.crawlDepth = NO_MAX_DEPTH;
         this.verbose = verbose;
         this.printScreen = false;
     }
@@ -40,7 +39,17 @@ public class CrawlContext implements Context {
         this.requestTimeout = REQUEST_TIMEOUT;
         this.crawlTimeout = 0;
         this.outputDirName = outputDirName;
-        this.crawlDepth = 0;
+        this.crawlDepth = NO_MAX_DEPTH;
+        this.verbose = verbose;
+        this.printScreen = printScreen;
+    }
+
+    public CrawlContext(String rootUrl, String outputDirName, boolean verbose, boolean printScreen, int crawlDepth) {
+        this.rootUrl = rootUrl;
+        this.requestTimeout = REQUEST_TIMEOUT;
+        this.crawlTimeout = 0;
+        this.outputDirName = outputDirName;
+        this.crawlDepth = crawlDepth;
         this.verbose = verbose;
         this.printScreen = printScreen;
     }
@@ -50,7 +59,7 @@ public class CrawlContext implements Context {
         this.requestTimeout = REQUEST_TIMEOUT;
         this.crawlTimeout = crawlTimeout;
         this.outputDirName = outputDirName;
-        this.crawlDepth = 0;
+        this.crawlDepth = NO_MAX_DEPTH;
         this.verbose = verbose;
         this.printScreen = false;
     }
@@ -60,7 +69,7 @@ public class CrawlContext implements Context {
         this.requestTimeout = requestTimeout;
         this.crawlTimeout = crawlTimeout;
         this.outputDirName = outputDirName;
-        this.crawlDepth = 0;
+        this.crawlDepth = NO_MAX_DEPTH;
         this.verbose = verbose;
         this.printScreen = false;
     }

@@ -7,6 +7,7 @@ import com.datagenio.crawler.api.State;
 import com.datagenio.crawler.api.Transitionable;
 import com.datagenio.crawler.exception.InvalidTransitionException;
 import com.datagenio.crawler.exception.UncrawlableStateException;
+import org.jgrapht.GraphMetrics;
 import org.jgrapht.GraphPath;
 import org.jgrapht.graph.DirectedPseudograph;
 import org.slf4j.Logger;
@@ -102,6 +103,11 @@ public class EventFlowGraphImpl implements EventFlowGraph {
     @Override
     public boolean isRegistered(Eventable eventable) {
         return getEvents().contains(eventable);
+    }
+
+    @Override
+    public int getGraphDiameter() {
+        return (int) GraphMetrics.getDiameter(graph);
     }
 
     @Override

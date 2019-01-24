@@ -1,6 +1,8 @@
 package com.datagenio.crawler.browser;
 
 import com.datagenio.crawler.api.RemoteRequest;
+import com.datagenio.crawler.api.RemoteRequestBody;
+import net.lightbody.bmp.core.har.HarPostData;
 import net.lightbody.bmp.core.har.HarRequest;
 
 import java.util.HashMap;
@@ -11,7 +13,7 @@ public class RemoteHttpRequest implements RemoteRequest {
     private String url;
     private String protocol;
     private String version;
-    private String body;
+    private RemoteRequestBody body;
     private Map<String, String> headers;
     private Map<String, String> cookies;
     private int sortOrder;
@@ -34,6 +36,19 @@ public class RemoteHttpRequest implements RemoteRequest {
 
         harRequest.getCookies().forEach(cookie -> {
             cookies.put(cookie.getName(), cookie.getValue());
+        });
+
+        if (harRequest.getPostData() != null) {
+            parseBody(harRequest.getPostData());
+        }
+    }
+
+    private void parseBody(HarPostData postData) {
+        body = new RemoteHttpRequestBody();
+        body.setMimeType(postData.getMimeType());
+
+        postData.getParams().forEach(param -> {
+            body.addPart(new RemoteHttpRequestBodyPart(param));
         });
     }
 
@@ -58,7 +73,7 @@ public class RemoteHttpRequest implements RemoteRequest {
     }
 
     @Override
-    public String getBody() {
+    public RemoteRequestBody getBody() {
         return body;
     }
 
@@ -75,6 +90,11 @@ public class RemoteHttpRequest implements RemoteRequest {
     @Override
     public int getSortOrder() {
         return sortOrder;
+    }
+
+    @Override
+    public boolean hasBody() {
+        return body != null;
     }
 
     @Override
@@ -98,7 +118,7 @@ public class RemoteHttpRequest implements RemoteRequest {
     }
 
     @Override
-    public void setBody(String body) {
+    public void setBody(RemoteRequestBody body) {
         this.body = body;
     }
 

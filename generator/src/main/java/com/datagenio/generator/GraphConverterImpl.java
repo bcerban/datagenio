@@ -16,7 +16,7 @@ import com.datagenio.model.exception.InvalidTransitionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Collection;
+import java.util.NoSuchElementException;
 
 public class GraphConverterImpl implements GraphConverter {
 
@@ -36,48 +36,50 @@ public class GraphConverterImpl implements GraphConverter {
     public WebFlowGraph convert(EventFlowGraph eventFlowGraph) {
         WebFlowGraph webGraph = new WebFlowGraphImpl();
 
-//        eventFlowGraph.getStates().forEach(state -> {
-//            var converted = stateConverter.convert(state, eventFlowGraph.getOutgoingTransitions(state));
-//            webGraph.addState(converted);
-//
-//            if (state.isRoot()) webGraph.setRoot(converted);
-//        });
+        eventFlowGraph.getStates().forEach(state -> {
+            convertAndAdd(state, webGraph, eventFlowGraph);
+        });
 
         eventFlowGraph.getTransitions().forEach(transition -> {
             if (transition.hasRemoteRequest(context.getRootUri())) {
-                convertAndAdd(transition, webGraph, eventFlowGraph);
+                convertAndAdd(transition, webGraph);
             }
         });
 
         return webGraph;
     }
 
-    private void convertAndAdd(Transitionable transition, WebFlowGraph webGraph, EventFlowGraph eventFlowGraph) {
+    private void convertAndAdd(Transitionable transition, WebFlowGraph webGraph) {
         try {
-            WebState origin = convertAndAdd(transition.getOrigin(), webGraph, eventFlowGraph);
-            WebState destination = convertAndAdd(transition.getDestination(), webGraph, eventFlowGraph);
+            WebState origin = webGraph.findStateBy(transition.getOrigin().getIdentifier());
+            WebState destination = webGraph.findStateBy(transition.getDestination().getIdentifier());
 
             WebTransition webTransition = new WebTransitionImpl(origin, destination);
-            transition.getFilteredRequests(context.getRootUri()).forEach(request -> {
-                webTransition.addRequest(requestAbstractor.process(request));
-            });
+            transition.getFilteredRequests(context.getRootUri()).forEach(
+                    request -> webTransition.addRequest(requestAbstractor.process(request))
+            );
 
             webGraph.addTransition(webTransition);
-        } catch (InvalidTransitionException e) {
+        } catch (InvalidTransitionException| NoSuchElementException e) {
             logger.info(e.getMessage(), e);
         }
     }
 
     private WebState convertAndAdd(State state, WebFlowGraph webGraph, EventFlowGraph eventFlowGraph) {
-        WebState webState = convertWebState(state, eventFlowGraph.getOutgoingTransitions(state));
+        WebState webState;
+        try {
+            webState = webGraph.findStateBy(state.getIdentifier());
+            webState.addExternalId(state.getIdentifier());
 
-        webGraph.addState(webState);
+            if (state.hasScreenShot()) {
+                webState.addScreenShot(state.getScreenShot());
+            }
+        } catch (NoSuchElementException e) {
+            webState = stateConverter.convert(state, eventFlowGraph.getOutgoingTransitions(state));
+            webGraph.addState(webState);
+        }
+
         if (state.isRoot()) webGraph.setRoot(webState);
-
         return webState;
-    }
-
-    private WebState convertWebState(State state, Collection<Transitionable> transitions) {
-        return stateConverter.convert(state, transitions);
     }
 }

@@ -51,39 +51,21 @@ public class EmbeddedConnectionTest {
     }
 
     @Test
-    public void testCreateWebFlowGraph() {
-        IndexDefinition[] indexDefinitions = {};
-        Schema schema = mock(Schema.class);
-        doReturn(Arrays.asList(indexDefinitions)).when(schema).getIndexes();
-
-        IndexCreator indexCreator = mock(IndexCreator.class);
-        doReturn(indexCreator).when(schema).indexFor(any());
-        doReturn(indexCreator).when(indexCreator).on(any());
+    public void testCreate() {
+//        IndexDefinition[] indexDefinitions = {};
+//        Schema schema = mock(Schema.class);
+//        doReturn(Arrays.asList(indexDefinitions)).when(schema).getIndexes();
+//
+//        IndexCreator indexCreator = mock(IndexCreator.class);
+//        doReturn(indexCreator).when(schema).indexFor(any());
+//        doReturn(indexCreator).when(indexCreator).on(any());
 
         var database = mock(GraphDatabaseService.class);
-        doReturn(schema).when(database).schema();
+//        doReturn(schema).when(database).schema();
         doReturn(database).when(databaseFactory).newEmbeddedDatabase(any());
         doReturn(tx).when(database).beginTx();
 
-        assertTrue(connection.createWebFlowGraph(TEST_URL) instanceof GraphDatabaseService);
-    }
-
-    @Test
-    public void testCreateEventGraph() {
-        IndexDefinition[] indexDefinitions = {};
-        Schema schema = mock(Schema.class);
-        doReturn(Arrays.asList(indexDefinitions)).when(schema).getIndexes();
-
-        IndexCreator indexCreator = mock(IndexCreator.class);
-        doReturn(indexCreator).when(schema).indexFor(any());
-        doReturn(indexCreator).when(indexCreator).on(any());
-
-        var database = mock(GraphDatabaseService.class);
-        doReturn(schema).when(database).schema();
-        doReturn(database).when(databaseFactory).newEmbeddedDatabase(any());
-        doReturn(tx).when(database).beginTx();
-
-        assertTrue(connection.createEventGraph(TEST_URL) instanceof GraphDatabaseService);
+        assertTrue(connection.create(TEST_URL) instanceof GraphDatabaseService);
     }
 
     @Test

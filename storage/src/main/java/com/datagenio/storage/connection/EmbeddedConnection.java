@@ -1,7 +1,5 @@
 package com.datagenio.storage.connection;
 
-import com.datagenio.storage.api.Labels;
-import com.datagenio.storage.api.Properties;
 import com.datagenio.storage.exception.StorageException;
 import org.neo4j.graphdb.*;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
@@ -9,19 +7,18 @@ import org.neo4j.graphdb.schema.IndexDefinition;
 import org.neo4j.graphdb.schema.Schema;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
 
 public class EmbeddedConnection extends AbstractConnection {
     public static String STORAGE_DIRECTORY = "data";
-    public static String PREFIX_WEB_FLOW = "web-flow";
-    public static String PREFIX_EVENT = "event";
+    public static String PREFIX_COMBINED = "combined";
     public static long AVAILABILITY_TIMEOUT = 3000;
 
     private File outputDirectory;
     private GraphDatabaseFactory databaseFactory;
-    private GraphDatabaseService webFlowGraph;
-    private GraphDatabaseService eventGraph;
 
     public EmbeddedConnection(String outputDirectoryName, GraphDatabaseFactory databaseFactory) {
         this.databaseFactory = databaseFactory;
@@ -33,27 +30,12 @@ public class EmbeddedConnection extends AbstractConnection {
     }
 
     @Override
-    public GraphDatabaseService createWebFlowGraph(String name) {
-        if (webFlowGraph == null || !webFlowGraph.isAvailable(AVAILABILITY_TIMEOUT)) {
-            File databaseFile = new File(outputDirectory, generateDatabaseName(name, PREFIX_WEB_FLOW));
-            webFlowGraph = databaseFactory.newEmbeddedDatabase(databaseFile);
-            registerShutdownHook(webFlowGraph);
-            addIndexOnProperty(webFlowGraph, Label.label(Labels.WEB_STATE), Properties.IDENTIFICATION);
-        }
-
-        return webFlowGraph;
-    }
-
-    @Override
-    public GraphDatabaseService createEventGraph(String name) {
-        if (eventGraph == null || !eventGraph.isAvailable(AVAILABILITY_TIMEOUT)) {
-            File databaseFile = new File(outputDirectory, generateDatabaseName(name, PREFIX_EVENT));
-            eventGraph = databaseFactory.newEmbeddedDatabase(databaseFile);
-            registerShutdownHook(eventGraph);
-            addIndexOnProperty(eventGraph, Label.label(Labels.EVENT_STATE), Properties.IDENTIFICATION);
-        }
-
-        return eventGraph;
+    public GraphDatabaseService create(String name) {
+        File databaseFile = new File(outputDirectory, generateDatabaseName(name, PREFIX_COMBINED));
+        GraphDatabaseService service = databaseFactory.newEmbeddedDatabase(databaseFile);
+        registerShutdownHook(service);
+//        addIndexOnProperty(service, Label.label(Labels.WEB_STATE), Properties.IDENTIFICATION);
+        return service;
     }
 
     @Override
@@ -120,6 +102,28 @@ public class EmbeddedConnection extends AbstractConnection {
         } catch (Exception e) {
             throw new StorageException("Couldn't execute search.", e);
         }
+    }
+
+    @Override
+    public Collection<Node> findNodes(GraphDatabaseService graph, Label label, String where) throws StorageException {
+        validateConnection(graph);
+
+        var nodes = new ArrayList<Node>();
+        String query = String.format("MATCH (n:%s) WHERE %s RETURN n", label.toString(), where);
+
+        try (Transaction tx = graph.beginTx()) {
+            Result result = graph.execute(query);
+
+            while(result.hasNext()) {
+                var row = result.next();
+                if (row.containsKey("n")) {
+                    nodes.add((Node)row.get("n"));
+                }
+            }
+            tx.success();
+        } catch (Exception e) { }
+
+        return nodes;
     }
 
     private void validateConnection(GraphDatabaseService graph) throws StorageException {

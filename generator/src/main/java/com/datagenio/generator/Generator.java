@@ -50,10 +50,11 @@ public class Generator {
     }
 
     public WebFlowGraph generateWebModel() {
-        var webModel =  converter.convert(crawlSite());
+        var eventModel = crawler.crawl();
+        var webModel =  converter.convert(eventModel);
 
         logger.info("Saving generated graph...");
-        writeAdapter.save(webModel);
+        writeAdapter.saveCombined(eventModel, webModel);
 
         return webModel;
     }

@@ -1,11 +1,11 @@
 package com.datagenio.model.api;
 
 public interface TypedParam {
-    String getType();
+    ParamTypes getType();
     String getName();
     boolean isRequired();
 
-    void setType(String type);
+    void setType(ParamTypes type);
     void setName(String name);
     void setIsRequired(boolean required);
 }

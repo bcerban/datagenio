@@ -80,6 +80,11 @@ public class StateImpl implements State {
     }
 
     @Override
+    public boolean hasScreenShot() {
+        return screenShot != null;
+    }
+
+    @Override
     public void setEventables(Collection<Eventable> eventables) {
         this.eventables = eventables;
     }

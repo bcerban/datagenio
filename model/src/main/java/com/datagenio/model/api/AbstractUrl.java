@@ -11,6 +11,6 @@ public interface AbstractUrl {
     void setBaseUrl(String url);
     void setTypedParams(Collection<TypedParam> params);
     void addTypedParam(TypedParam param);
-    void addTypedParam(String name, String type);
-    void addTypedParam(String name, String type, boolean required);
+    void addTypedParam(String name, ParamTypes type);
+    void addTypedParam(String name, ParamTypes type, boolean required);
 }
