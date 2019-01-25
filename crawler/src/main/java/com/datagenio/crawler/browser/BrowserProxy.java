@@ -53,9 +53,17 @@ public class BrowserProxy implements NetworkProxy {
 
     @Override
     public Collection<RemoteRequest> getLoggedRequestsForDomain(URI domain, String fileName, String saveTo) {
-        try {
-            HarSaver.saveHarFile(proxy.getHar(), fileName, saveTo);
-        } catch (PersistenceException e) { }
+        var har = proxy.getHar();
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    HarSaver.saveHarFile(har, fileName, saveTo);
+                } catch (PersistenceException e) { }
+            }
+        }).start();
+
         return getLoggedRequestsForDomain(domain);
     }
 

@@ -5,7 +5,7 @@ import org.jsoup.nodes.Element;
 public interface Eventable {
 
     enum EventType {
-        click, submit, hover
+        CLICK, SUBMIT, HOVER
     }
 
     enum Status {
@@ -18,6 +18,7 @@ public interface Eventable {
     EventType getEventType();
     String getHandler();
     boolean isNavigation();
+    boolean requiresInput();
     Status getStatus();
     String getReasonForFailure();
 

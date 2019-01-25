@@ -6,11 +6,14 @@ import com.datagenio.crawler.exception.EventTriggerException;
 import com.datagenio.crawler.exception.UnsupportedEventTypeException;
 import com.datagenio.crawler.model.StateImpl;
 import com.datagenio.crawler.util.EventExtractorFactory;
+import com.datagenio.databank.util.XPathParser;
 import org.apache.commons.lang.NotImplementedException;
-import org.apache.http.HttpRequest;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 import org.openqa.selenium.*;
+import org.openqa.selenium.support.ui.Wait;
+import org.openqa.selenium.support.ui.WebDriverWait;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,24 +41,20 @@ public class DrivenBrowser implements Browser {
         this.proxy = proxy;
         this.extractor = EventExtractorFactory.get();
         this.initialHandle = driver.getWindowHandle();
+
+        this.driver.manage().window().maximize();
+        this.driver.manage().timeouts().implicitlyWait(DEFAULT_WAIT_AFTER_LOAD, TimeUnit.SECONDS);
     }
 
     @Override
     public void back() throws BrowserException {
         try {
             logger.debug("Navigating back from {}.", this.driver.getCurrentUrl());
-
             driver.navigate().back();
-            Thread.sleep(DEFAULT_WAIT_AFTER_LOAD);
-
             logger.debug("Back page loaded successfully.");
         } catch (WebDriverException e) {
             logger.debug("Back page load was interrupted before completing.", e);
             throw new BrowserException(e);
-        } catch (InterruptedException e) {
-            logger.debug("Back page load was interrupted before completing.", e);
-            Thread.currentThread().interrupt();
-            return;
         }
     }
 
@@ -186,17 +185,12 @@ public class DrivenBrowser implements Browser {
 
             proxy.saveFor(uri.toString());
             driver.navigate().to(uri.toString());
-            Thread.sleep(DEFAULT_WAIT_AFTER_LOAD);
             handlePopups();
 
             logger.debug("Page loaded successfully.");
         } catch (WebDriverException e) {
             logger.debug("Navigation was interrupted before completing page load.", e);
             throw new BrowserException(e);
-        } catch (InterruptedException e) {
-            logger.debug("Navigation was interrupted before completing page load.", e);
-            Thread.currentThread().interrupt();
-            return;
         }
     }
 
@@ -222,10 +216,10 @@ public class DrivenBrowser implements Browser {
     private void handleEventByType(Eventable event, WebElement element, Map<String, String> inputs) throws UnsupportedEventTypeException, EventTriggerException {
         Eventable.EventType type = event.getEventType();
         switch (type) {
-            case click:
+            case CLICK:
                 triggerClickableEvent(event, element);
                 break;
-            case submit:
+            case SUBMIT:
                 triggerSubmitEvent(event, element, inputs);
                 break;
             default:
@@ -236,7 +230,6 @@ public class DrivenBrowser implements Browser {
     public void triggerClickableEvent(Eventable event, WebElement element) throws EventTriggerException {
         try {
             int handleCount = driver.getWindowHandles().size();
-
             element.click();
 
             if (driver.getWindowHandles().size() > handleCount) {
@@ -254,8 +247,14 @@ public class DrivenBrowser implements Browser {
 
     public void triggerSubmitEvent(Eventable event, WebElement element, Map<String, String> inputs) throws EventTriggerException {
         try {
+            this.driver.manage().timeouts().implicitlyWait(DEFAULT_WAIT_AFTER_SUBMIT, TimeUnit.SECONDS);
             fillElementInputs(element, inputs);
-            element.submit();
+
+            // Submit on form is unreliable because it doesn't trigger javascript functions.
+            // Instead, we are required to find the submit button/input and CLICK on it.
+            // element.submit();
+            findSubmitElement(event).click();
+            this.driver.manage().timeouts().implicitlyWait(DEFAULT_WAIT_AFTER_LOAD, TimeUnit.SECONDS);
         } catch (StaleElementReferenceException|ElementNotInteractableException|NoSuchElementException e) {
             logger.debug(
                     "Element for event {} is unavailable in {}. Error: {}",
@@ -265,6 +264,15 @@ public class DrivenBrowser implements Browser {
         }
     }
 
+    private WebElement findSubmitElement(Eventable event) {
+        Element child = extractor.findSubmitableChild(event.getSource());
+        if (child != null) {
+            return driver.findElement(By.xpath(XPathParser.getXPathFor(child)));
+        }
+
+        throw new NoSuchElementException("Submitable child not found.");
+    }
+
     private void fillElementInputs(WebElement element, Map<String, String> inputs) {
         inputs.forEach((xpath, value) -> fillElementByXpath(element, xpath, value));
     }
@@ -272,7 +280,7 @@ public class DrivenBrowser implements Browser {
     private void fillElementByXpath(WebElement element, String xpath, String value) {
         try {
             element.findElement(By.xpath(xpath)).sendKeys(value);
-        } catch (NoSuchElementException e) { }
+        } catch (NoSuchElementException|ElementNotInteractableException e) { }
     }
 
     @Override
