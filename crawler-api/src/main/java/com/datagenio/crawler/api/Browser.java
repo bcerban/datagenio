@@ -13,7 +13,8 @@ import java.util.Map;
 
 public interface Browser {
 
-    int DEFAULT_WAIT_AFTER_LOAD = 500;
+    int DEFAULT_WAIT_AFTER_LOAD = 120;
+    int DEFAULT_WAIT_AFTER_SUBMIT = 500;
 
     void navigateTo(URI uri) throws BrowserException;
     void back() throws BrowserException;

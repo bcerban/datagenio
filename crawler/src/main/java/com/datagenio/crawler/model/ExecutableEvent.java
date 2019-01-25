@@ -77,6 +77,11 @@ public class ExecutableEvent implements Eventable {
     }
 
     @Override
+    public boolean requiresInput() {
+        return getEventType().equals(EventType.SUBMIT);
+    }
+
+    @Override
     public void setIsNavigation(boolean isNavigation) {
         isNav = isNavigation;
     }

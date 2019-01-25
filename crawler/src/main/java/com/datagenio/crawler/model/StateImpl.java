@@ -5,11 +5,14 @@ import com.datagenio.crawler.api.EventableExtractor;
 import com.datagenio.crawler.api.ExecutedEventable;
 import com.datagenio.crawler.api.State;
 import com.datagenio.crawler.exception.UncrawlableStateException;
+import com.datagenio.crawler.util.ExecutableEventExtractor;
+import com.datagenio.crawler.util.SubmitFirstComparator;
 import org.jsoup.nodes.Document;
 
 import java.io.File;
 import java.net.URI;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class StateImpl implements State {
 
@@ -26,8 +29,8 @@ public class StateImpl implements State {
     public StateImpl(URI uri, Document view, EventableExtractor extractor) {
         this.uri = uri;
         this.document = view;
-        this.eventables = extractor.extract(this, this.document);
-        this.unfiredEventables = new LinkedList<>(this.eventables);
+        this.eventables = extractor.extractSorted(this, document, new SubmitFirstComparator());
+        this.unfiredEventables = new LinkedList<>(eventables);
         this.executedEventables = new ArrayList<>();
         this.uid = UUID.randomUUID().toString();
     }
@@ -44,15 +47,15 @@ public class StateImpl implements State {
 
     @Override
     public Collection<Eventable> getUnfiredEventables() {
-        return this.unfiredEventables;
+        return unfiredEventables;
     }
 
     @Override
     public Eventable getNextEventToFire() throws UncrawlableStateException {
         Eventable next = null;
-        while(next == null && !this.unfiredEventables.isEmpty()) {
-            var event = this.unfiredEventables.poll();
-            if (this.eventables.contains(event)) {
+        while(next == null && !unfiredEventables.isEmpty()) {
+            var event = unfiredEventables.poll();
+            if (eventables.contains(event)) {
                 next = event;
             }
         }
@@ -66,7 +69,7 @@ public class StateImpl implements State {
 
     @Override
     public boolean isFinished() {
-        return this.unfiredEventables.isEmpty();
+        return unfiredEventables.isEmpty();
     }
 
     @Override
@@ -91,8 +94,8 @@ public class StateImpl implements State {
 
     @Override
     public void markEventAsFired(ExecutedEventable event) {
-        this.unfiredEventables.remove(event.getEvent());
-        this.executedEventables.add(event);
+        unfiredEventables.remove(event.getEvent());
+        executedEventables.add(event);
     }
 
     @Override

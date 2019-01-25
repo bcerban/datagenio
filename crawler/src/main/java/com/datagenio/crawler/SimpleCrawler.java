@@ -14,8 +14,8 @@ import org.slf4j.LoggerFactory;
 
 import java.net.URI;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 public class SimpleCrawler implements com.datagenio.crawler.api.Crawler {
 
@@ -102,7 +102,9 @@ public class SimpleCrawler implements com.datagenio.crawler.api.Crawler {
 
     private void crawlState(State current, Eventable event) throws UncrawlableStateException, BrowserException {
         try {
-            Map<String, String> inputs = inputBuilder.buildInputs(event.getSource());
+            Map<String, String> inputs = new HashMap<>();
+            if (event.requiresInput()) inputs = inputBuilder.buildInputs(event.getSource());
+
             State newState = executeEvent(event, inputs);
 
             if (getGraph().isNewState(newState)) {
@@ -116,7 +118,7 @@ public class SimpleCrawler implements com.datagenio.crawler.api.Crawler {
 
             // Transition added regardless, as this is a multigraph
             var transition = new Transition(current, newState, new ExecutedEvent(event, inputs));
-            transition.setRequests(getRequestsForEvent(event, newState));
+            transition.setRequests(getRequestsForEvent(newState));
             transition.setStatus(Transitionable.Status.TRAVERSED);
             getGraph().addTransition(transition);
 
@@ -149,12 +151,6 @@ public class SimpleCrawler implements com.datagenio.crawler.api.Crawler {
 
     }
 
-    private Collection<RemoteRequest> getRequestsForEvent(Eventable event, State state) {
-        // Save har
-        String fileName = state.getIdentifier() + "-" + event.getIdentifier().replaceAll("/", ".");
-        return browser.getCapturedRequests(context.getRootUri(), fileName, context.getOutputDirName());
-    }
-
     private Collection<RemoteRequest> getRequestsForEvent(State state) {
         // Save har
         return browser.getCapturedRequests(context.getRootUri(), state.getIdentifier(), context.getOutputDirName());
@@ -184,9 +180,9 @@ public class SimpleCrawler implements com.datagenio.crawler.api.Crawler {
             saveStateScreenShot(initial);
 
             // TODO: save to init event
-            Collection<RemoteRequest> requests = getRequestsForEvent(initial);
-            String requestString = requests.stream().map((r) -> r.toString()).collect(Collectors.joining("\n"));
-            logger.info("Requests that should be saved to init event: {}", requestString);
+//            Collection<RemoteRequest> requests = getRequestsForEvent(initial);
+//            String requestString = requests.stream().map((r) -> r.toString()).collect(Collectors.joining("\n"));
+//            logger.info("Requests that should be saved to init event: {}", requestString);
         } catch (BrowserException e) {
             logger.debug("Exception happened while trying to initialize EventFlowGraph. Error: {}", e.getMessage());
             throw new UncrawlableStateException(e);
@@ -237,18 +233,19 @@ public class SimpleCrawler implements com.datagenio.crawler.api.Crawler {
     }
 
     private void saveStateScreenShot(State state) {
-        try {
-            if (context.isPrintScreen()) {
-                state.setScreenShot(
-                    ScreenShotSaver.saveScreenShot(
-                            browser.getScreenShotBytes(),
-                            state.getIdentifier(),
-                            context.getOutputDirName()
-                    )
-                );
-            }
-        } catch (PersistenceException e) {
-            logger.info(e.getMessage(), e);
+        if (context.isPrintScreen()) {
+            var bytes = browser.getScreenShotBytes();
+
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        state.setScreenShot(ScreenShotSaver.saveScreenShot(bytes, state.getIdentifier(), context.getOutputDirName()));
+                    } catch (PersistenceException e) {
+                        logger.info(e.getMessage(), e);
+                    }
+                }
+            }).start();
         }
     }
 

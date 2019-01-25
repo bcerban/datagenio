@@ -17,6 +17,12 @@ public class RemoteHttpRequestBodyPart implements RemoteRequestBodyPart {
         contentType = param.getContentType();
     }
 
+    public RemoteHttpRequestBodyPart(String name, String value, String contentType) {
+        this.name = name;
+        this.value = value;
+        this.contentType = contentType;
+    }
+
     @Override
     public String getName() {
         return name;

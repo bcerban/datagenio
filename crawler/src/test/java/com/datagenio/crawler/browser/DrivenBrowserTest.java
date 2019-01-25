@@ -94,7 +94,7 @@ public class DrivenBrowserTest {
         String xpath = "/html/body/span[1]/button";
         when(event.getXpath()).thenReturn(xpath);
         when(event.getIdentifier()).thenReturn(xpath);
-        when(event.getEventType()).thenReturn(Eventable.EventType.click);
+        when(event.getEventType()).thenReturn(Eventable.EventType.CLICK);
         when(this.driver.findElement(any(By.class))).thenReturn(element);
         doThrow(new StaleElementReferenceException("")).when(element).click();
 
@@ -112,7 +112,7 @@ public class DrivenBrowserTest {
         String xpath = "/html/body/span[1]/button";
         when(event.getXpath()).thenReturn(xpath);
         when(event.getIdentifier()).thenReturn(xpath);
-        when(event.getEventType()).thenReturn(Eventable.EventType.click);
+        when(event.getEventType()).thenReturn(Eventable.EventType.CLICK);
         when(this.driver.findElement(any(By.class))).thenReturn(element);
         doThrow(new ElementNotInteractableException("")).when(element).click();
 
@@ -130,7 +130,7 @@ public class DrivenBrowserTest {
         String xpath = "/html/body/span[1]/button";
         when(event.getXpath()).thenReturn(xpath);
         when(event.getIdentifier()).thenReturn(xpath);
-        when(event.getEventType()).thenReturn(Eventable.EventType.click);
+        when(event.getEventType()).thenReturn(Eventable.EventType.CLICK);
         when(this.driver.findElement(any(By.class))).thenReturn(element);
         when(this.driver.getPageSource()).thenReturn("");
 
@@ -148,7 +148,7 @@ public class DrivenBrowserTest {
         String xpath = "/html/body/span[1]/button";
         when(event.getXpath()).thenReturn(xpath);
         when(event.getIdentifier()).thenReturn(xpath);
-        when(event.getEventType()).thenReturn(Eventable.EventType.submit);
+        when(event.getEventType()).thenReturn(Eventable.EventType.SUBMIT);
         when(this.driver.findElement(any(By.class))).thenReturn(element);
         doThrow(new StaleElementReferenceException("")).when(element).submit();
 
@@ -166,7 +166,7 @@ public class DrivenBrowserTest {
         String xpath = "/html/body/span[1]/button";
         when(event.getXpath()).thenReturn(xpath);
         when(event.getIdentifier()).thenReturn(xpath);
-        when(event.getEventType()).thenReturn(Eventable.EventType.submit);
+        when(event.getEventType()).thenReturn(Eventable.EventType.SUBMIT);
         when(this.driver.findElement(any(By.class))).thenReturn(element);
         doThrow(new ElementNotInteractableException("")).when(element).submit();
 
@@ -184,7 +184,7 @@ public class DrivenBrowserTest {
         String xpath = "/html/body/span[1]/button";
         when(event.getXpath()).thenReturn(xpath);
         when(event.getIdentifier()).thenReturn(xpath);
-        when(event.getEventType()).thenReturn(Eventable.EventType.submit);
+        when(event.getEventType()).thenReturn(Eventable.EventType.SUBMIT);
         when(this.driver.findElement(any(By.class))).thenReturn(element);
         doThrow(new NoSuchElementException("")).when(element).submit();
 
@@ -202,7 +202,7 @@ public class DrivenBrowserTest {
         String xpath = "/html/body/span[1]/button";
         when(event.getXpath()).thenReturn(xpath);
         when(event.getIdentifier()).thenReturn(xpath);
-        when(event.getEventType()).thenReturn(Eventable.EventType.submit);
+        when(event.getEventType()).thenReturn(Eventable.EventType.SUBMIT);
         when(this.driver.findElement(any(By.class))).thenReturn(element);
         when(this.driver.getPageSource()).thenReturn("");
 
@@ -221,7 +221,7 @@ public class DrivenBrowserTest {
         String xpath = "/html/body/span[1]/button";
         when(event.getXpath()).thenReturn(xpath);
         when(event.getIdentifier()).thenReturn(xpath);
-        when(event.getEventType()).thenReturn(Eventable.EventType.hover);
+        when(event.getEventType()).thenReturn(Eventable.EventType.HOVER);
         when(this.driver.findElement(any(By.class))).thenReturn(element);
 
         this.browser.triggerEvent(event, new HashMap<>());

@@ -39,7 +39,7 @@ public class RemoteHttpRequest implements RemoteRequest {
         });
 
         if (harRequest.getPostData() != null) {
-            parseBody(harRequest.getPostData());
+            body = new RemoteHttpRequestBody(harRequest.getPostData());
         }
     }
 
@@ -47,9 +47,24 @@ public class RemoteHttpRequest implements RemoteRequest {
         body = new RemoteHttpRequestBody();
         body.setMimeType(postData.getMimeType());
 
-        postData.getParams().forEach(param -> {
-            body.addPart(new RemoteHttpRequestBodyPart(param));
-        });
+        if (postData.getParams() != null) {
+            postData.getParams().forEach(param -> {
+                body.addPart(new RemoteHttpRequestBodyPart(param));
+            });
+        }
+
+        if (postData.getText() != null) {
+            String[] mimeTypeParts = postData.getMimeType().split("boundary=");
+            if (mimeTypeParts.length >= 2) {
+                body.setMimeType(mimeTypeParts[0]);
+                String boundary = mimeTypeParts[1];
+
+                String[] textParts = postData.getText().split(boundary);
+                if (textParts.length > 0) {
+
+                }
+            }
+        }
     }
 
     @Override

@@ -7,8 +7,7 @@ import com.datagenio.crawler.api.State;
 import com.datagenio.crawler.model.ExecutableEvent;
 import org.jsoup.nodes.Element;
 
-import java.util.ArrayList;
-import java.util.Collection;
+import java.util.*;
 
 public class ExecutableEventExtractor implements EventableExtractor {
 
@@ -29,7 +28,7 @@ public class ExecutableEventExtractor implements EventableExtractor {
     public Collection<Eventable> extract(State origin, Element node) {
         var eventables = new ArrayList<Eventable>();
 
-        if (this.isEventableElement(node)) {
+        if (isEventableElement(node)) {
             var eventable = new ExecutableEvent(node, getEventTypeFor(node));
             eventable.setIsNavigation(isNavigationElement(node));
             eventables.add(eventable);
@@ -38,6 +37,42 @@ public class ExecutableEventExtractor implements EventableExtractor {
         }
 
         return eventables;
+    }
+
+    @Override
+    public Collection<Eventable> extractSorted(State origin, Element node, Comparator comparator) {
+        List<Eventable> events = new ArrayList<>(extract(origin, node));
+        Collections.sort(events, comparator);
+        return events;
+    }
+
+    public Element findSubmitableChild(Element element) {
+        if (isSubmitableElement(element)) {
+            return element;
+        }
+
+        Element found = null;
+        var iterator = element.children().iterator();
+        while (iterator.hasNext() && found == null) {
+            var child = iterator.next();
+            found = findSubmitableChild(child);
+        }
+
+        return found;
+    }
+
+    private boolean isSubmitableElement(Element element) {
+        boolean isSubmitable = false;
+
+        String type = element.attr("type");
+        String action = element.attr("action");
+
+        if ((element.is("input") || element.is("button"))
+                && (type.equals("submit") || action.equals("submit"))) {
+            isSubmitable = true;
+        }
+
+        return isSubmitable;
     }
 
     private boolean isEventableElement(Element element) {
@@ -53,10 +88,10 @@ public class ExecutableEventExtractor implements EventableExtractor {
     private Eventable.EventType getEventTypeFor(Element element) {
         // TODO: Some Jsoup abstractions might be more appropriate here. Need to run some tests.
         if (element.tagName().equals("form")) {
-            return Eventable.EventType.submit;
+            return Eventable.EventType.SUBMIT;
         }
 
-        return Eventable.EventType.click;
+        return Eventable.EventType.CLICK;
     }
 
     private boolean isNavigationElement(Element element) {
