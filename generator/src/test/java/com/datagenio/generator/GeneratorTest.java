@@ -1,5 +1,6 @@
 package com.datagenio.generator;
 
+import com.datagenio.crawler.api.Context;
 import com.datagenio.crawler.api.Crawler;
 import com.datagenio.crawler.api.EventFlowGraph;
 
@@ -13,6 +14,7 @@ import org.junit.Test;
 import static org.mockito.Mockito.*;
 
 public class GeneratorTest {
+    private Context context;
     private GraphConverter converter;
     private Crawler crawler;
     private Generator generator;
@@ -21,11 +23,12 @@ public class GeneratorTest {
 
     @Before
     public void setUp() {
-        this.converter = mock(GraphConverter.class);
-        this.crawler = mock(Crawler.class);
-        this.readAdapter = mock(ReadAdapter.class);
-        this.writeAdapter = mock(WriteAdapter.class);
-        this.generator = new Generator(this.crawler, this.converter, this.readAdapter, this.writeAdapter);
+        context = mock(Context.class);
+        converter = mock(GraphConverter.class);
+        crawler = mock(Crawler.class);
+        readAdapter = mock(ReadAdapter.class);
+        writeAdapter = mock(WriteAdapter.class);
+        generator = new Generator(context, crawler, converter, readAdapter, writeAdapter);
     }
 
     @Test
@@ -44,9 +47,9 @@ public class GeneratorTest {
         EventFlowGraph eventFlowGraph = mock(EventFlowGraph.class);
         WebFlowGraph webFlowGraph = mock(WebFlowGraph.class);
 
-        when(this.crawler.crawl()).thenReturn(eventFlowGraph);
-        when(this.converter.convert(eventFlowGraph)).thenReturn(webFlowGraph);
+        when(crawler.crawl()).thenReturn(eventFlowGraph);
+        when(converter.convert(eventFlowGraph)).thenReturn(webFlowGraph);
 
-        this.generator.generateWebModel();
+        generator.generateWebModel();
     }
 }

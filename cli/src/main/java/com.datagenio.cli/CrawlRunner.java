@@ -112,7 +112,7 @@ public class CrawlRunner {
         // Begin modeling site
         System.out.println("Beginning modeling process...");
 
-        var generator = new Generator(crawler, new GraphConverterImpl(context, stateConverter, requestAbstractor), readAdapter, writeAdapter);
+        var generator = new Generator(context, crawler, new GraphConverterImpl(context, stateConverter, requestAbstractor), readAdapter, writeAdapter);
 //        EventFlowGraph graph = generator.crawlSite();
         WebFlowGraph model = generator.generateWebModel();
 
@@ -121,6 +121,9 @@ public class CrawlRunner {
 
         System.out.println("Finished modeling site.");
         System.out.println("Found " + model.getStates().size() + " states, and " + model.getTransitions().size() + " transitions.");
+
+        generator.generateDataset(model);
+        System.out.println("Finished writing dataset.");
     }
 
     private static boolean isVerbose(CommandLine arguments) {
