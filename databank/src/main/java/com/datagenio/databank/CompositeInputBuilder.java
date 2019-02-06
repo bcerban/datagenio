@@ -4,6 +4,7 @@ import com.datagenio.databank.api.InputBuilder;
 import com.datagenio.databank.api.InputPovider;
 import com.datagenio.databank.provider.*;
 import com.datagenio.databank.util.XPathParser;
+import com.datagenio.model.api.AbstractHttpRequest;
 import org.apache.commons.lang.StringUtils;
 import org.jsoup.nodes.Element;
 
@@ -30,6 +31,11 @@ public class CompositeInputBuilder implements InputBuilder {
         providersByType.put(CHECKBOX, new BooleanProvider());
         providersByType.put(TEXT, providersByType.get(ALPHANUMERIC));
         providersByType.put(DEFAULT, providersByType.get(ALPHANUMERIC));
+    }
+
+    @Override
+    public Map<String, String> buildInputs(AbstractHttpRequest request) {
+        return new HashMap<>();
     }
 
     @Override
