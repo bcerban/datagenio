@@ -5,7 +5,6 @@ import com.datagenio.crawler.api.RemoteRequest;
 import com.datagenio.crawler.api.State;
 import com.datagenio.crawler.api.Transitionable;
 import com.datagenio.crawler.util.SiteBoundChecker;
-import org.apache.http.HttpRequest;
 
 import java.net.URI;
 import java.util.ArrayList;

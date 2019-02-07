@@ -5,7 +5,6 @@ import com.datagenio.crawler.api.EventableExtractor;
 import com.datagenio.crawler.api.ExecutedEventable;
 import com.datagenio.crawler.api.State;
 import com.datagenio.crawler.exception.UncrawlableStateException;
-import com.datagenio.crawler.util.ExecutableEventExtractor;
 import com.datagenio.crawler.util.SubmitFirstComparator;
 import org.jsoup.nodes.Document;
 
