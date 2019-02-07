@@ -1,8 +1,7 @@
 package com.datagenio.cli;
 
-import com.datagenio.crawler.CrawlContext;
 import com.datagenio.crawler.SimpleCrawler;
-import com.datagenio.crawler.api.Context;
+import com.datagenio.context.Context;
 import com.datagenio.crawler.api.EventFlowGraph;
 import com.datagenio.crawler.browser.BrowserFactory;
 import com.datagenio.databank.InputBuilderFactory;
@@ -140,7 +139,7 @@ public class CrawlRunner {
     }
 
     private static Context getContext(CommandLine arguments) {
-        Context context = new CrawlContext(
+        Context context = new Context(
                 arguments.getOptionValue(ArgumentParser.URL),
                 arguments.getOptionValue(ArgumentParser.OUTPUT),
                 isVerbose(arguments),

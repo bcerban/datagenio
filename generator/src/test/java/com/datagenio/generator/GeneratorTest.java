@@ -1,6 +1,6 @@
 package com.datagenio.generator;
 
-import com.datagenio.crawler.api.Context;
+import com.datagenio.context.Context;
 import com.datagenio.crawler.api.Crawler;
 import com.datagenio.crawler.api.EventFlowGraph;
 

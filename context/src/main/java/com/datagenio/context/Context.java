@@ -1,10 +1,11 @@
-package com.datagenio.crawler;
-
-import com.datagenio.crawler.api.Context;
+package com.datagenio.context;
 
 import java.net.URI;
 
-public class CrawlContext implements Context {
+public class Context {
+
+    public static int REQUEST_TIMEOUT = 300;
+    public static int NO_MAX_DEPTH = 0;
 
     private final int requestTimeout;
     private final int crawlTimeout;
@@ -14,7 +15,7 @@ public class CrawlContext implements Context {
     private final boolean verbose;
     private final boolean printScreen;
 
-    public CrawlContext(String rootUrl, String outputDirName) {
+    public Context(String rootUrl, String outputDirName) {
         this.rootUrl = rootUrl;
         this.requestTimeout = REQUEST_TIMEOUT;
         this.crawlTimeout = 0;
@@ -24,7 +25,7 @@ public class CrawlContext implements Context {
         this.printScreen = false;
     }
 
-    public CrawlContext(String rootUrl, String outputDirName, boolean verbose) {
+    public Context(String rootUrl, String outputDirName, boolean verbose) {
         this.rootUrl = rootUrl;
         this.requestTimeout = REQUEST_TIMEOUT;
         this.crawlTimeout = 0;
@@ -34,7 +35,7 @@ public class CrawlContext implements Context {
         this.printScreen = false;
     }
 
-    public CrawlContext(String rootUrl, String outputDirName, boolean verbose, boolean printScreen) {
+    public Context(String rootUrl, String outputDirName, boolean verbose, boolean printScreen) {
         this.rootUrl = rootUrl;
         this.requestTimeout = REQUEST_TIMEOUT;
         this.crawlTimeout = 0;
@@ -44,7 +45,7 @@ public class CrawlContext implements Context {
         this.printScreen = printScreen;
     }
 
-    public CrawlContext(String rootUrl, String outputDirName, boolean verbose, boolean printScreen, int crawlDepth) {
+    public Context(String rootUrl, String outputDirName, boolean verbose, boolean printScreen, int crawlDepth) {
         this.rootUrl = rootUrl;
         this.requestTimeout = REQUEST_TIMEOUT;
         this.crawlTimeout = 0;
@@ -54,7 +55,7 @@ public class CrawlContext implements Context {
         this.printScreen = printScreen;
     }
 
-    public CrawlContext(String rootUrl, String outputDirName, boolean verbose, int crawlTimeout) {
+    public Context(String rootUrl, String outputDirName, boolean verbose, int crawlTimeout) {
         this.rootUrl = rootUrl;
         this.requestTimeout = REQUEST_TIMEOUT;
         this.crawlTimeout = crawlTimeout;
@@ -64,7 +65,7 @@ public class CrawlContext implements Context {
         this.printScreen = false;
     }
 
-    public CrawlContext(String rootUrl, String outputDirName, boolean verbose, int crawlTimeout, int requestTimeout) {
+    public Context(String rootUrl, String outputDirName, boolean verbose, int crawlTimeout, int requestTimeout) {
         this.rootUrl = rootUrl;
         this.requestTimeout = requestTimeout;
         this.crawlTimeout = crawlTimeout;
@@ -74,7 +75,7 @@ public class CrawlContext implements Context {
         this.printScreen = false;
     }
 
-    public CrawlContext(String rootUrl, String outputDirName, boolean verbose, int crawlTimeout, int requestTimeout, int crawlDepth) {
+    public Context(String rootUrl, String outputDirName, boolean verbose, int crawlTimeout, int requestTimeout, int crawlDepth) {
         this.rootUrl = rootUrl;
         this.requestTimeout = requestTimeout;
         this.crawlTimeout = crawlTimeout;

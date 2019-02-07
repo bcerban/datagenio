@@ -1,5 +1,6 @@
 package com.datagenio.crawler;
 
+import com.datagenio.context.Context;
 import com.datagenio.crawler.api.*;
 import com.datagenio.crawler.exception.*;
 import com.datagenio.crawler.model.EventFlowGraphImpl;

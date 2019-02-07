@@ -247,7 +247,7 @@ public class DrivenBrowser implements Browser {
 
     public void triggerSubmitEvent(Eventable event, WebElement element, Map<String, String> inputs) throws EventTriggerException {
         try {
-            this.driver.manage().timeouts().implicitlyWait(DEFAULT_WAIT_AFTER_SUBMIT, TimeUnit.SECONDS);
+            driver.manage().timeouts().implicitlyWait(DEFAULT_WAIT_AFTER_SUBMIT, TimeUnit.SECONDS);
             fillElementInputs(element, inputs);
 
             // Submit on form is unreliable because it doesn't trigger javascript functions.

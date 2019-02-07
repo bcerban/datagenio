@@ -13,6 +13,7 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module" module-name="crawler" />
+    <orderEntry type="module" module-name="context" />
     <orderEntry type="module" module-name="crawler-api" />
     <orderEntry type="module" module-name="databank" />
     <orderEntry type="library" name="Maven: com.github.javafaker:javafaker:0.16" level="project" />

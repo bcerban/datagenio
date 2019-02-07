@@ -5,6 +5,7 @@ import com.datagenio.crawler.api.NetworkProxy;
 import com.datagenio.crawler.exception.BrowserException;
 import com.datagenio.crawler.exception.EventTriggerException;
 import com.datagenio.crawler.exception.UnsupportedEventTypeException;
+import org.jsoup.nodes.Element;
 import org.junit.Before;
 import org.junit.Test;
 import org.openqa.selenium.*;
@@ -26,24 +27,34 @@ public class DrivenBrowserTest {
     private NetworkProxy proxy;
     private DrivenBrowser browser;
     private WebDriver.Navigation navigation;
+    private WebDriver.Options options;
+    private WebDriver.Window window;
+    private WebDriver.Timeouts timeouts;
 
     @Before
     public void setUp() {
         navigation = mock(WebDriver.Navigation.class);
+        options = mock(WebDriver.Options.class);
+        window = mock(WebDriver.Window.class);
+        timeouts = mock(WebDriver.Timeouts.class);
         driver = mock(FirefoxDriver.class);
         proxy = mock(NetworkProxy.class);
-        browser = new DrivenBrowser(driver, proxy);
 
-        when(this.driver.navigate()).thenReturn(this.navigation);
+        when(driver.navigate()).thenReturn(navigation);
+        when(driver.manage()).thenReturn(options);
+        when(options.window()).thenReturn(window);
+        when(options.timeouts()).thenReturn(timeouts);
+
+        browser = new DrivenBrowser(driver, proxy);
     }
 
     @Test
     public void testNavigateTo() throws BrowserException {
         URI uri = URI.create(TEST_URI);
-        this.browser.navigateTo(uri);
+        browser.navigateTo(uri);
 
-        verify(this.driver, times(1)).navigate();
-        verify(this.navigation, times(1)).to(anyString());
+        verify(driver, times(1)).navigate();
+        verify(navigation, times(1)).to(anyString());
     }
 
     @Test
@@ -51,25 +62,25 @@ public class DrivenBrowserTest {
         File screenShot = File.createTempFile("browserTest", ".png");
         screenShot.deleteOnExit();
 
-        when(((TakesScreenshot)this.driver).getScreenshotAs(OutputType.FILE)).thenReturn(screenShot);
-        assertEquals(screenShot, this.browser.getScreenShotFile());
+        when(((TakesScreenshot)driver).getScreenshotAs(OutputType.FILE)).thenReturn(screenShot);
+        assertEquals(screenShot, browser.getScreenShotFile());
     }
 
     @Test
     public void testBack() throws BrowserException {
-        this.browser.back();
+        browser.back();
 
-        verify(this.driver, times(1)).navigate();
-        verify(this.navigation, times(1)).back();
+        verify(driver, times(1)).navigate();
+        verify(navigation, times(1)).back();
     }
 
     @Test(expected = BrowserException.class)
     public void testBackWithWebDriverException() throws BrowserException {
-        doThrow(new WebDriverException()).when(this.navigation).back();
-        this.browser.back();
+        doThrow(new WebDriverException()).when(navigation).back();
+        browser.back();
 
-        verify(this.driver, times(1)).navigate();
-        verify(this.navigation, times(1)).back();
+        verify(driver, times(1)).navigate();
+        verify(navigation, times(1)).back();
     }
 
     @Test(expected = EventTriggerException.class)
@@ -79,8 +90,8 @@ public class DrivenBrowserTest {
         String xpath = "/html/body/span[1]/button";
         when(event.getXpath()).thenReturn(xpath);
         when(event.getIdentifier()).thenReturn(xpath);
-        when(this.driver.findElement(any(By.class))).thenReturn(null);
-        this.browser.triggerEvent(event, null);
+        when(driver.findElement(any(By.class))).thenReturn(null);
+        browser.triggerEvent(event, null);
 
         verify(event, times(2)).getIdentifier();
         verify(event, times(1)).getXpath();
@@ -95,10 +106,9 @@ public class DrivenBrowserTest {
         when(event.getXpath()).thenReturn(xpath);
         when(event.getIdentifier()).thenReturn(xpath);
         when(event.getEventType()).thenReturn(Eventable.EventType.CLICK);
-        when(this.driver.findElement(any(By.class))).thenReturn(element);
         doThrow(new StaleElementReferenceException("")).when(element).click();
 
-        this.browser.triggerEvent(event, null);
+        browser.triggerEvent(event, null);
 
         verify(event, times(2)).getIdentifier();
         verify(event, times(1)).getXpath();
@@ -113,10 +123,10 @@ public class DrivenBrowserTest {
         when(event.getXpath()).thenReturn(xpath);
         when(event.getIdentifier()).thenReturn(xpath);
         when(event.getEventType()).thenReturn(Eventable.EventType.CLICK);
-        when(this.driver.findElement(any(By.class))).thenReturn(element);
+        when(driver.findElement(any(By.class))).thenReturn(element);
         doThrow(new ElementNotInteractableException("")).when(element).click();
 
-        this.browser.triggerEvent(event, null);
+        browser.triggerEvent(event, null);
 
         verify(event, times(2)).getIdentifier();
         verify(event, times(1)).getXpath();
@@ -131,10 +141,10 @@ public class DrivenBrowserTest {
         when(event.getXpath()).thenReturn(xpath);
         when(event.getIdentifier()).thenReturn(xpath);
         when(event.getEventType()).thenReturn(Eventable.EventType.CLICK);
-        when(this.driver.findElement(any(By.class))).thenReturn(element);
-        when(this.driver.getPageSource()).thenReturn("");
+        when(driver.findElement(any(By.class))).thenReturn(element);
+        when(driver.getPageSource()).thenReturn("");
 
-        this.browser.triggerEvent(event, null);
+        browser.triggerEvent(event, null);
 
         verify(event, times(2)).getIdentifier();
         verify(event, times(1)).getXpath();
@@ -144,15 +154,20 @@ public class DrivenBrowserTest {
     public void testTriggerSubmitEventStale() throws UnsupportedEventTypeException, EventTriggerException {
         Eventable event = mock(Eventable.class);
         WebElement element = mock(WebElement.class);
+        Element source = mock(Element.class);
 
         String xpath = "/html/body/span[1]/button";
         when(event.getXpath()).thenReturn(xpath);
         when(event.getIdentifier()).thenReturn(xpath);
         when(event.getEventType()).thenReturn(Eventable.EventType.SUBMIT);
-        when(this.driver.findElement(any(By.class))).thenReturn(element);
-        doThrow(new StaleElementReferenceException("")).when(element).submit();
+        when(driver.findElement(any(By.class))).thenReturn(element);
+        when(event.getSource()).thenReturn(source);
+        when(source.is("button")).thenReturn(true);
+        when(source.attr("type")).thenReturn("submit");
+        when(source.tagName()).thenReturn("#root");
+        doThrow(new StaleElementReferenceException("")).when(element).click();
 
-        this.browser.triggerEvent(event, new HashMap<>());
+        browser.triggerEvent(event, new HashMap<>());
 
         verify(event, times(2)).getIdentifier();
         verify(event, times(1)).getXpath();
@@ -162,15 +177,20 @@ public class DrivenBrowserTest {
     public void testTriggerSubmitEventNotInteractable() throws UnsupportedEventTypeException, EventTriggerException {
         Eventable event = mock(Eventable.class);
         WebElement element = mock(WebElement.class);
+        Element source = mock(Element.class);
 
         String xpath = "/html/body/span[1]/button";
         when(event.getXpath()).thenReturn(xpath);
         when(event.getIdentifier()).thenReturn(xpath);
         when(event.getEventType()).thenReturn(Eventable.EventType.SUBMIT);
-        when(this.driver.findElement(any(By.class))).thenReturn(element);
-        doThrow(new ElementNotInteractableException("")).when(element).submit();
+        when(event.getSource()).thenReturn(source);
+        when(driver.findElement(any(By.class))).thenReturn(element);
+        when(source.is("button")).thenReturn(true);
+        when(source.attr("type")).thenReturn("submit");
+        when(source.tagName()).thenReturn("#root");
+        doThrow(new ElementNotInteractableException("")).when(element).click();
 
-        this.browser.triggerEvent(event, new HashMap<>());
+        browser.triggerEvent(event, new HashMap<>());
 
         verify(event, times(2)).getIdentifier();
         verify(event, times(1)).getXpath();
@@ -180,15 +200,20 @@ public class DrivenBrowserTest {
     public void testTriggerSubmitEventNoSuchElement() throws UnsupportedEventTypeException, EventTriggerException {
         Eventable event = mock(Eventable.class);
         WebElement element = mock(WebElement.class);
+        Element source = mock(Element.class);
 
         String xpath = "/html/body/span[1]/button";
         when(event.getXpath()).thenReturn(xpath);
         when(event.getIdentifier()).thenReturn(xpath);
         when(event.getEventType()).thenReturn(Eventable.EventType.SUBMIT);
-        when(this.driver.findElement(any(By.class))).thenReturn(element);
-        doThrow(new NoSuchElementException("")).when(element).submit();
+        when(event.getSource()).thenReturn(source);
+        when(driver.findElement(any(By.class))).thenReturn(element);
+        when(source.is("button")).thenReturn(true);
+        when(source.attr("type")).thenReturn("submit");
+        when(source.tagName()).thenReturn("#root");
+        doThrow(new NoSuchElementException("")).when(element).click();
 
-        this.browser.triggerEvent(event, new HashMap<>());
+        browser.triggerEvent(event, new HashMap<>());
 
         verify(event, times(2)).getIdentifier();
         verify(event, times(1)).getXpath();
@@ -198,19 +223,24 @@ public class DrivenBrowserTest {
     public void testTriggerSubmitEvent() throws UnsupportedEventTypeException, EventTriggerException {
         Eventable event = mock(Eventable.class);
         WebElement element = mock(WebElement.class);
+        Element source = mock(Element.class);
 
         String xpath = "/html/body/span[1]/button";
         when(event.getXpath()).thenReturn(xpath);
         when(event.getIdentifier()).thenReturn(xpath);
         when(event.getEventType()).thenReturn(Eventable.EventType.SUBMIT);
-        when(this.driver.findElement(any(By.class))).thenReturn(element);
-        when(this.driver.getPageSource()).thenReturn("");
+        when(event.getSource()).thenReturn(source);
+        when(driver.findElement(any(By.class))).thenReturn(element);
+        when(driver.getPageSource()).thenReturn("");
+        when(source.is("button")).thenReturn(true);
+        when(source.attr("type")).thenReturn("submit");
+        when(source.tagName()).thenReturn("#root");
 
-        this.browser.triggerEvent(event, new HashMap<>());
+        browser.triggerEvent(event, new HashMap<>());
 
         verify(event, times(2)).getIdentifier();
         verify(event, times(1)).getXpath();
-        verify(element, times(1)).submit();
+        verify(element, times(1)).click();
     }
 
     @Test(expected = UnsupportedEventTypeException.class)
@@ -222,9 +252,9 @@ public class DrivenBrowserTest {
         when(event.getXpath()).thenReturn(xpath);
         when(event.getIdentifier()).thenReturn(xpath);
         when(event.getEventType()).thenReturn(Eventable.EventType.HOVER);
-        when(this.driver.findElement(any(By.class))).thenReturn(element);
+        when(driver.findElement(any(By.class))).thenReturn(element);
 
-        this.browser.triggerEvent(event, new HashMap<>());
+        browser.triggerEvent(event, new HashMap<>());
 
         verify(event, times(1)).getIdentifier();
         verify(event, times(1)).getXpath();

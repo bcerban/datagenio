@@ -1,5 +1,6 @@
 package com.datagenio.crawler;
 
+import com.datagenio.context.Context;
 import com.datagenio.crawler.api.*;
 import com.datagenio.crawler.exception.*;
 import com.datagenio.databank.api.InputBuilder;
@@ -19,7 +20,7 @@ public class SimpleCrawlerTest {
     private static String ROOT_URL = "http://test.com";
 
     private Browser browser;
-    private CrawlContext context;
+    private Context context;
     private SimpleCrawler crawler;
     private InputBuilder inputBuilder;
 
@@ -28,7 +29,7 @@ public class SimpleCrawlerTest {
     public void setUp() {
         browser = mock(Browser.class);
         inputBuilder = mock(InputBuilder.class);
-        context = new CrawlContext(ROOT_URL, OUTPUT_DIR);
+        context = new Context(ROOT_URL, OUTPUT_DIR);
         crawler = new SimpleCrawler(context, browser, inputBuilder);
     }
 

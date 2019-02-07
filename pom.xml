@@ -29,6 +29,7 @@
         <module>generator</module>
         <module>model</module>
         <module>storage</module>
+        <module>context</module>
     </modules>
 
     <build>
