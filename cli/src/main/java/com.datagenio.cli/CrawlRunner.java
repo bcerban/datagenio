@@ -4,8 +4,8 @@ import com.datagenio.crawler.SimpleCrawler;
 import com.datagenio.context.Context;
 import com.datagenio.crawler.browser.BrowserFactory;
 import com.datagenio.databank.InputBuilderFactory;
-import com.datagenio.generator.Generator;
-import com.datagenio.generator.GraphConverterImpl;
+import com.datagenio.generator.GeneratorImpl;
+import com.datagenio.generator.converter.GraphConverterImpl;
 import com.datagenio.generator.converter.BodyConverter;
 import com.datagenio.generator.converter.HttpRequestAbstractor;
 import com.datagenio.generator.converter.StateConverter;
@@ -106,7 +106,7 @@ public class CrawlRunner {
         // Begin modeling site
         System.out.println("Beginning modeling process...");
 
-        var generator = new Generator(context, crawler, new GraphConverterImpl(context, stateConverter, requestAbstractor), readAdapter, writeAdapter);
+        var generator = new GeneratorImpl(context, crawler, new GraphConverterImpl(context, stateConverter, requestAbstractor), readAdapter, writeAdapter);
 //        EventFlowGraph graph = generator.crawlSite();
         WebFlowGraph model = generator.generateWebModel();
 

@@ -13,11 +13,11 @@ import org.junit.Test;
 
 import static org.mockito.Mockito.*;
 
-public class GeneratorTest {
+public class GeneratorImplTest {
     private Context context;
     private GraphConverter converter;
     private Crawler crawler;
-    private Generator generator;
+    private GeneratorImpl generator;
     private ReadAdapter readAdapter;
     private WriteAdapter writeAdapter;
 
@@ -28,7 +28,7 @@ public class GeneratorTest {
         crawler = mock(Crawler.class);
         readAdapter = mock(ReadAdapter.class);
         writeAdapter = mock(WriteAdapter.class);
-        generator = new Generator(context, crawler, converter, readAdapter, writeAdapter);
+        generator = new GeneratorImpl(context, crawler, converter, readAdapter, writeAdapter);
     }
 
     @Test

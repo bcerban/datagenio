@@ -5,6 +5,7 @@ import com.datagenio.crawler.api.Crawler;
 import com.datagenio.crawler.api.EventFlowGraph;
 import com.datagenio.databank.InputBuilderFactory;
 import com.datagenio.databank.api.InputBuilder;
+import com.datagenio.generator.api.Generator;
 import com.datagenio.generator.api.GraphConverter;
 import com.datagenio.generator.api.RequestFormatter;
 import com.datagenio.generator.util.DataSetWriter;
@@ -22,8 +23,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class Generator {
-    private static Logger logger = LoggerFactory.getLogger(Generator.class);
+public class GeneratorImpl implements Generator {
+    private static Logger logger = LoggerFactory.getLogger(GeneratorImpl.class);
 
     private Context context;
     private GraphConverter converter;
@@ -33,7 +34,7 @@ public class Generator {
     private InputBuilder inputBuilder;
     private RequestFormatter formatter;
 
-    public Generator(Context context, Crawler crawler, GraphConverter converter, ReadAdapter readAdapter, WriteAdapter writeAdapter) {
+    public GeneratorImpl(Context context, Crawler crawler, GraphConverter converter, ReadAdapter readAdapter, WriteAdapter writeAdapter) {
         this.context = context;
         this.crawler = crawler;
         this.converter = converter;
@@ -59,15 +60,7 @@ public class Generator {
         this.writeAdapter = writeAdapter;
     }
 
-    public EventFlowGraph crawlSite() {
-        var graph = crawler.crawl();
-
-        logger.info("Saving generated graph...");
-        writeAdapter.save(graph);
-
-        return graph;
-    }
-
+    @Override
     public WebFlowGraph generateWebModel() {
         var eventModel = crawler.crawl();
         var webModel =  converter.convert(eventModel);
@@ -78,6 +71,7 @@ public class Generator {
         return webModel;
     }
 
+    @Override
     public void generateDataset(WebFlowGraph webModel) {
         logger.info("Beginning data set generation...");
 
@@ -92,6 +86,16 @@ public class Generator {
         logger.info("Data set generation finished.");
     }
 
+    public EventFlowGraph crawlSite() {
+        var graph = crawler.crawl();
+
+        logger.info("Saving generated graph...");
+        writeAdapter.save(graph);
+
+        return graph;
+    }
+
+    @Override
     public List<String> generateTransitionData(WebTransition transition) {
         List<String> lines = new ArrayList<>();
         transition.getAbstractRequests().forEach(request -> {

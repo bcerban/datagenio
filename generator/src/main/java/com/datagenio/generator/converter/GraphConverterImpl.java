@@ -1,12 +1,10 @@
-package com.datagenio.generator;
+package com.datagenio.generator.converter;
 
 import com.datagenio.context.Context;
 import com.datagenio.crawler.api.EventFlowGraph;
 import com.datagenio.crawler.api.State;
 import com.datagenio.crawler.api.Transitionable;
 import com.datagenio.generator.api.GraphConverter;
-import com.datagenio.generator.converter.HttpRequestAbstractor;
-import com.datagenio.generator.converter.StateConverter;
 import com.datagenio.model.WebFlowGraphImpl;
 import com.datagenio.model.WebTransitionImpl;
 import com.datagenio.model.api.WebFlowGraph;
