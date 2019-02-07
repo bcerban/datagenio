@@ -1,6 +1,6 @@
 package com.datagenio.generator.util;
 
-import com.datagenio.crawler.api.Context;
+import com.datagenio.context.Context;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

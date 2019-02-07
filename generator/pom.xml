@@ -41,6 +41,12 @@
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
+            <artifactId>context</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>${project.groupId}</groupId>
             <artifactId>databank</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -59,7 +65,7 @@
 
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>storage</artifactId>
+            <artifactId>storage-api</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>

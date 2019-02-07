@@ -1,6 +1,6 @@
 package com.datagenio.storage.connection;
 
-import com.datagenio.storage.exception.StorageException;
+import com.datagenio.storageapi.StorageException;
 import org.neo4j.graphdb.*;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 import org.neo4j.graphdb.schema.IndexDefinition;

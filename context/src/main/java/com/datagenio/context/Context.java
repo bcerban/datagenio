@@ -1,10 +1,13 @@
-package com.datagenio.crawler;
-
-import com.datagenio.crawler.api.Context;
+package com.datagenio.context;
 
 import java.net.URI;
+import java.util.HashMap;
+import java.util.Map;
 
-public class CrawlContext implements Context {
+public class Context {
+
+    public static int REQUEST_TIMEOUT = 300;
+    public static int NO_MAX_DEPTH = 0;
 
     private final int requestTimeout;
     private final int crawlTimeout;
@@ -13,8 +16,9 @@ public class CrawlContext implements Context {
     private final String outputDirName;
     private final boolean verbose;
     private final boolean printScreen;
+    private Configuration configuration;
 
-    public CrawlContext(String rootUrl, String outputDirName) {
+    public Context(String rootUrl, String outputDirName) {
         this.rootUrl = rootUrl;
         this.requestTimeout = REQUEST_TIMEOUT;
         this.crawlTimeout = 0;
@@ -24,7 +28,7 @@ public class CrawlContext implements Context {
         this.printScreen = false;
     }
 
-    public CrawlContext(String rootUrl, String outputDirName, boolean verbose) {
+    public Context(String rootUrl, String outputDirName, boolean verbose) {
         this.rootUrl = rootUrl;
         this.requestTimeout = REQUEST_TIMEOUT;
         this.crawlTimeout = 0;
@@ -34,7 +38,7 @@ public class CrawlContext implements Context {
         this.printScreen = false;
     }
 
-    public CrawlContext(String rootUrl, String outputDirName, boolean verbose, boolean printScreen) {
+    public Context(String rootUrl, String outputDirName, boolean verbose, boolean printScreen) {
         this.rootUrl = rootUrl;
         this.requestTimeout = REQUEST_TIMEOUT;
         this.crawlTimeout = 0;
@@ -44,7 +48,7 @@ public class CrawlContext implements Context {
         this.printScreen = printScreen;
     }
 
-    public CrawlContext(String rootUrl, String outputDirName, boolean verbose, boolean printScreen, int crawlDepth) {
+    public Context(String rootUrl, String outputDirName, boolean verbose, boolean printScreen, int crawlDepth) {
         this.rootUrl = rootUrl;
         this.requestTimeout = REQUEST_TIMEOUT;
         this.crawlTimeout = 0;
@@ -54,7 +58,7 @@ public class CrawlContext implements Context {
         this.printScreen = printScreen;
     }
 
-    public CrawlContext(String rootUrl, String outputDirName, boolean verbose, int crawlTimeout) {
+    public Context(String rootUrl, String outputDirName, boolean verbose, int crawlTimeout) {
         this.rootUrl = rootUrl;
         this.requestTimeout = REQUEST_TIMEOUT;
         this.crawlTimeout = crawlTimeout;
@@ -64,7 +68,7 @@ public class CrawlContext implements Context {
         this.printScreen = false;
     }
 
-    public CrawlContext(String rootUrl, String outputDirName, boolean verbose, int crawlTimeout, int requestTimeout) {
+    public Context(String rootUrl, String outputDirName, boolean verbose, int crawlTimeout, int requestTimeout) {
         this.rootUrl = rootUrl;
         this.requestTimeout = requestTimeout;
         this.crawlTimeout = crawlTimeout;
@@ -74,7 +78,7 @@ public class CrawlContext implements Context {
         this.printScreen = false;
     }
 
-    public CrawlContext(String rootUrl, String outputDirName, boolean verbose, int crawlTimeout, int requestTimeout, int crawlDepth) {
+    public Context(String rootUrl, String outputDirName, boolean verbose, int crawlTimeout, int requestTimeout, int crawlDepth) {
         this.rootUrl = rootUrl;
         this.requestTimeout = requestTimeout;
         this.crawlTimeout = crawlTimeout;
@@ -114,5 +118,18 @@ public class CrawlContext implements Context {
 
     public boolean isPrintScreen() {
         return printScreen;
+    }
+
+    public Configuration getConfiguration() {
+        if (configuration == null) {
+            Map<String, String> settings = new HashMap<>();
+            settings.put(Configuration.CONNECTION_MODE, Configuration.CONNECTION_MODE_EMBEDDED);
+            settings.put(Configuration.OUTPUT_DIRECTORY_NAME, getOutputDirName());
+            settings.put(Configuration.SITE_ROOT_URI, getRootUrl());
+            settings.put(Configuration.REQUEST_SAVE_MODE, Configuration.REQUEST_SAVE_AS_JSON);
+            configuration = new Configuration(settings);
+        }
+
+        return configuration;
     }
 }

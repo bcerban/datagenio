@@ -1,14 +1,15 @@
 package com.datagenio.storage;
 
+import com.datagenio.context.Configuration;
 import com.datagenio.crawler.api.EventFlowGraph;
 import com.datagenio.crawler.api.Eventable;
 import com.datagenio.crawler.api.State;
 import com.datagenio.crawler.api.Transitionable;
+import com.datagenio.storageapi.*;
 import com.datagenio.model.api.WebFlowGraph;
 import com.datagenio.model.api.WebState;
 import com.datagenio.model.api.WebTransition;
-import com.datagenio.storage.api.*;
-import com.datagenio.storage.exception.StorageException;
+import com.datagenio.storageapi.StorageException;
 import com.google.gson.Gson;
 import org.neo4j.graphdb.*;
 import org.slf4j.Logger;

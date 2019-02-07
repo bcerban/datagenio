@@ -1,6 +1,6 @@
 package com.datagenio.crawler.util;
 
-import com.datagenio.crawler.api.Context;
+import com.datagenio.context.Context;
 
 import java.net.URI;
 

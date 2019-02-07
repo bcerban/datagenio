@@ -12,6 +12,7 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="module" module-name="context" />
     <orderEntry type="module" module-name="crawler-api" />
     <orderEntry type="module" module-name="databank" />
     <orderEntry type="module" module-name="model" />

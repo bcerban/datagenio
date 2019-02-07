@@ -1,4 +1,4 @@
-package com.datagenio.storage.api;
+package com.datagenio.storageapi;
 
 import com.datagenio.model.api.WebFlowGraph;
 

@@ -1,13 +1,13 @@
 package com.datagenio.generator;
 
-import com.datagenio.crawler.api.Context;
+import com.datagenio.context.Context;
 import com.datagenio.crawler.api.Crawler;
 import com.datagenio.crawler.api.EventFlowGraph;
 
 import com.datagenio.generator.api.GraphConverter;
 import com.datagenio.model.api.WebFlowGraph;
-import com.datagenio.storage.api.ReadAdapter;
-import com.datagenio.storage.api.WriteAdapter;
+import com.datagenio.storageapi.ReadAdapter;
+import com.datagenio.storageapi.WriteAdapter;
 import org.junit.Before;
 import org.junit.Test;
 

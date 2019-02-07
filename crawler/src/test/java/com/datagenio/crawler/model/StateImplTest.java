@@ -95,8 +95,8 @@ public class StateImplTest {
         Eventable event = mock(Eventable.class);
         ExecutableEventExtractor extractor = mock(ExecutableEventExtractor.class);
 
-        when(extractor.extract(any(), any())).thenReturn(List.of(event));
-        newState = new StateImpl(this.uri, this.document, extractor);
+        when(extractor.extractSorted(any(), any(), any())).thenReturn(List.of(event));
+        newState = new StateImpl(uri, document, extractor);
 
         // Check preconditions for test
         assertFalse(newState.isFinished());

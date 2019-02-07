@@ -1,4 +1,4 @@
-package com.datagenio.storage.api;
+package com.datagenio.storageapi;
 
 public interface Labels {
     String WEB_STATE = "web_state";

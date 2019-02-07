@@ -1,7 +1,7 @@
 package com.datagenio.storage.connection;
 
-import com.datagenio.storage.api.Configuration;
-import com.datagenio.storage.api.Connection;
+import com.datagenio.context.Configuration;
+import com.datagenio.storageapi.Connection;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 
 public class ConnectionResolver {

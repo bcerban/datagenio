@@ -1,13 +1,14 @@
 package com.datagenio.storage;
 
 import com.datagenio.crawler.api.*;
+import com.datagenio.storageapi.Relationships;
 import com.datagenio.model.api.AbstractUrl;
 import com.datagenio.model.api.WebFlowGraph;
 import com.datagenio.model.api.WebState;
 import com.datagenio.model.api.WebTransition;
-import com.datagenio.storage.api.Configuration;
-import com.datagenio.storage.api.Connection;
-import com.datagenio.storage.exception.StorageException;
+import com.datagenio.context.Configuration;
+import com.datagenio.storageapi.Connection;
+import com.datagenio.storageapi.StorageException;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import org.jsoup.nodes.Element;

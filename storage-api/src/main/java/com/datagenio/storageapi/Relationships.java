@@ -1,4 +1,4 @@
-package com.datagenio.storage;
+package com.datagenio.storageapi;
 
 import org.neo4j.graphdb.RelationshipType;
 
