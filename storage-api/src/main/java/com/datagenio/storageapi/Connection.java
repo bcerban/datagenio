@@ -1,6 +1,5 @@
-package com.datagenio.storage.api;
+package com.datagenio.storageapi;
 
-import com.datagenio.storage.exception.StorageException;
 import org.neo4j.graphdb.*;
 
 import java.util.Collection;

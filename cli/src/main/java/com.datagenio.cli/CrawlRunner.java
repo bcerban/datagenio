@@ -13,7 +13,6 @@ import com.datagenio.generator.converter.UrlAbstractor;
 import com.datagenio.model.api.WebFlowGraph;
 import com.datagenio.storage.Neo4JReadAdapter;
 import com.datagenio.storage.Neo4JWriteAdapter;
-import com.datagenio.context.Configuration;
 import com.datagenio.storage.connection.ConnectionResolver;
 import com.google.common.base.Charsets;
 import com.google.common.io.Resources;
@@ -29,8 +28,6 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.HashMap;
-import java.util.Map;
 
 public class CrawlRunner {
 

@@ -2,8 +2,8 @@ package com.datagenio.storage;
 
 import com.datagenio.model.api.WebFlowGraph;
 import com.datagenio.context.Configuration;
-import com.datagenio.storage.api.Connection;
-import com.datagenio.storage.api.ReadAdapter;
+import com.datagenio.storageapi.Connection;
+import com.datagenio.storageapi.ReadAdapter;
 import com.datagenio.storage.connection.ConnectionResolver;
 
 public class Neo4JReadAdapter implements ReadAdapter {

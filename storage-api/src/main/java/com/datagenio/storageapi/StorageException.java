@@ -1,4 +1,4 @@
-package com.datagenio.storage.exception;
+package com.datagenio.storageapi;
 
 public class StorageException extends Exception {
     public StorageException(String message) {

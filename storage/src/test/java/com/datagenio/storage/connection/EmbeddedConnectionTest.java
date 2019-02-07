@@ -1,22 +1,18 @@
 package com.datagenio.storage.connection;
 
-import com.datagenio.storage.api.Labels;
-import com.datagenio.storage.Relationships;
-import com.datagenio.storage.api.Connection;
-import com.datagenio.storage.exception.StorageException;
+import com.datagenio.storageapi.Labels;
+import com.datagenio.storageapi.Relationships;
+import com.datagenio.storageapi.Connection;
+import com.datagenio.storageapi.StorageException;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.neo4j.graphdb.*;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
-import org.neo4j.graphdb.schema.IndexCreator;
-import org.neo4j.graphdb.schema.IndexDefinition;
-import org.neo4j.graphdb.schema.Schema;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 

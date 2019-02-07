@@ -42,7 +42,7 @@
     <orderEntry type="library" name="Maven: org.bouncycastle:bcpkix-jdk15on:1.58" level="project" />
     <orderEntry type="library" name="Maven: net.lightbody.bmp:mitm:2.1.5" level="project" />
     <orderEntry type="library" name="Maven: net.bytebuddy:byte-buddy:1.9.3" level="project" />
-    <orderEntry type="module" module-name="storage" />
+    <orderEntry type="module" module-name="storageapi" />
     <orderEntry type="library" name="Maven: org.neo4j:neo4j:3.5.1" level="project" />
     <orderEntry type="library" name="Maven: org.neo4j:neo4j-kernel:3.5.1" level="project" />
     <orderEntry type="library" name="Maven: org.neo4j:neo4j-graphdb-api:3.5.1" level="project" />

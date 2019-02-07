@@ -12,8 +12,8 @@ import com.datagenio.generator.util.RequestFormatterFactory;
 import com.datagenio.model.api.AbstractHttpRequest;
 import com.datagenio.model.api.WebFlowGraph;
 import com.datagenio.model.api.WebTransition;
-import com.datagenio.storage.api.ReadAdapter;
-import com.datagenio.storage.api.WriteAdapter;
+import com.datagenio.storageapi.ReadAdapter;
+import com.datagenio.storageapi.WriteAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
