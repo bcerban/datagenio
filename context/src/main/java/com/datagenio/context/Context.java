@@ -1,6 +1,8 @@
 package com.datagenio.context;
 
 import java.net.URI;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Context {
 
@@ -14,6 +16,7 @@ public class Context {
     private final String outputDirName;
     private final boolean verbose;
     private final boolean printScreen;
+    private Configuration configuration;
 
     public Context(String rootUrl, String outputDirName) {
         this.rootUrl = rootUrl;
@@ -115,5 +118,18 @@ public class Context {
 
     public boolean isPrintScreen() {
         return printScreen;
+    }
+
+    public Configuration getConfiguration() {
+        if (configuration == null) {
+            Map<String, String> settings = new HashMap<>();
+            settings.put(Configuration.CONNECTION_MODE, Configuration.CONNECTION_MODE_EMBEDDED);
+            settings.put(Configuration.OUTPUT_DIRECTORY_NAME, getOutputDirName());
+            settings.put(Configuration.SITE_ROOT_URI, getRootUrl());
+            settings.put(Configuration.REQUEST_SAVE_MODE, Configuration.REQUEST_SAVE_AS_JSON);
+            configuration = new Configuration(settings);
+        }
+
+        return configuration;
     }
 }

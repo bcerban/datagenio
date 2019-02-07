@@ -1,7 +1,7 @@
 package com.datagenio.storage;
 
 import com.datagenio.model.api.WebFlowGraph;
-import com.datagenio.storage.api.Configuration;
+import com.datagenio.context.Configuration;
 import com.datagenio.storage.api.Connection;
 import com.datagenio.storage.api.ReadAdapter;
 import com.datagenio.storage.connection.ConnectionResolver;

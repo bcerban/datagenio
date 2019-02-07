@@ -5,7 +5,7 @@ import com.datagenio.model.api.AbstractUrl;
 import com.datagenio.model.api.WebFlowGraph;
 import com.datagenio.model.api.WebState;
 import com.datagenio.model.api.WebTransition;
-import com.datagenio.storage.api.Configuration;
+import com.datagenio.context.Configuration;
 import com.datagenio.storage.api.Connection;
 import com.datagenio.storage.exception.StorageException;
 import com.google.gson.Gson;

@@ -1,5 +1,6 @@
 package com.datagenio.storage;
 
+import com.datagenio.context.Configuration;
 import com.datagenio.crawler.api.EventFlowGraph;
 import com.datagenio.crawler.api.Eventable;
 import com.datagenio.crawler.api.State;

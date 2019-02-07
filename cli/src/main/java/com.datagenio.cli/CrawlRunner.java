@@ -2,7 +2,6 @@ package com.datagenio.cli;
 
 import com.datagenio.crawler.SimpleCrawler;
 import com.datagenio.context.Context;
-import com.datagenio.crawler.api.EventFlowGraph;
 import com.datagenio.crawler.browser.BrowserFactory;
 import com.datagenio.databank.InputBuilderFactory;
 import com.datagenio.generator.Generator;
@@ -14,7 +13,7 @@ import com.datagenio.generator.converter.UrlAbstractor;
 import com.datagenio.model.api.WebFlowGraph;
 import com.datagenio.storage.Neo4JReadAdapter;
 import com.datagenio.storage.Neo4JWriteAdapter;
-import com.datagenio.storage.api.Configuration;
+import com.datagenio.context.Configuration;
 import com.datagenio.storage.connection.ConnectionResolver;
 import com.google.common.base.Charsets;
 import com.google.common.io.Resources;
@@ -100,9 +99,8 @@ public class CrawlRunner {
 
         var context = getContext(arguments);
         var crawler = new SimpleCrawler(context, BrowserFactory.drivenByFirefox(), InputBuilderFactory.get());
-        var configuration = getStorageConfiguration(arguments);
-        var readAdapter = new Neo4JReadAdapter(configuration);
-        var writeAdapter = new Neo4JWriteAdapter(configuration, ConnectionResolver.get(configuration), gson);
+        var readAdapter = new Neo4JReadAdapter(context.getConfiguration());
+        var writeAdapter = new Neo4JWriteAdapter(context.getConfiguration(), ConnectionResolver.get(context.getConfiguration()), gson);
         var urlAbstractor = new UrlAbstractor();
         var bodyConverter = new BodyConverter();
         var requestAbstractor = new HttpRequestAbstractor(urlAbstractor, bodyConverter);
@@ -149,16 +147,6 @@ public class CrawlRunner {
 
         System.out.println("Max exploration depth: " + context.getCrawlDepth());
         return context;
-    }
-
-    private static Configuration getStorageConfiguration(CommandLine arguments) {
-        Map<String, String> settings = new HashMap<>();
-        settings.put(Configuration.CONNECTION_MODE, Configuration.CONNECTION_MODE_EMBEDDED);
-        settings.put(Configuration.OUTPUT_DIRECTORY_NAME, arguments.getOptionValue(ArgumentParser.OUTPUT));
-        settings.put(Configuration.SITE_ROOT_URI, arguments.getOptionValue(ArgumentParser.URL));
-        settings.put(Configuration.REQUEST_SAVE_MODE, Configuration.REQUEST_SAVE_AS_JSON);
-
-        return new Configuration(settings);
     }
 
     public static boolean urlIsValid(String url) {
