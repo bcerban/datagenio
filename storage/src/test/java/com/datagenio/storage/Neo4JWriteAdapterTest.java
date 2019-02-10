@@ -11,6 +11,7 @@ import com.datagenio.storageapi.Connection;
 import com.datagenio.storageapi.StorageException;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.junit.Before;
 import org.junit.Test;
@@ -78,6 +79,9 @@ public class Neo4JWriteAdapterTest {
 
         doReturn(uri).when(first).getUri();
         doReturn(uri).when(second).getUri();
+        doReturn(mock(Document.class)).when(first).getDocument();
+        doReturn(mock(Document.class)).when(second).getDocument();
+        doReturn(mock(Document.class)).when(event).getParent();
         doReturn(Configuration.REQUEST_SAVE_AS_NODE).when(configuration).get(Configuration.REQUEST_SAVE_MODE);
         doReturn(first).when(transition).getOrigin();
         doReturn(second).when(transition).getDestination();

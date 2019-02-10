@@ -55,6 +55,11 @@ public class WebFlowGraphImpl implements WebFlowGraph {
     }
 
     @Override
+    public WebState findStateById(String id) {
+        return getStates().stream().filter(s -> s.getIdentifier().equals(id)).findFirst().get();
+    }
+
+    @Override
     public boolean isNew(WebState state) {
         return !graph.containsVertex(state);
     }

@@ -23,17 +23,13 @@ public class PersistentCrawlerTest {
     private Context context;
     private PersistentCrawler crawler;
     private InputBuilder inputBuilder;
-    private EventFlowGraph eventFlowGraph;
 
     @Before
     public void setUp() {
         browser = mock(Browser.class);
         inputBuilder = mock(InputBuilder.class);
-        eventFlowGraph = mock(EventFlowGraph.class);
 
         context = new Context(ROOT_URL, OUTPUT_DIR);
-        context.setEventModel(eventFlowGraph);
-
         crawler = new PersistentCrawler(context, browser, inputBuilder);
     }
 

@@ -36,15 +36,15 @@ public class Neo4JReadAdapter implements ReadAdapter {
     private Translator<Transitionable, Map<String, Object>> eventTransitionTranslator;
     private Translator<Eventable, Node> eventableTranslator;
 
-    public Neo4JReadAdapter(Configuration configuration) {
+    public Neo4JReadAdapter(Configuration configuration, Connection connection) {
         webStateTranslator = new WebStateTranslator();
         webTransitionTranslator = new WebTransitionTranslator();
         eventStateTranslator = new EventStateTranslator();
         eventableTranslator = new EventTranslator();
         eventTransitionTranslator = new EventTransitionTranslator();
 
-        connection = ConnectionResolver.get(configuration);
-        combinedGraph = connection.create(configuration.get(Configuration.SITE_ROOT_URI));
+        this.connection = connection;
+        combinedGraph = this.connection.create(configuration.get(Configuration.SITE_ROOT_URI));
     }
 
     @Override

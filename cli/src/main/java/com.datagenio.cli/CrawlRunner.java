@@ -111,13 +111,15 @@ public class CrawlRunner {
         var gson = jsonBuilder.create();
 
         var context = getContext(arguments);
-        var crawler = new PersistentCrawler(context, BrowserFactory.drivenByFirefox(), InputBuilderFactory.get());
-        var readAdapter = new Neo4JReadAdapter(context.getConfiguration());
-        var writeAdapter = new Neo4JWriteAdapter(context.getConfiguration(), ConnectionResolver.get(context.getConfiguration()), gson);
+        var connection = ConnectionResolver.get(context.getConfiguration());
+        var readAdapter = new Neo4JReadAdapter(context.getConfiguration(), connection);
+        var writeAdapter = new Neo4JWriteAdapter(context.getConfiguration(), connection, gson);
         var urlAbstractor = new UrlAbstractor();
         var bodyConverter = new BodyConverter();
         var requestAbstractor = new HttpRequestAbstractor(urlAbstractor, bodyConverter);
         var stateConverter = new StateConverter(urlAbstractor, requestAbstractor, context.getRootUri());
+
+        var crawler = new PersistentCrawler(context, BrowserFactory.drivenByFirefox(), InputBuilderFactory.get());
         return new GeneratorImpl(context, crawler, new GraphConverterImpl(context, stateConverter, requestAbstractor), readAdapter, writeAdapter);
     }
 
