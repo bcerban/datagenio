@@ -1,8 +1,10 @@
 package com.datagenio.storageapi;
 
+import com.datagenio.crawler.api.EventFlowGraph;
 import com.datagenio.model.api.WebFlowGraph;
 
 public interface ReadAdapter {
 
-    WebFlowGraph readWebFloGraph(String site);
+    WebFlowGraph loadWebModel();
+    EventFlowGraph loadEventModel();
 }

@@ -10,7 +10,6 @@ import java.util.Collection;
 public interface State {
 
     String getIdentifier();
-    String getHandler();
     URI getUri();
     Document getDocument();
     Collection<Eventable> getEventables();
@@ -21,10 +20,11 @@ public interface State {
     boolean hasScreenShot();
     File getScreenShot();
 
-    void setHandler(String handler);
+    void setIdentifier(String identifier);
     void setUri(URI uri);
     void setDocument(Document document);
     void setEventables(Collection<Eventable> eventables);
+    void setUnfiredEventables(Collection<Eventable> eventables);
     void markEventAsFired(ExecutedEventable event);
     void setScreenShot(File screenshot);
     void setIsRoot(boolean isRoot);

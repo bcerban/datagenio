@@ -18,21 +18,25 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-public class SimpleCrawler implements com.datagenio.crawler.api.Crawler {
+public class PersistentCrawler implements com.datagenio.crawler.api.Crawler {
 
-    private static Logger logger = LoggerFactory.getLogger(SimpleCrawler.class);
+    private static Logger logger = LoggerFactory.getLogger(PersistentCrawler.class);
 
     private Context context;
     private Browser browser;
     private EventFlowGraph graph;
     private InputBuilder inputBuilder;
 
-    public SimpleCrawler(Context context, Browser browser, InputBuilder inputBuilder) {
+    public PersistentCrawler(Context context, Browser browser, InputBuilder inputBuilder) {
         this.context = context;
         this.browser = browser;
         this.inputBuilder = inputBuilder;
-        graph = new EventFlowGraphImpl();
+
+        if (context.continueExistingModel()) {
+            graph = context.getReadAdapter().loadEventModel();
+        }
     }
+
 
     public Context getContext() {
         return context;
@@ -52,6 +56,7 @@ public class SimpleCrawler implements com.datagenio.crawler.api.Crawler {
 
     @Override
     public EventFlowGraph getGraph() {
+        if (graph == null) graph = new EventFlowGraphImpl();
         return graph;
     }
 
@@ -124,7 +129,7 @@ public class SimpleCrawler implements com.datagenio.crawler.api.Crawler {
             getGraph().addTransition(transition);
 
         } catch (UnsupportedEventTypeException | EventTriggerException e) {
-            logger.info("Tried to crawl invalid event with ID '{}' from {}", event.getIdentifier(), current.getIdentifier());
+            logger.info("Tried to crawl invalid event with ID '{}' from {}", event.getEventIdentifier(), current.getIdentifier());
             event.setStatus(Eventable.Status.FAILED);
             event.setReasonForFailure(e.getMessage());
         } catch (OutOfBoundsException e) {

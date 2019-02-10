@@ -1,5 +1,6 @@
 package com.datagenio.storage.connection;
 
+import com.datagenio.storageapi.Properties;
 import com.datagenio.storageapi.StorageException;
 import org.neo4j.graphdb.*;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
@@ -105,12 +106,52 @@ public class EmbeddedConnection extends AbstractConnection {
     }
 
     @Override
-    public Collection<Node> findNodes(GraphDatabaseService graph, Label label, String where) throws StorageException {
+    public Collection<Node> findNodes(GraphDatabaseService graph, Label label) throws StorageException {
+        validateConnection(graph);
+        String query = String.format("MATCH (n:%s) RETURN n", label.toString());
+
+        return executeNodeSearchQuery(graph, query);
+    }
+
+    @Override
+    public Collection<Node> findNodes(GraphDatabaseService graph, Label label, String query) throws StorageException {
+        validateConnection(graph);
+        return executeNodeSearchQuery(graph, query);
+    }
+
+    @Override
+    public Collection<Map<String, Object>> findEdges(GraphDatabaseService graph, RelationshipType relationshipType) throws StorageException {
+        validateConnection(graph);
+        String query = String.format(
+                "MATCH (origin)-[rel:%s]-(dest) RETURN origin.%s, dest.%s, rel",
+                relationshipType.toString(),
+                Properties.IDENTIFICATION,
+                Properties.IDENTIFICATION
+        );
+        return execute(graph, query);
+    }
+
+    @Override
+    public Collection<Map<String, Object>> execute(GraphDatabaseService graph, String query) throws StorageException {
         validateConnection(graph);
 
-        var nodes = new ArrayList<Node>();
-        String query = String.format("MATCH (n:%s) WHERE %s RETURN n", label.toString(), where);
+        var results = new ArrayList<Map<String, Object>>();
+        try (Transaction tx = graph.beginTx()) {
+            var queryResult = graph.execute(query);
 
+            while(queryResult.hasNext()) {
+                results.add(queryResult.next());
+            }
+            tx.success();
+        } catch (Exception e) {
+            throw new StorageException("Couldn't execute query.", e);
+        }
+
+        return results;
+    }
+
+    private Collection<Node> executeNodeSearchQuery(GraphDatabaseService graph, String query) {
+        var nodes = new ArrayList<Node>();
         try (Transaction tx = graph.beginTx()) {
             Result result = graph.execute(query);
 

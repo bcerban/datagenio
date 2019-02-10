@@ -68,6 +68,16 @@ public class EventFlowGraphImpl implements EventFlowGraph {
     }
 
     @Override
+    public State findById(String id) {
+        return getStates().stream().filter(s -> s.getIdentifier().equals(id)).findFirst().get();
+    }
+
+    @Override
+    public Eventable findEvent(String id) {
+        return getEvents().stream().filter(e -> e.getId().equals(id)).findFirst().get();
+    }
+
+    @Override
     public State findNearestUnfinishedStateFrom(State state) throws UncrawlableStateException {
         if (state == null || !getStates().contains(state)) {
             throw new UncrawlableStateException("Trying to navigate from nonexistent state.");
@@ -130,6 +140,11 @@ public class EventFlowGraphImpl implements EventFlowGraph {
     @Override
     public void addEvent(Eventable event) {
         events.add(event);
+    }
+
+    @Override
+    public void addEvents(Collection<Eventable> events) {
+        events.addAll(events);
     }
 
     @Override

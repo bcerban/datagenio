@@ -13,7 +13,11 @@ public interface Connection {
 
     Node findNode(GraphDatabaseService graph, Label label, Map<String, Object> properties) throws StorageException;
     ResourceIterator<Node> findNodes(GraphDatabaseService graph, Label label, Map<String, Object> properties) throws StorageException;
-    Collection<Node> findNodes(GraphDatabaseService graph, Label label, String where) throws StorageException;
+    Collection<Node> findNodes(GraphDatabaseService graph, Label label) throws StorageException;
+    Collection<Node> findNodes(GraphDatabaseService graph, Label label, String query) throws StorageException;
+
+    Collection<Map<String, Object>> findEdges(GraphDatabaseService graph, RelationshipType relationshipType) throws StorageException;
+    Collection<Map<String, Object>> execute(GraphDatabaseService graph, String query) throws StorageException;
 
     void disconnectFrom(GraphDatabaseService graph);
 }

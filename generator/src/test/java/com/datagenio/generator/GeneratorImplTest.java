@@ -32,17 +32,6 @@ public class GeneratorImplTest {
     }
 
     @Test
-    public void testCrawlSite() {
-        EventFlowGraph eventFlowGraph = mock(EventFlowGraph.class);
-        doReturn(eventFlowGraph).when(crawler).crawl();
-
-        generator.crawlSite();
-
-        verify(crawler, times(1)).crawl();
-        verify(writeAdapter, times(1)).save(eventFlowGraph);
-    }
-
-    @Test
     public void testGenerateWebModel() {
         EventFlowGraph eventFlowGraph = mock(EventFlowGraph.class);
         WebFlowGraph webFlowGraph = mock(WebFlowGraph.class);

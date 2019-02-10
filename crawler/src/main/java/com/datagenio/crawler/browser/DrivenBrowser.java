@@ -120,8 +120,7 @@ public class DrivenBrowser implements Browser {
         return new StateImpl(
                 URI.create(driver.getCurrentUrl()),
                 getDOM(),
-                extractor,
-                driver.getWindowHandle()
+                extractor
         );
     }
 
@@ -194,7 +193,7 @@ public class DrivenBrowser implements Browser {
 
     @Override
     public void triggerEvent(Eventable event, Map<String, String> inputs) throws UnsupportedEventTypeException, EventTriggerException {
-        logger.debug("Attempting to trigger event {}...", event.getIdentifier());
+        logger.debug("Attempting to trigger event {}...", event.getEventIdentifier());
         WebElement element = null;
 
         try {
@@ -203,11 +202,11 @@ public class DrivenBrowser implements Browser {
         } catch (NoSuchElementException e) { }
 
         if (element == null) {
-            logger.debug("Element not found for event {} in {}", event.getIdentifier(), driver.getCurrentUrl());
+            logger.debug("Element not found for event {} in {}", event.getEventIdentifier(), driver.getCurrentUrl());
             throw new EventTriggerException("Selected event is not present in current interface.");
         }
 
-        proxy.saveFor(event.getIdentifier().replaceAll("/", "-"));
+        proxy.saveFor(event.getEventIdentifier().replaceAll("/", "-"));
         handleEventByType(event, element, inputs);
     }
 
@@ -237,7 +236,7 @@ public class DrivenBrowser implements Browser {
         } catch (StaleElementReferenceException|ElementNotInteractableException e) {
             logger.debug(
                     "Element for event {} is unavailable in {}. Error: {}",
-                    event.getIdentifier(), driver.getCurrentUrl(), e.getMessage()
+                    event.getEventIdentifier(), driver.getCurrentUrl(), e.getMessage()
             );
             throw new EventTriggerException("Selected event is unavailable.", e);
         }
@@ -256,7 +255,7 @@ public class DrivenBrowser implements Browser {
         } catch (StaleElementReferenceException|ElementNotInteractableException|NoSuchElementException e) {
             logger.debug(
                     "Element for event {} is unavailable in {}. Error: {}",
-                    event.getIdentifier(), driver.getCurrentUrl(), e.getMessage()
+                    event.getEventIdentifier(), driver.getCurrentUrl(), e.getMessage()
             );
             throw new EventTriggerException("Selected event is stale.", e);
         }

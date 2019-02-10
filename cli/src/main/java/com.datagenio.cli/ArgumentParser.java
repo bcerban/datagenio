@@ -8,6 +8,8 @@ public class ArgumentParser {
     public static final String OUTPUT = "output-dir";
     public static final String DEPTH = "depth";
     public static final String TIME = "time";
+    public static final String CONTINUE = "continue";
+    public static final String MODEL_ONLY = "model-only";
     public static final String VERBOSE = "verbose";
     public static final String VERSION = "version";
     public static final String HELP = "help";
@@ -45,6 +47,20 @@ public class ArgumentParser {
                 .desc("Maximum crawl time allowed")
                 .build();
 
+        var continueOption = Option.builder("c")
+                .required(false)
+                .hasArg(false)
+                .longOpt(CONTINUE)
+                .desc("Continue from previous model")
+                .build();
+
+        var modelOnlyOption = Option.builder("M")
+                .required(false)
+                .hasArg(false)
+                .longOpt(MODEL_ONLY)
+                .desc("Only build application model, no data set generated")
+                .build();
+
         var verboseOption = Option.builder("v")
                 .required(false)
                 .hasArg(false)
@@ -70,6 +86,8 @@ public class ArgumentParser {
         options.addOption(outputDirOption);
         options.addOption(maxDepthOption);
         options.addOption(maxTimeOption);
+        options.addOption(continueOption);
+        options.addOption(modelOnlyOption);
         options.addOption(verboseOption);
         options.addOption(versionOption);
         options.addOption(helpOption);

@@ -79,13 +79,13 @@ public class ExecutableEventTest {
 
     @Test
     public void testGetIdentifierID() {
-        assertEquals("button-id", this.executableEvent.getIdentifier());
+        assertEquals("button-id", this.executableEvent.getEventIdentifier());
     }
 
     @Test
     public void testGetIdentifierXPath() {
         this.button.attr("id", null);
-        assertEquals("/html/body/span[1]/button", this.executableEvent.getIdentifier());
+        assertEquals("/html/body/span[1]/button", this.executableEvent.getEventIdentifier());
     }
 
     @Test

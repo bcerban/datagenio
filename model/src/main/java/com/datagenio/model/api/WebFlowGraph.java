@@ -12,6 +12,7 @@ public interface WebFlowGraph {
     Collection<WebTransition> getTransitions();
     WebState findStateBy(WebState state);
     WebState findStateBy(String externalId);
+    WebState findStateById(String id);
     boolean isNew(WebState state);
 
     void setRoot(WebState root);

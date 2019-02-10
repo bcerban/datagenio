@@ -13,7 +13,7 @@ import java.util.UUID;
 
 public class WebStateImpl implements WebState {
 
-    private final String identifier;
+    private String identifier;
     private AbstractUrl url;
     private Collection<AbstractHttpRequest> requests;
     private Collection<String> externalIds;
@@ -38,6 +38,11 @@ public class WebStateImpl implements WebState {
     }
 
     @Override
+    public void setIdentifier(String identifier) {
+        this.identifier = identifier;
+    }
+
+    @Override
     public AbstractUrl getUrl() {
         return url;
     }
@@ -55,6 +60,11 @@ public class WebStateImpl implements WebState {
     @Override
     public Collection<String> getExternalIds() {
         return externalIds;
+    }
+
+    @Override
+    public void setExternalIds(Collection<String> ids) {
+        externalIds = ids;
     }
 
     @Override
@@ -85,6 +95,11 @@ public class WebStateImpl implements WebState {
     @Override
     public Collection<File> getScreenShots() {
         return screenShots;
+    }
+
+    @Override
+    public void setScreenShots(Collection<File> screenShots) {
+        this.screenShots = screenShots;
     }
 
     @Override

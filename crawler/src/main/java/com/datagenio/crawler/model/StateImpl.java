@@ -20,10 +20,15 @@ public class StateImpl implements State {
     private Collection<Eventable> eventables;
     private Document document;
     private URI uri;
-    private String handler;
     private File screenShot;
     private boolean isRoot;
-    private final String uid;
+    private String uid;
+
+    public StateImpl() {
+        eventables = new ArrayList<>();
+        unfiredEventables = new LinkedList<>();
+        executedEventables = new ArrayList<>();
+    }
 
     public StateImpl(URI uri, Document view, EventableExtractor extractor) {
         this.uri = uri;
@@ -34,11 +39,6 @@ public class StateImpl implements State {
         this.uid = UUID.randomUUID().toString();
     }
 
-    public StateImpl(URI uri, Document view, EventableExtractor extractor, String handler) {
-        this(uri, view, extractor);
-        this.handler = handler;
-    }
-
     @Override
     public Collection<Eventable> getEventables() {
         return eventables;
@@ -47,6 +47,13 @@ public class StateImpl implements State {
     @Override
     public Collection<Eventable> getUnfiredEventables() {
         return unfiredEventables;
+    }
+
+    @Override
+    public void setUnfiredEventables(Collection<Eventable> eventables) {
+        List<Eventable> sorted = new ArrayList<>(eventables);
+        Collections.sort(sorted, new SubmitFirstComparator());
+        unfiredEventables = new LinkedList<>(sorted);
     }
 
     @Override
@@ -113,6 +120,11 @@ public class StateImpl implements State {
     }
 
     @Override
+    public void setIdentifier(String identifier) {
+        uid = identifier;
+    }
+
+    @Override
     public URI getUri() {
         return this.uri;
     }
@@ -130,16 +142,6 @@ public class StateImpl implements State {
     @Override
     public void setDocument(Document document) {
         this.document = document;
-    }
-
-    @Override
-    public String getHandler() {
-        return handler;
-    }
-
-    @Override
-    public void setHandler(String handler) {
-        this.handler = handler;
     }
 
     @Override

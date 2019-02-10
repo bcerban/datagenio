@@ -15,10 +15,14 @@ public class WebTransitionImpl implements WebTransition {
     private WebState destination;
     private Collection<AbstractHttpRequest> abstractRequests;
 
+    public WebTransitionImpl() {
+        abstractRequests = new ArrayList<>();
+    }
+
     public WebTransitionImpl(WebState origin, WebState destination) {
+        this();
         this.origin = origin;
         this.destination = destination;
-        this.abstractRequests = new ArrayList<>();
     }
 
     @Override
@@ -49,6 +53,11 @@ public class WebTransitionImpl implements WebTransition {
     @Override
     public Collection<AbstractHttpRequest> getAbstractRequests() {
         return abstractRequests;
+    }
+
+    @Override
+    public void setRequests(Collection<AbstractHttpRequest> requests) {
+        abstractRequests = requests;
     }
 
     @Override

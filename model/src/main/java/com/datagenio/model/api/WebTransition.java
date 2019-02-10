@@ -11,4 +11,5 @@ public interface WebTransition {
     void setOrigin(WebState origin);
     void setDestination(WebState destination);
     void addRequest(AbstractHttpRequest request);
+    void setRequests(Collection<AbstractHttpRequest> requests);
 }

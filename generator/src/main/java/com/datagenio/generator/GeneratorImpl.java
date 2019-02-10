@@ -86,15 +86,6 @@ public class GeneratorImpl implements Generator {
         logger.info("Data set generation finished.");
     }
 
-    public EventFlowGraph crawlSite() {
-        var graph = crawler.crawl();
-
-        logger.info("Saving generated graph...");
-        writeAdapter.save(graph);
-
-        return graph;
-    }
-
     @Override
     public List<String> generateTransitionData(WebTransition transition) {
         List<String> lines = new ArrayList<>();

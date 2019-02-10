@@ -14,23 +14,27 @@ import java.util.List;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
-public class SimpleCrawlerTest {
+public class PersistentCrawlerTest {
 
     private static String OUTPUT_DIR = "/tmp/test";
     private static String ROOT_URL = "http://test.com";
 
     private Browser browser;
     private Context context;
-    private SimpleCrawler crawler;
+    private PersistentCrawler crawler;
     private InputBuilder inputBuilder;
-
+    private EventFlowGraph eventFlowGraph;
 
     @Before
     public void setUp() {
         browser = mock(Browser.class);
         inputBuilder = mock(InputBuilder.class);
+        eventFlowGraph = mock(EventFlowGraph.class);
+
         context = new Context(ROOT_URL, OUTPUT_DIR);
-        crawler = new SimpleCrawler(context, browser, inputBuilder);
+        context.setEventModel(eventFlowGraph);
+
+        crawler = new PersistentCrawler(context, browser, inputBuilder);
     }
 
     @Test
@@ -52,14 +56,14 @@ public class SimpleCrawlerTest {
 
     @Test
     public void testGetLogger() {
-        assertNotNull(SimpleCrawler.getLogger());
+        assertNotNull(PersistentCrawler.getLogger());
     }
 
     @Test
     public void testRelocateNoNearestState() throws UncrawlableStateException {
         State state = mock(State.class);
         EventFlowGraph graph = mock(EventFlowGraph.class);
-        SimpleCrawler mockCrawler = mock(SimpleCrawler.class);
+        PersistentCrawler mockCrawler = mock(PersistentCrawler.class);
 
         doCallRealMethod().when(mockCrawler).relocateFrom(state);
         doReturn(graph).when(mockCrawler).getGraph();
@@ -73,7 +77,7 @@ public class SimpleCrawlerTest {
         State state = mock(State.class);
         EventFlowGraph graph = mock(EventFlowGraph.class);
         GraphPath path = mock(GraphPath.class);
-        SimpleCrawler mockCrawler = mock(SimpleCrawler.class);
+        PersistentCrawler mockCrawler = mock(PersistentCrawler.class);
 
         doCallRealMethod().when(mockCrawler).relocateFrom(state);
         doReturn(graph).when(mockCrawler).getGraph();
@@ -89,7 +93,7 @@ public class SimpleCrawlerTest {
         State state = mock(State.class);
         EventFlowGraph graph = mock(EventFlowGraph.class);
         GraphPath path = mock(GraphPath.class);
-        SimpleCrawler mockCrawler = mock(SimpleCrawler.class);
+        PersistentCrawler mockCrawler = mock(PersistentCrawler.class);
 
         doCallRealMethod().when(mockCrawler).relocateFrom(state);
         doReturn(graph).when(mockCrawler).getGraph();

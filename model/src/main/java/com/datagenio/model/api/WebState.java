@@ -12,10 +12,13 @@ public interface WebState {
     Collection<File> getScreenShots();
     boolean isRoot();
 
+    void setIdentifier(String identifier);
     void setUrl(AbstractUrl url);
     void setRequests(Collection<AbstractHttpRequest> requests);
     void addRequest(AbstractHttpRequest request);
     void addExternalId(String id);
+    void setExternalIds(Collection<String> ids);
     void setIsRoot(boolean isRoot);
     void addScreenShot(File screenShot);
+    void setScreenShots(Collection<File> screenShots);
 }

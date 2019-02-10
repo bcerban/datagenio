@@ -7,6 +7,7 @@ import org.jsoup.nodes.Element;
 import org.jsoup.nodes.Document;
 
 import java.util.Objects;
+import java.util.UUID;
 
 /**
  * Represents an event that can be executed from an instance of the
@@ -14,6 +15,7 @@ import java.util.Objects;
  */
 public class ExecutableEvent implements Eventable {
 
+    private String uid;
     private Element source;
     private EventType eventType;
     private String handler = "";
@@ -25,11 +27,24 @@ public class ExecutableEvent implements Eventable {
     /** Not sure whether saving the full DOM is necessary, but it can be removed later. */
     private Document parent;
 
+    public ExecutableEvent() {}
+
     public ExecutableEvent(Element e, EventType event) {
+        uid = UUID.randomUUID().toString();
         source = e;
         eventType = event;
         parent = source.ownerDocument();
         xpath = XPathParser.getXPathFor(source);
+    }
+
+    @Override
+    public String getId() {
+        return uid;
+    }
+
+    @Override
+    public void setId(String id) {
+        uid = id;
     }
 
     @Override
@@ -52,6 +67,7 @@ public class ExecutableEvent implements Eventable {
         this.eventType = eventType;
     }
 
+    @Override
     public String getHandler() {
         if (StringUtils.isEmpty(handler) && source.hasAttr("action")) {
             handler = source.attr("action");
@@ -59,16 +75,24 @@ public class ExecutableEvent implements Eventable {
         return handler;
     }
 
+    @Override
     public void setHandler(String handler) {
         this.handler = handler;
     }
 
+    @Override
     public Document getParent() {
         return parent;
     }
 
+    @Override
     public void setParent(Document parent) {
         this.parent = parent;
+    }
+
+    @Override
+    public void setXpath(String xpath) {
+        this.xpath = xpath;
     }
 
     @Override
@@ -92,7 +116,7 @@ public class ExecutableEvent implements Eventable {
     }
 
     @Override
-    public String getIdentifier() {
+    public String getEventIdentifier() {
         String identifier = source.id();
 
         if (StringUtils.isEmpty(identifier)) {
@@ -128,12 +152,12 @@ public class ExecutableEvent implements Eventable {
 
         ExecutableEvent e = (ExecutableEvent) obj;
         return Objects.equals(getEventType(), e.getEventType()) &&
-                Objects.equals(getIdentifier(), e.getIdentifier()) &&
+                Objects.equals(getEventIdentifier(), e.getEventIdentifier()) &&
                 Objects.equals(getHandler(), e.getHandler());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getIdentifier(), getEventType());
+        return Objects.hash(getEventIdentifier(), getEventType());
     }
 }

@@ -1,10 +1,11 @@
 package com.datagenio.cli;
 
-import com.datagenio.crawler.SimpleCrawler;
+import com.datagenio.crawler.PersistentCrawler;
 import com.datagenio.context.Context;
 import com.datagenio.crawler.browser.BrowserFactory;
 import com.datagenio.databank.InputBuilderFactory;
 import com.datagenio.generator.GeneratorImpl;
+import com.datagenio.generator.api.Generator;
 import com.datagenio.generator.converter.GraphConverterImpl;
 import com.datagenio.generator.converter.BodyConverter;
 import com.datagenio.generator.converter.HttpRequestAbstractor;
@@ -91,33 +92,33 @@ public class CrawlRunner {
 
         System.out.println("Preparing dependencies...");
 
+        Generator generator = getGenerator(arguments);
+
+        // Begin modeling site
+        System.out.println("Beginning modeling process...");
+        WebFlowGraph model = generator.generateWebModel();
+
+        System.out.println("Finished modeling site.");
+        System.out.println("Found " + model.getStates().size() + " states, and " + model.getTransitions().size() + " transitions.");
+
+        System.out.println("Generating data set...");
+        generator.generateDataset(model);
+        System.out.println("Finished writing data set.");
+    }
+
+    private static GeneratorImpl getGenerator(CommandLine arguments) {
         var jsonBuilder = new GsonBuilder().setPrettyPrinting();
         var gson = jsonBuilder.create();
 
         var context = getContext(arguments);
-        var crawler = new SimpleCrawler(context, BrowserFactory.drivenByFirefox(), InputBuilderFactory.get());
+        var crawler = new PersistentCrawler(context, BrowserFactory.drivenByFirefox(), InputBuilderFactory.get());
         var readAdapter = new Neo4JReadAdapter(context.getConfiguration());
         var writeAdapter = new Neo4JWriteAdapter(context.getConfiguration(), ConnectionResolver.get(context.getConfiguration()), gson);
         var urlAbstractor = new UrlAbstractor();
         var bodyConverter = new BodyConverter();
         var requestAbstractor = new HttpRequestAbstractor(urlAbstractor, bodyConverter);
         var stateConverter = new StateConverter(urlAbstractor, requestAbstractor, context.getRootUri());
-
-        // Begin modeling site
-        System.out.println("Beginning modeling process...");
-
-        var generator = new GeneratorImpl(context, crawler, new GraphConverterImpl(context, stateConverter, requestAbstractor), readAdapter, writeAdapter);
-//        EventFlowGraph graph = generator.crawlSite();
-        WebFlowGraph model = generator.generateWebModel();
-
-//        System.out.println("Finished crawling site.");
-//        System.out.println("Found " + graph.getStates().size() + " states, and " + graph.getTransitions().size() + " transitions.");
-
-        System.out.println("Finished modeling site.");
-        System.out.println("Found " + model.getStates().size() + " states, and " + model.getTransitions().size() + " transitions.");
-
-        generator.generateDataset(model);
-        System.out.println("Finished writing dataset.");
+        return new GeneratorImpl(context, crawler, new GraphConverterImpl(context, stateConverter, requestAbstractor), readAdapter, writeAdapter);
     }
 
     private static boolean isVerbose(CommandLine arguments) {
