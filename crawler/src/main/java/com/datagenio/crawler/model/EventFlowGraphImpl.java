@@ -144,7 +144,7 @@ public class EventFlowGraphImpl implements EventFlowGraph {
 
     @Override
     public void addEvents(Collection<Eventable> events) {
-        events.addAll(events);
+        this.events.addAll(events);
     }
 
     @Override

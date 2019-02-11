@@ -34,11 +34,13 @@ public class EventTransitionTranslator implements Translator<Transitionable, Map
     public Transitionable translateFrom(Map<String, Object> translated) {
         Transitionable transition = new Transition();
 
-        var requests = Arrays.asList(
-                gson.fromJson((String)translated.get(Properties.CONCRETE_REQUESTS), RemoteRequest[].class)
-        );
+        if (translated.containsKey(Properties.CONCRETE_REQUESTS)) {
+            var requests = Arrays.asList(
+                    gson.fromJson((String)translated.get(Properties.CONCRETE_REQUESTS), RemoteRequest[].class)
+            );
+            transition.setRequests(requests);
+        }
 
-        transition.setRequests(requests);
         return transition;
     }
 }

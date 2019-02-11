@@ -88,7 +88,6 @@ public class Neo4JReadAdapter implements ReadAdapter {
             Collection<Map<String, Object>> eventStateNodes = connection.findNodesAsMap(combinedGraph, Label.label(Labels.EVENT_STATE));
             eventStateNodes.forEach(stateNode -> {
                 var state = eventStateTranslator.translateFrom(stateNode);
-                eventModel.addState(state);
 
                 Collection<Eventable> unfiredEvents = findUnfiredEventsFor(state).stream()
                         .map(unfiredEventNode -> eventableTranslator.translateFrom(unfiredEventNode))
@@ -99,10 +98,11 @@ public class Neo4JReadAdapter implements ReadAdapter {
                         .collect(Collectors.toList());
 
                 state.setUnfiredEventables(unfiredEvents);
-                eventModel.addEvents(firedEvents);
-
-                firedEvents.addAll(unfiredEvents);
+                unfiredEvents.addAll(firedEvents);
                 state.setEventables(firedEvents);
+
+                eventModel.addState(state);
+                eventModel.addEvents(firedEvents);
 
                 if (state.isRoot()) {
                     eventModel.setRoot(state);
@@ -114,7 +114,7 @@ public class Neo4JReadAdapter implements ReadAdapter {
                 var transition = eventTransitionTranslator.translateFrom(edge);
 
                 transition.setOrigin(eventModel.findById((String)edge.get("origin." + Properties.IDENTIFICATION)));
-                transition.setOrigin(eventModel.findById((String)edge.get("destination." + Properties.IDENTIFICATION)));
+                transition.setDestination(eventModel.findById((String)edge.get("dest." + Properties.IDENTIFICATION)));
 
                 // TODO: add data inputs
                 transition.setExecutedEvent(

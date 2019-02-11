@@ -91,7 +91,6 @@ public class CrawlRunner {
         }
 
         System.out.println("Preparing dependencies...");
-
         Generator generator = getGenerator(arguments);
 
         // Begin modeling site

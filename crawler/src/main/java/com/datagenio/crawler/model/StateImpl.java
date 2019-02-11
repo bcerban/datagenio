@@ -150,11 +150,11 @@ public class StateImpl implements State {
         if (obj == null || getClass() != obj.getClass()) return false;
 
         StateImpl s = (StateImpl) obj;
-        return this.getEventables().equals(s.getEventables());
+        return getEventables().equals(s.getEventables());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(this.getEventables());
+        return Objects.hash(getEventables());
     }
 }

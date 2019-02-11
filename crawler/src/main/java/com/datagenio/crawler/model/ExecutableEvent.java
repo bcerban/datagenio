@@ -151,13 +151,13 @@ public class ExecutableEvent implements Eventable {
         if (obj == null || getClass() != obj.getClass()) return false;
 
         ExecutableEvent e = (ExecutableEvent) obj;
-        return Objects.equals(getEventType(), e.getEventType()) &&
-                Objects.equals(getEventIdentifier(), e.getEventIdentifier()) &&
-                Objects.equals(getHandler(), e.getHandler());
+        return getEventType().equals(e.getEventType()) &&
+                getXpath().equals(e.getXpath()) &&
+                getSource().toString().equals(e.getSource().toString());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getEventIdentifier(), getEventType());
+        return Objects.hash(getSource().toString());
     }
 }
