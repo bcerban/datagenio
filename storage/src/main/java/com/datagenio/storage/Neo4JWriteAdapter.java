@@ -30,10 +30,10 @@ public class Neo4JWriteAdapter implements WriteAdapter {
     private Configuration configuration;
     private GraphDatabaseService combinedGraph;
 
-    private Translator<Eventable, Node> eventableTranslator;
-    private Translator<State, Node> eventStateTranslator;
+    private Translator<Eventable, Map<String, Object>> eventableTranslator;
+    private Translator<State, Map<String, Object>> eventStateTranslator;
     private Translator<Transitionable, Map<String, Object>> eventTransitionTranslator;
-    private Translator<WebState, Node> webStateTranslator;
+    private Translator<WebState, Map<String, Object>> webStateTranslator;
     private Translator<WebTransition, Map<String, Object>> webTransitionTranslator;
 
     public Neo4JWriteAdapter(Configuration configuration, Connection connection, Gson gson) {

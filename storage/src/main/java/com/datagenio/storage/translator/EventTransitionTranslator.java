@@ -26,7 +26,7 @@ public class EventTransitionTranslator implements Translator<Transitionable, Map
         properties.put(Properties.EXECUTED_EVENT_ID, original.getExecutedEvent().getEvent().getEventIdentifier());
         properties.put(Properties.STATUS, original.getStatus().toString());
         properties.put(Properties.DATA_INPUTS, gson.toJson(original.getExecutedEvent().getDataInputs()));
-        properties.put(Properties.CONCRETE_REQUESTS, gson.toJson(original.getRequests()));
+//        properties.put(Properties.CONCRETE_REQUESTS, gson.toJson(original.getRequests()));
         return properties;
     }
 

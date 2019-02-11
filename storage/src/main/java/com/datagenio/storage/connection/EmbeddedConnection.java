@@ -20,6 +20,7 @@ public class EmbeddedConnection extends AbstractConnection {
 
     private File outputDirectory;
     private GraphDatabaseFactory databaseFactory;
+    private GraphDatabaseService dbService;
 
     public EmbeddedConnection(String outputDirectoryName, GraphDatabaseFactory databaseFactory) {
         this.databaseFactory = databaseFactory;
@@ -32,11 +33,13 @@ public class EmbeddedConnection extends AbstractConnection {
 
     @Override
     public GraphDatabaseService create(String name) {
-        File databaseFile = new File(outputDirectory, generateDatabaseName(name, PREFIX_COMBINED));
-        GraphDatabaseService service = databaseFactory.newEmbeddedDatabase(databaseFile);
-        registerShutdownHook(service);
-//        addIndexOnProperty(service, Label.label(Labels.WEB_STATE), Properties.IDENTIFICATION);
-        return service;
+        if (dbService == null) {
+            File databaseFile = new File(outputDirectory, generateDatabaseName(name, PREFIX_COMBINED));
+            dbService = databaseFactory.newEmbeddedDatabase(databaseFile);
+            registerShutdownHook(dbService);
+        }
+
+        return dbService;
     }
 
     @Override
@@ -89,6 +92,19 @@ public class EmbeddedConnection extends AbstractConnection {
         } catch (Exception e) {
             throw new StorageException("Node not found.", e);
         }
+    }
+
+    @Override
+    public Collection<Map<String, Object>> findNodesAsMap(GraphDatabaseService graph, Label label) throws StorageException {
+        validateConnection(graph);
+        String query = String.format("MATCH (n:%s) RETURN n", label.toString());
+        return execute(graph, query);
+    }
+
+    @Override
+    public Collection<Map<String, Object>> findNodesAsMap(GraphDatabaseService graph, String query) throws StorageException {
+        validateConnection(graph);
+        return execute(graph, query);
     }
 
     @Override

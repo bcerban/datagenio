@@ -20,7 +20,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-public class EventStateTranslator implements Translator<State, Node> {
+public class EventStateTranslator implements Translator<State, Map<String, Object>> {
 
     private Gson gson;
 
@@ -45,15 +45,15 @@ public class EventStateTranslator implements Translator<State, Node> {
     }
 
     @Override
-    public State translateFrom(Node translated) {
-        Document document = new Document((String)translated.getProperty(Properties.DOCUMENT));
+    public State translateFrom(Map<String, Object> translated) {
+        Document document = new Document((String)translated.get(Properties.DOCUMENT));
 
         State state = new StateImpl();
-        state.setIdentifier((String)translated.getProperty(Properties.IDENTIFICATION));
-        state.setUri(URI.create((String)translated.getProperty(Properties.URL)));
+        state.setIdentifier((String)translated.get(Properties.IDENTIFICATION));
+        state.setUri(URI.create((String)translated.get(Properties.URL)));
         state.setDocument(document);
-        state.setScreenShot(new File((String)translated.getProperty(Properties.SCREEN_SHOT_PATH)));
-        state.setIsRoot(translated.getProperty(Properties.IS_ROOT).equals(BOOLEAN_TRUE));
+        state.setScreenShot(new File((String)translated.get(Properties.SCREEN_SHOT_PATH)));
+        state.setIsRoot(translated.get(Properties.IS_ROOT).equals(BOOLEAN_TRUE));
 
         return state;
     }

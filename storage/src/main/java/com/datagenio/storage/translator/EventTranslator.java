@@ -8,12 +8,11 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
-import org.neo4j.graphdb.Node;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class EventTranslator implements Translator<Eventable, Node> {
+public class EventTranslator implements Translator<Eventable, Map<String, Object>> {
 
     private Gson gson;
 
@@ -42,21 +41,21 @@ public class EventTranslator implements Translator<Eventable, Node> {
     }
 
     @Override
-    public Eventable translateFrom(Node translated) {
-        Element source = new Element((String)translated.getProperty(Properties.ELEMENT));
-        Document parent = new Document((String)translated.getProperty(Properties.PARENT));
-        Eventable.EventType type = Eventable.EventType.valueOf((String)translated.getProperty(Properties.EVENT_TYPE));
+    public Eventable translateFrom(Map<String, Object> translated) {
+        Element source = new Element((String)translated.get(Properties.ELEMENT));
+        Document parent = new Document((String)translated.get(Properties.PARENT));
+        Eventable.EventType type = Eventable.EventType.valueOf((String)translated.get(Properties.EVENT_TYPE));
 
         Eventable event = new ExecutableEvent();
-        event.setId((String)translated.getProperty(Properties.IDENTIFICATION));
-        event.setXpath((String)translated.getProperty(Properties.XPATH));
-        event.setHandler((String)translated.getProperty(Properties.HANDLER));
-        event.setStatus(Eventable.Status.valueOf((String)translated.getProperty(Properties.STATUS)));
-        event.setReasonForFailure((String)translated.getProperty(Properties.REASON_FOR_FAILRE));
+        event.setId((String)translated.get(Properties.IDENTIFICATION));
+        event.setXpath((String)translated.get(Properties.XPATH));
+        event.setHandler((String)translated.get(Properties.HANDLER));
+        event.setStatus(Eventable.Status.valueOf((String)translated.get(Properties.STATUS)));
+        event.setReasonForFailure((String)translated.get(Properties.REASON_FOR_FAILRE));
         event.setEventType(type);
         event.setSource(source);
         event.setParent(parent);
-        event.setIsNavigation(translated.getProperty(Properties.IS_NAV).equals(BOOLEAN_TRUE));
+        event.setIsNavigation(translated.get(Properties.IS_NAV).equals(BOOLEAN_TRUE));
 
         return event;
     }

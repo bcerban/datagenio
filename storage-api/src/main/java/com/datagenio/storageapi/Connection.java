@@ -12,6 +12,8 @@ public interface Connection {
     Relationship addEdge(GraphDatabaseService graph, Node from, Node to, RelationshipType relType, Map<String, Object> properties) throws StorageException;
 
     Node findNode(GraphDatabaseService graph, Label label, Map<String, Object> properties) throws StorageException;
+    Collection<Map<String, Object>> findNodesAsMap(GraphDatabaseService graph, Label label) throws StorageException;
+    Collection<Map<String, Object>> findNodesAsMap(GraphDatabaseService graph, String query) throws StorageException;
     ResourceIterator<Node> findNodes(GraphDatabaseService graph, Label label, Map<String, Object> properties) throws StorageException;
     Collection<Node> findNodes(GraphDatabaseService graph, Label label) throws StorageException;
     Collection<Node> findNodes(GraphDatabaseService graph, Label label, String query) throws StorageException;

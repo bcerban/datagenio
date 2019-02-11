@@ -30,11 +30,11 @@ public class Neo4JReadAdapter implements ReadAdapter {
 
     private Connection connection;
     private GraphDatabaseService combinedGraph;
-    private Translator<WebState, Node> webStateTranslator;
-    private Translator<State, Node> eventStateTranslator;
+    private Translator<WebState, Map<String, Object>> webStateTranslator;
+    private Translator<State, Map<String, Object>> eventStateTranslator;
     private Translator<WebTransition, Map<String, Object>> webTransitionTranslator;
     private Translator<Transitionable, Map<String, Object>> eventTransitionTranslator;
-    private Translator<Eventable, Node> eventableTranslator;
+    private Translator<Eventable, Map<String, Object>> eventableTranslator;
 
     public Neo4JReadAdapter(Configuration configuration, Connection connection) {
         webStateTranslator = new WebStateTranslator();
@@ -52,7 +52,7 @@ public class Neo4JReadAdapter implements ReadAdapter {
         WebFlowGraph webModel = new WebFlowGraphImpl();
 
         try {
-            Collection<Node> webNodes = connection.findNodes(combinedGraph, Label.label(Labels.WEB_STATE));
+            Collection<Map<String, Object>> webNodes = connection.findNodesAsMap(combinedGraph, Label.label(Labels.WEB_STATE));
             webNodes.forEach(node -> {
                 var state = webStateTranslator.translateFrom(node);
                 webModel.addState(state);
@@ -85,7 +85,7 @@ public class Neo4JReadAdapter implements ReadAdapter {
         EventFlowGraph eventModel = new EventFlowGraphImpl();
 
         try {
-            Collection<Node> eventStateNodes = connection.findNodes(combinedGraph, Label.label(Labels.EVENT_STATE));
+            Collection<Map<String, Object>> eventStateNodes = connection.findNodesAsMap(combinedGraph, Label.label(Labels.EVENT_STATE));
             eventStateNodes.forEach(stateNode -> {
                 var state = eventStateTranslator.translateFrom(stateNode);
                 eventModel.addState(state);
@@ -129,7 +129,7 @@ public class Neo4JReadAdapter implements ReadAdapter {
         return eventModel;
     }
 
-    private Collection<Node> findUnfiredEventsFor(State state) {
+    private Collection<Map<String, Object>> findUnfiredEventsFor(State state) {
         try {
             String query = String.format(
                     "MATCH (e:%s)-[:%a]-(s:%s {identifier: '%s'}) RETURN e",
@@ -138,13 +138,13 @@ public class Neo4JReadAdapter implements ReadAdapter {
                     Label.label(Labels.EVENT_STATE).toString(),
                     state.getIdentifier()
             );
-            return connection.findNodes(combinedGraph, Label.label(Labels.EVENT), query);
+            return connection.findNodesAsMap(combinedGraph, query);
         } catch (StorageException e) {
             return new ArrayList<>();
         }
     }
 
-    private Collection<Node> findFiredEventsFor(State state) {
+    private Collection<Map<String, Object>> findFiredEventsFor(State state) {
         try {
             String query = String.format(
                     "MATCH (e:%s)-[:%a]-(s:%s {identifier: '%s'}) RETURN e",
@@ -153,7 +153,7 @@ public class Neo4JReadAdapter implements ReadAdapter {
                     Label.label(Labels.EVENT_STATE).toString(),
                     state.getIdentifier()
             );
-            return connection.findNodes(combinedGraph, Label.label(Labels.EVENT), query);
+            return connection.findNodesAsMap(combinedGraph, query);
         } catch (StorageException e) {
             return new ArrayList<>();
         }

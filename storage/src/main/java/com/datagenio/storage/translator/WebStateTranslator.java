@@ -8,13 +8,12 @@ import com.datagenio.storageapi.Properties;
 import com.datagenio.storageapi.Translator;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import org.neo4j.graphdb.Node;
 
 import java.io.File;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class WebStateTranslator implements Translator<WebState, Node> {
+public class WebStateTranslator implements Translator<WebState, Map<String, Object>> {
 
     private Gson gson;
 
@@ -40,23 +39,23 @@ public class WebStateTranslator implements Translator<WebState, Node> {
     }
 
     @Override
-    public WebState translateFrom(Node translated) {
+    public WebState translateFrom(Map<String, Object> translated) {
         WebState state = new WebStateImpl();
-        state.setIdentifier((String)translated.getProperty(Properties.IDENTIFICATION));
-        state.setIsRoot(translated.getProperty(Properties.IS_ROOT).equals(BOOLEAN_TRUE));
-        state.setUrl(gson.fromJson((String)translated.getProperty(Properties.URL), AbstractUrl.class));
+        state.setIdentifier((String)translated.get(Properties.IDENTIFICATION));
+        state.setIsRoot(translated.get(Properties.IS_ROOT).equals(BOOLEAN_TRUE));
+        state.setUrl(gson.fromJson((String)translated.get(Properties.URL), AbstractUrl.class));
 
-        var externalIds = (String)translated.getProperty(Properties.EXTERNAL_IDS);
+        var externalIds = (String)translated.get(Properties.EXTERNAL_IDS);
         state.setExternalIds(Arrays.asList(gson.fromJson(externalIds, String[].class)));
 
         var screenShots = Arrays.asList(
-                gson.fromJson((String)translated.getProperty(Properties.SCREEN_SHOTS), String[].class)
+                gson.fromJson((String)translated.get(Properties.SCREEN_SHOTS), String[].class)
         );
         Collection<File> screenShotFiles = screenShots.stream().map(shot -> new File(shot)).collect(Collectors.toList());
         state.setScreenShots(screenShotFiles);
 
         var abstractRequests = Arrays.asList(
-                gson.fromJson((String)translated.getProperty(Properties.ABSTRACT_REQUESTS), AbstractHttpRequest[].class)
+                gson.fromJson((String)translated.get(Properties.ABSTRACT_REQUESTS), AbstractHttpRequest[].class)
         );
         state.setRequests(abstractRequests);
 
