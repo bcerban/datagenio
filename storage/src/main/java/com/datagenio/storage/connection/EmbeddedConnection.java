@@ -97,14 +97,8 @@ public class EmbeddedConnection extends AbstractConnection {
     @Override
     public Collection<Map<String, Object>> findNodesAsMap(GraphDatabaseService graph, Label label) throws StorageException {
         validateConnection(graph);
-        String query = String.format("MATCH (n:%s) RETURN n", label.toString());
-        return execute(graph, query);
-    }
-
-    @Override
-    public Collection<Map<String, Object>> findNodesAsMap(GraphDatabaseService graph, String query) throws StorageException {
-        validateConnection(graph);
-        return execute(graph, query);
+        String query = String.format("MATCH (n:%s) RETURN properties(n)", label.toString());
+        return execute(graph, query, "properties(n)");
     }
 
     @Override
@@ -119,14 +113,6 @@ public class EmbeddedConnection extends AbstractConnection {
         } catch (Exception e) {
             throw new StorageException("Couldn't execute search.", e);
         }
-    }
-
-    @Override
-    public Collection<Node> findNodes(GraphDatabaseService graph, Label label) throws StorageException {
-        validateConnection(graph);
-        String query = String.format("MATCH (n:%s) RETURN n", label.toString());
-
-        return executeNodeSearchQuery(graph, query);
     }
 
     @Override
@@ -157,6 +143,25 @@ public class EmbeddedConnection extends AbstractConnection {
 
             while(queryResult.hasNext()) {
                 results.add(queryResult.next());
+            }
+            tx.success();
+        } catch (Exception e) {
+            throw new StorageException("Couldn't execute query.", e);
+        }
+
+        return results;
+    }
+
+    @Override
+    public Collection<Map<String, Object>> execute(GraphDatabaseService graph, String query, String key) throws StorageException {
+        validateConnection(graph);
+
+        var results = new ArrayList<Map<String, Object>>();
+        try (Transaction tx = graph.beginTx()) {
+            var queryResult = graph.execute(query);
+
+            while(queryResult.hasNext()) {
+                results.add((Map<String, Object>)queryResult.next().get(key));
             }
             tx.success();
         } catch (Exception e) {

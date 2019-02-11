@@ -132,13 +132,13 @@ public class Neo4JReadAdapter implements ReadAdapter {
     private Collection<Map<String, Object>> findUnfiredEventsFor(State state) {
         try {
             String query = String.format(
-                    "MATCH (e:%s)-[:%a]-(s:%s {identifier: '%s'}) RETURN e",
+                    "MATCH (e:%s)-[:%s]-(s:%s {identifier: '%s'}) RETURN properties(e)",
                     Label.label(Labels.EVENT).toString(),
                     Relationships.NON_EXECUTED_EVENT.toString(),
                     Label.label(Labels.EVENT_STATE).toString(),
                     state.getIdentifier()
             );
-            return connection.findNodesAsMap(combinedGraph, query);
+            return connection.execute(combinedGraph, query, "properties(e)");
         } catch (StorageException e) {
             return new ArrayList<>();
         }
@@ -147,13 +147,13 @@ public class Neo4JReadAdapter implements ReadAdapter {
     private Collection<Map<String, Object>> findFiredEventsFor(State state) {
         try {
             String query = String.format(
-                    "MATCH (e:%s)-[:%a]-(s:%s {identifier: '%s'}) RETURN e",
+                    "MATCH (e:%s)-[:%s]-(s:%s {identifier: '%s'}) RETURN properties(e)",
                     Label.label(Labels.EVENT).toString(),
                     Relationships.EXECUTED_EVENT.toString(),
                     Label.label(Labels.EVENT_STATE).toString(),
                     state.getIdentifier()
             );
-            return connection.findNodesAsMap(combinedGraph, query);
+            return connection.execute(combinedGraph, query, "properties(e)");
         } catch (StorageException e) {
             return new ArrayList<>();
         }
