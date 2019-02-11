@@ -85,7 +85,7 @@ public class CrawlRunner {
 
         // Validate output dir
         String directory = arguments.getOptionValue(ArgumentParser.OUTPUT);
-        if (!outputDirIsValid(directory)) {
+        if (!outputDirIsValid(directory, !continuePrevious(arguments))) {
             System.out.println("Please check directory exists and can be written to.");
             return;
         }
@@ -119,12 +119,19 @@ public class CrawlRunner {
         var requestAbstractor = new HttpRequestAbstractor(urlAbstractor, bodyConverter);
         var stateConverter = new StateConverter(urlAbstractor, requestAbstractor, context.getRootUri());
 
+        context.setReadAdapter(readAdapter);
+        context.setWriteAdapter(writeAdapter);
+
         var crawler = new PersistentCrawler(context, BrowserFactory.drivenByFirefox(), InputBuilderFactory.get());
         return new GeneratorImpl(context, crawler, new GraphConverterImpl(context, stateConverter, requestAbstractor), readAdapter, writeAdapter);
     }
 
     private static boolean isVerbose(CommandLine arguments) {
         return arguments.hasOption(ArgumentParser.VERBOSE);
+    }
+
+    private static boolean continuePrevious(CommandLine arguments) {
+        return arguments.hasOption(ArgumentParser.CONTINUE);
     }
 
     private static int getMaxDepth(CommandLine arguments) {
@@ -145,6 +152,8 @@ public class CrawlRunner {
                 getMaxDepth(arguments)
         );
 
+        context.setContinueExistingModel(continuePrevious(arguments));
+
         System.out.println("Max exploration depth: " + context.getCrawlDepth());
         return context;
     }
@@ -156,7 +165,7 @@ public class CrawlRunner {
         return validator.isValid(url);
     }
 
-    public static boolean outputDirIsValid(String dir) {
+    public static boolean outputDirIsValid(String dir, boolean clear) {
         if (dir == null) {
             return false;
         }
@@ -166,7 +175,7 @@ public class CrawlRunner {
             directory.mkdir();
         }
 
-        if (directory.list().length > 0) {
+        if (clear && directory.list().length > 0) {
             try {
                 FileUtils.deleteDirectory(directory);
                 directory.mkdir();
