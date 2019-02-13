@@ -65,7 +65,7 @@ public class PersistentCrawler implements com.datagenio.crawler.api.Crawler {
         logger.debug("Begin crawling {}...", context.getRootUrl());
 
         try {
-            initCrawl(URI.create(context.getRootUrl()));
+            setUp();
 
             while (!getGraph().getCurrentState().isFinished()) {
                 State current = getGraph().getCurrentState();
@@ -103,7 +103,6 @@ public class PersistentCrawler implements com.datagenio.crawler.api.Crawler {
 
         // TODO: this is temporary. Graph diameter check should take into account disconnected components
         return getGraph().getStates().size() >= context.getCrawlDepth();
-//        return getGraph().getGraphDiameter() >= context.getCrawlDepth();
     }
 
     private void crawlState(State current, Eventable event) throws UncrawlableStateException, BrowserException {
@@ -177,18 +176,25 @@ public class PersistentCrawler implements com.datagenio.crawler.api.Crawler {
         }
     }
 
-    private void initCrawl(URI root) throws UncrawlableStateException {
+    private void setUp() throws UncrawlableStateException {
+        if (context.continueExistingModel()) {
+            boolean foundUnfinishedState = relocateFrom(getGraph().getRoot());
+            if (!foundUnfinishedState) {
+                throw new UncrawlableStateException("No unfinished states found in model.");
+            }
+        } else {
+            initCrawl();
+        }
+    }
+
+    private void initCrawl() throws UncrawlableStateException {
         try {
+            var root = URI.create(context.getRootUrl());
             browser.navigateTo(root);
             State initial = browser.getCurrentBrowserState();
             getGraph().addStateAsCurrent(initial);
             getGraph().setRoot(initial);
             saveStateScreenShot(initial);
-
-            // TODO: save to init event
-//            Collection<RemoteRequest> requests = getRequestsForEvent(initial);
-//            String requestString = requests.stream().map((r) -> r.toString()).collect(Collectors.joining("\n"));
-//            logger.info("Requests that should be saved to init event: {}", requestString);
         } catch (BrowserException e) {
             logger.debug("Exception happened while trying to initialize EventFlowGraph. Error: {}", e.getMessage());
             throw new UncrawlableStateException(e);

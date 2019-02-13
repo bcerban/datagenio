@@ -24,7 +24,7 @@ public class EventTransitionTranslator implements Translator<Transitionable, Map
     public Map<String, Object> buildProperties(Transitionable original) {
         Map<String, Object> properties = new HashMap<>();
         properties.put(Properties.EXECUTED_EVENT_ID, original.getExecutedEvent().getEvent().getEventIdentifier());
-        properties.put(Properties.STATUS, original.getStatus().toString());
+        properties.put(Properties.STATUS, original.getStatus() == null ? "" : original.getStatus().toString());
         properties.put(Properties.DATA_INPUTS, gson.toJson(original.getExecutedEvent().getDataInputs()));
         properties.put(Properties.CONCRETE_REQUESTS, gson.toJson(original.getRequests()));
         return properties;
@@ -33,6 +33,10 @@ public class EventTransitionTranslator implements Translator<Transitionable, Map
     @Override
     public Transitionable translateFrom(Map<String, Object> translated) {
         Transitionable transition = new Transition();
+
+        if (translated.containsKey(Properties.STATUS)) {
+            transition.setStatus(Transitionable.Status.valueOf((String)translated.get(Properties.STATUS)));
+        }
 
         if (translated.containsKey(Properties.CONCRETE_REQUESTS)) {
             var requests = Arrays.asList(

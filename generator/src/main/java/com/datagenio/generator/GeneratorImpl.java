@@ -10,6 +10,7 @@ import com.datagenio.generator.api.GraphConverter;
 import com.datagenio.generator.api.RequestFormatter;
 import com.datagenio.generator.util.DataSetWriter;
 import com.datagenio.generator.util.RequestFormatterFactory;
+import com.datagenio.model.WebFlowGraphImpl;
 import com.datagenio.model.api.AbstractHttpRequest;
 import com.datagenio.model.api.WebFlowGraph;
 import com.datagenio.model.api.WebTransition;
@@ -63,7 +64,7 @@ public class GeneratorImpl implements Generator {
     @Override
     public WebFlowGraph generateWebModel() {
         var eventModel = crawler.crawl();
-        var webModel =  converter.convert(eventModel);
+        var webModel =  converter.convert(eventModel, getWebFlowGraph());
 
         logger.info("Saving generated graph...");
         writeAdapter.saveCombined(eventModel, webModel);
@@ -99,5 +100,13 @@ public class GeneratorImpl implements Generator {
     private String getPopulatedRequest(AbstractHttpRequest request) {
         Map<String, String> inputs = inputBuilder.buildInputs(request);
         return formatter.format(request, inputs);
+    }
+
+    private WebFlowGraph getWebFlowGraph() {
+        if (context.continueExistingModel()) {
+            return readAdapter.loadWebModel();
+        }
+
+        return new WebFlowGraphImpl();
     }
 }

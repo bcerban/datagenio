@@ -5,6 +5,7 @@ import com.datagenio.databank.api.InputPovider;
 import com.datagenio.databank.provider.*;
 import com.datagenio.databank.util.XPathParser;
 import com.datagenio.model.api.AbstractHttpRequest;
+import com.github.javafaker.Faker;
 import org.apache.commons.lang.StringUtils;
 import org.jsoup.nodes.Element;
 
@@ -18,17 +19,18 @@ public class CompositeInputBuilder implements InputBuilder {
     private Map<String, InputPovider> providersByType;
 
     public CompositeInputBuilder() {
+        var faker = new Faker();
         providersByType = new HashMap<>();
         providersByType.put(ALPHABETIC, new AlphabeticProvider());
         providersByType.put(ALPHANUMERIC, new AlphanumericProvider());
-        providersByType.put(EMAIL, new EmailProvider());
-        providersByType.put(PASSWORD, new PasswordProvider());
-        providersByType.put(NUMBER, new NumericProvider());
-        providersByType.put(REGEX, new RegexProvider());
-        providersByType.put(BOOLEAN, new BooleanProvider());
-        providersByType.put(DATE, new DateProvider());
-        providersByType.put(RADIO, new NumericProvider());
-        providersByType.put(CHECKBOX, new BooleanProvider());
+        providersByType.put(EMAIL, new EmailProvider(faker));
+        providersByType.put(PASSWORD, new PasswordProvider(faker));
+        providersByType.put(NUMBER, new NumericProvider(faker));
+        providersByType.put(REGEX, new RegexProvider(faker));
+        providersByType.put(BOOLEAN, new BooleanProvider(faker));
+        providersByType.put(DATE, new DateProvider(faker));
+        providersByType.put(RADIO, new NumericProvider(faker));
+        providersByType.put(CHECKBOX, providersByType.get(BOOLEAN));
         providersByType.put(TEXT, providersByType.get(ALPHANUMERIC));
         providersByType.put(DEFAULT, providersByType.get(ALPHANUMERIC));
     }

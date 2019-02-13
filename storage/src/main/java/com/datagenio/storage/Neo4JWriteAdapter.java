@@ -19,7 +19,6 @@ import org.slf4j.LoggerFactory;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 public class Neo4JWriteAdapter implements WriteAdapter {
 
@@ -58,18 +57,18 @@ public class Neo4JWriteAdapter implements WriteAdapter {
     @Override
     public void save(WebFlowGraph graph) {
         logger.info("Attempting to save {} states and {} transitions.", graph.getStates().size(), graph.getTransitions().size());
-        addWebStates(graph.getStates());
+        saveWebStates(graph.getStates());
         addWebTransitions(graph.getTransitions());
     }
 
     @Override
     public void save(EventFlowGraph graph) {
         logger.info("Attempting to save {} states and {} transitions.", graph.getStates().size(), graph.getTransitions().size());
-        addEventStates(graph.getStates());
+        saveEventStates(graph.getStates());
         addEventTransitions(graph.getTransitions());
     }
 
-    private void addWebStates(Collection<WebState> states) {
+    private void saveWebStates(Collection<WebState> states) {
         states.forEach((state) -> {
             try {
                 Node stateNode = connection.addNode(combinedGraph, Label.label(Labels.WEB_STATE), buildStateProperties(state));
@@ -96,12 +95,12 @@ public class Neo4JWriteAdapter implements WriteAdapter {
         });
     }
 
-    private void addEventStates(Collection<State> states) {
+    private void saveEventStates(Collection<State> states) {
         states.forEach((state) -> {
             try {
                 logger.info("Saving state {}.", state.getIdentifier());
-                Node stateNode = connection.addNode(combinedGraph, Label.label(Labels.EVENT_STATE), buildStateProperties(state));
 
+                Node stateNode = addOrUpdate(state);
                 state.getUnfiredEventables().forEach(event -> {
                     Node eventNode = addEventNode(event);
                     if (eventNode != null) {
@@ -116,6 +115,18 @@ public class Neo4JWriteAdapter implements WriteAdapter {
                 logger.info("Failed to save state: " + e.getMessage(), e);
             }
         });
+    }
+
+    private Node addOrUpdate(State state) throws StorageException {
+        Node stateNode = connection.findNode(combinedGraph, Label.label(Labels.EVENT_STATE), Map.of(Properties.IDENTIFICATION, state.getIdentifier()));
+
+        if (stateNode == null) {
+            stateNode = connection.addNode(combinedGraph, Label.label(Labels.EVENT_STATE), buildStateProperties(state));
+        } else {
+            // update properties...
+        }
+
+        return stateNode;
     }
 
     private void addWebTransitions(Collection<WebTransition> transitions) {

@@ -5,5 +5,5 @@ import com.datagenio.model.api.WebFlowGraph;
 
 public interface GraphConverter {
 
-    WebFlowGraph convert(EventFlowGraph eventFlowGraph);
+    WebFlowGraph convert(EventFlowGraph eventFlowGraph, WebFlowGraph webFlowGraph);
 }

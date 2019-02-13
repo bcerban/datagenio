@@ -8,8 +8,8 @@ import java.util.Map;
 public class PasswordProvider implements InputPovider {
     private Faker faker;
 
-    public PasswordProvider() {
-        faker = new Faker();
+    public PasswordProvider(Faker faker) {
+        this.faker = faker;
     }
 
     @Override

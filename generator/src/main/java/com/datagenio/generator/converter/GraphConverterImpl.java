@@ -31,20 +31,18 @@ public class GraphConverterImpl implements GraphConverter {
     }
 
     @Override
-    public WebFlowGraph convert(EventFlowGraph eventFlowGraph) {
-        WebFlowGraph webGraph = new WebFlowGraphImpl();
-
+    public WebFlowGraph convert(EventFlowGraph eventFlowGraph, WebFlowGraph webFlowGraph) {
         eventFlowGraph.getStates().forEach(state -> {
-            convertAndAdd(state, webGraph, eventFlowGraph);
+            convertAndAdd(state, webFlowGraph, eventFlowGraph);
         });
 
         eventFlowGraph.getTransitions().forEach(transition -> {
             if (transition.hasRemoteRequest(context.getRootUri())) {
-                convertAndAdd(transition, webGraph);
+                convertAndAdd(transition, webFlowGraph);
             }
         });
 
-        return webGraph;
+        return webFlowGraph;
     }
 
     private void convertAndAdd(Transitionable transition, WebFlowGraph webGraph) {
