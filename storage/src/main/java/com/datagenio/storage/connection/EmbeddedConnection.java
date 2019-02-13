@@ -8,10 +8,8 @@ import org.neo4j.graphdb.schema.IndexDefinition;
 import org.neo4j.graphdb.schema.Schema;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class EmbeddedConnection extends AbstractConnection {
     public static String STORAGE_DIRECTORY = "data";
@@ -125,7 +123,7 @@ public class EmbeddedConnection extends AbstractConnection {
     public Collection<Map<String, Object>> findEdges(GraphDatabaseService graph, RelationshipType relationshipType) throws StorageException {
         validateConnection(graph);
         String query = String.format(
-                "MATCH (origin)-[rel:%s]-(dest) RETURN origin.%s, dest.%s, rel",
+                "MATCH (origin)-[rel:%s]-(dest) RETURN origin.%s, dest.%s, properties(rel)",
                 relationshipType.toString(),
                 Properties.IDENTIFICATION,
                 Properties.IDENTIFICATION
@@ -169,6 +167,33 @@ public class EmbeddedConnection extends AbstractConnection {
         }
 
         return results;
+    }
+
+    @Override
+    public boolean areConnected(String firstIdentifier, String secondIdentifier, List<RelationshipType> relationshipTypes) throws StorageException {
+        validateConnection(dbService);
+
+        boolean connected = false;
+        try (Transaction tx = dbService.beginTx()) {
+            String relations = relationshipTypes.stream()
+                    .map(rel -> ":" + rel.name())
+                    .collect(Collectors.joining("|"));
+            String query = String.format(
+                    "EXISTS(({identifier: \"%s\"})-[%s]-({identifier: \"%s\"}))",
+                    firstIdentifier, relations, secondIdentifier
+            );
+            var queryResult = dbService.execute("RETURN " + query);
+            while (queryResult.hasNext()) {
+                var next = queryResult.next();
+                connected = (boolean)next.getOrDefault(query, false);
+            }
+
+            tx.success();
+        } catch (Exception e) {
+            throw new StorageException("Couldn't execute query.", e);
+        }
+
+        return connected;
     }
 
     private Collection<Node> executeNodeSearchQuery(GraphDatabaseService graph, String query) {

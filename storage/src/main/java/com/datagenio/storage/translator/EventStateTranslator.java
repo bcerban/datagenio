@@ -2,21 +2,15 @@ package com.datagenio.storage.translator;
 
 import com.datagenio.crawler.api.State;
 import com.datagenio.crawler.model.StateImpl;
-import com.datagenio.model.WebStateImpl;
-import com.datagenio.model.api.AbstractHttpRequest;
-import com.datagenio.model.api.AbstractUrl;
-import com.datagenio.model.api.WebState;
 import com.datagenio.storageapi.Properties;
 import com.datagenio.storageapi.Translator;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.neo4j.graphdb.Node;
 
 import java.io.File;
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -46,7 +40,7 @@ public class EventStateTranslator implements Translator<State, Map<String, Objec
 
     @Override
     public State translateFrom(Map<String, Object> translated) {
-        Document document = new Document((String)translated.get(Properties.DOCUMENT));
+        Document document = Jsoup.parse((String)translated.get(Properties.DOCUMENT));
 
         State state = new StateImpl();
         state.setIdentifier((String)translated.get(Properties.IDENTIFICATION));

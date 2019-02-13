@@ -11,7 +11,7 @@ import com.datagenio.generator.converter.BodyConverter;
 import com.datagenio.generator.converter.HttpRequestAbstractor;
 import com.datagenio.generator.converter.StateConverter;
 import com.datagenio.generator.converter.UrlAbstractor;
-import com.datagenio.model.api.WebFlowGraph;
+import com.datagenio.model.WebFlowGraph;
 import com.datagenio.storage.Neo4JReadAdapter;
 import com.datagenio.storage.Neo4JWriteAdapter;
 import com.datagenio.storage.connection.ConnectionResolver;

@@ -1,6 +1,6 @@
 package com.datagenio.model.util;
 
-import com.datagenio.model.api.ParamTypes;
+import com.datagenio.model.ParamTypes;
 
 public class ParamTypeMatcher {
 

@@ -2,7 +2,7 @@ package com.datagenio.databank.api;
 
 import java.util.Map;
 
-import com.datagenio.model.api.AbstractHttpRequest;
+import com.datagenio.model.request.AbstractRequest;
 import org.jsoup.nodes.Element;
 
 public interface InputBuilder {
@@ -21,5 +21,5 @@ public interface InputBuilder {
     String HIDDEN = "hidden";
 
     Map<String, String> buildInputs(Element element);
-    Map<String, String> buildInputs(AbstractHttpRequest request);
+    Map<String, String> buildInputs(AbstractRequest request);
 }

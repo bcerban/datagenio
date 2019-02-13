@@ -5,11 +5,11 @@ import com.datagenio.crawler.api.EventFlowGraph;
 import com.datagenio.crawler.api.Eventable;
 import com.datagenio.crawler.api.State;
 import com.datagenio.crawler.api.Transitionable;
+import com.datagenio.model.WebFlowGraph;
+import com.datagenio.model.WebState;
+import com.datagenio.model.WebTransition;
 import com.datagenio.storage.translator.*;
 import com.datagenio.storageapi.*;
-import com.datagenio.model.api.WebFlowGraph;
-import com.datagenio.model.api.WebState;
-import com.datagenio.model.api.WebTransition;
 import com.datagenio.storageapi.StorageException;
 import com.google.gson.Gson;
 import org.neo4j.graphdb.*;
@@ -18,7 +18,9 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class Neo4JWriteAdapter implements WriteAdapter {
 
@@ -71,7 +73,9 @@ public class Neo4JWriteAdapter implements WriteAdapter {
     private void saveWebStates(Collection<WebState> states) {
         states.forEach((state) -> {
             try {
-                Node stateNode = connection.addNode(combinedGraph, Label.label(Labels.WEB_STATE), buildStateProperties(state));
+                logger.info("Saving state {}.", state.getIdentifier());
+
+                Node stateNode = addOrUpdate(state);
                 connectWebStateToChildNodes(state, stateNode);
             } catch (StorageException e) {
                 logger.info("Failed to save state: " + e.getMessage(), e);
@@ -102,10 +106,12 @@ public class Neo4JWriteAdapter implements WriteAdapter {
 
                 Node stateNode = addOrUpdate(state);
                 state.getUnfiredEventables().forEach(event -> {
-                    Node eventNode = addEventNode(event);
+                    Node eventNode = addOrUpdateEventNode(event);
                     if (eventNode != null) {
                         try {
-                            connection.addEdge(combinedGraph, stateNode, eventNode, Relationships.NON_EXECUTED_EVENT, new HashMap<>());
+                            if (!connection.areConnected(state.getIdentifier(), event.getId(), List.of(Relationships.NON_EXECUTED_EVENT))) {
+                                connection.addEdge(combinedGraph, stateNode, eventNode, Relationships.NON_EXECUTED_EVENT, new HashMap<>());
+                            }
                         } catch (StorageException e) {
                             logger.info("Failed to save unfired event transition from {}: {}", state.getIdentifier(), e.getMessage(), e);
                         }
@@ -118,12 +124,54 @@ public class Neo4JWriteAdapter implements WriteAdapter {
     }
 
     private Node addOrUpdate(State state) throws StorageException {
-        Node stateNode = connection.findNode(combinedGraph, Label.label(Labels.EVENT_STATE), Map.of(Properties.IDENTIFICATION, state.getIdentifier()));
+        var properties = buildStateProperties(state);
+        Node stateNode;
 
-        if (stateNode == null) {
-            stateNode = connection.addNode(combinedGraph, Label.label(Labels.EVENT_STATE), buildStateProperties(state));
-        } else {
+        try {
+            stateNode = connection.findNode(combinedGraph, Label.label(Labels.EVENT_STATE), Map.of(Properties.IDENTIFICATION, state.getIdentifier()));
             // update properties...
+            String sets = properties.keySet().stream()
+                    .map(prop -> "s." + prop + " = \"" + properties.get(prop).toString() + "\"")
+                    .collect(Collectors.joining(", "));
+
+            String query = String.format(
+                    "MATCH (s:%s {%s: \"%s\"}) SET %s RETURN s.%s",
+                    Labels.EVENT_STATE,
+                    Properties.IDENTIFICATION,
+                    state.getIdentifier(),
+                    sets,
+                    Properties.IDENTIFICATION
+            );
+            connection.execute(combinedGraph, query);
+        } catch (StorageException e) {
+            stateNode = connection.addNode(combinedGraph, Label.label(Labels.EVENT_STATE), properties);
+        }
+
+        return stateNode;
+    }
+
+    private Node addOrUpdate(WebState state) throws StorageException {
+        var properties = buildStateProperties(state);
+        Node stateNode;
+
+        try {
+            stateNode = connection.findNode(combinedGraph, Label.label(Labels.WEB_STATE), Map.of(Properties.IDENTIFICATION, state.getIdentifier()));
+            // update properties...
+            String sets = properties.keySet().stream()
+                    .map(prop -> "s." + prop + " = \"" + properties.get(prop).toString() + "\"")
+                    .collect(Collectors.joining(", "));
+
+            String query = String.format(
+                    "MATCH (s:%s {%s: \"%s\"}) SET %s RETURN s.%s",
+                    Labels.WEB_STATE,
+                    Properties.IDENTIFICATION,
+                    state.getIdentifier(),
+                    sets,
+                    Properties.IDENTIFICATION
+            );
+            connection.execute(combinedGraph, query);
+        } catch (StorageException e) {
+            stateNode = connection.addNode(combinedGraph, Label.label(Labels.WEB_STATE), properties);
         }
 
         return stateNode;
@@ -181,7 +229,7 @@ public class Neo4JWriteAdapter implements WriteAdapter {
 
         connection.addEdge(
                 combinedGraph,
-                findEventNode(transition.getOrigin()),
+                findEventStateNode(transition.getOrigin()),
                 through,
                 Relationships.EXECUTED_EVENT,
                 buildTransitionProperties(transition)
@@ -190,7 +238,7 @@ public class Neo4JWriteAdapter implements WriteAdapter {
         connection.addEdge(
                 combinedGraph,
                 through,
-                findEventNode(transition.getDestination()),
+                findEventStateNode(transition.getDestination()),
                 Relationships.LEADS_TO,
                 new HashMap<>()
         );
@@ -207,12 +255,31 @@ public class Neo4JWriteAdapter implements WriteAdapter {
         return node;
     }
 
-    private Node addEventNode(Eventable event) {
+    private Node addOrUpdateEventNode(Eventable event) {
+        var properties = buildEventProperties(event);
         Node eventNode = null;
         try {
-            eventNode = connection.addNode(combinedGraph, Label.label(Labels.EVENT), buildEventProperties(event));
+            eventNode = findEventNode(event);
+
+            String sets = properties.keySet().stream()
+                    .map(prop -> "s." + prop + " = \"" + properties.get(prop).toString() + "\"")
+                    .collect(Collectors.joining(", "));
+
+            String query = String.format(
+                    "MATCH (e:%s {%s: \"%s\"}) SET %s RETURN s.%s",
+                    Labels.EVENT,
+                    Properties.IDENTIFICATION,
+                    event.getId(),
+                    sets,
+                    Properties.IDENTIFICATION
+            );
+            connection.execute(combinedGraph, query);
         } catch (StorageException e) {
-            logger.info("Failed to save event: " + e.getMessage(), e);
+            try {
+                eventNode = connection.addNode(combinedGraph, Label.label(Labels.EVENT), properties);
+            } catch (StorageException s) {
+                logger.info("Failed to save event: " + e.getMessage(), e);
+            }
         }
 
         return eventNode;
@@ -242,10 +309,16 @@ public class Neo4JWriteAdapter implements WriteAdapter {
         return connection.findNode(combinedGraph, Label.label(Labels.WEB_STATE), properties);
     }
 
-    private Node findEventNode(State state) throws StorageException {
+    private Node findEventStateNode(State state) throws StorageException {
         Map<String, Object> properties = new HashMap<>();
         properties.put(Properties.IDENTIFICATION, state.getIdentifier());
         return connection.findNode(combinedGraph, Label.label(Labels.EVENT_STATE), properties);
+    }
+
+    private Node findEventNode(Eventable event) throws StorageException {
+        Map<String, Object> properties = new HashMap<>();
+        properties.put(Properties.IDENTIFICATION, event.getId());
+        return connection.findNode(combinedGraph, Label.label(Labels.EVENT), properties);
     }
 
     private Map<String, Object> buildStateProperties(WebState state) {

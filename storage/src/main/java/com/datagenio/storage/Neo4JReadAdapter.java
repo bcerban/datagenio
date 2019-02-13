@@ -6,15 +6,13 @@ import com.datagenio.crawler.api.State;
 import com.datagenio.crawler.api.Transitionable;
 import com.datagenio.crawler.model.EventFlowGraphImpl;
 import com.datagenio.crawler.model.ExecutedEvent;
-import com.datagenio.model.WebFlowGraphImpl;
-import com.datagenio.model.api.WebFlowGraph;
+import com.datagenio.model.WebFlowGraph;
+import com.datagenio.model.WebState;
+import com.datagenio.model.WebTransition;
 import com.datagenio.context.Configuration;
-import com.datagenio.model.api.WebState;
-import com.datagenio.model.api.WebTransition;
 import com.datagenio.model.exception.InvalidTransitionException;
 import com.datagenio.storage.translator.*;
 import com.datagenio.storageapi.*;
-import com.datagenio.storage.connection.ConnectionResolver;
 import org.neo4j.graphdb.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,7 +47,7 @@ public class Neo4JReadAdapter implements ReadAdapter {
 
     @Override
     public WebFlowGraph loadWebModel() {
-        WebFlowGraph webModel = new WebFlowGraphImpl();
+        var webModel = new WebFlowGraph();
 
         try {
             Collection<Map<String, Object>> webNodes = connection.findNodesAsMap(combinedGraph, Label.label(Labels.WEB_STATE));
@@ -65,7 +63,7 @@ public class Neo4JReadAdapter implements ReadAdapter {
             Collection<Map<String, Object>> edges = connection.findEdges(combinedGraph, Relationships.WEB_TRANSITION);
             edges.forEach(edge -> {
                 try {
-                    var transition = webTransitionTranslator.translateFrom(edge);
+                    var transition = webTransitionTranslator.translateFrom((Map<String, Object>)edge.get("properties(rel)"));
                     transition.setOrigin(webModel.findStateById((String)edge.get("origin." + Properties.IDENTIFICATION)));
                     transition.setDestination(webModel.findStateById((String)edge.get("dest." + Properties.IDENTIFICATION)));
                     webModel.addTransition(transition);
@@ -99,7 +97,7 @@ public class Neo4JReadAdapter implements ReadAdapter {
 
                 state.setUnfiredEventables(unfiredEvents);
                 unfiredEvents.addAll(firedEvents);
-                state.setEventables(firedEvents);
+                state.setEventables(unfiredEvents);
 
                 eventModel.addState(state);
                 eventModel.addEvents(firedEvents);

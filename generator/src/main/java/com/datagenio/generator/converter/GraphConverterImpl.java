@@ -5,11 +5,9 @@ import com.datagenio.crawler.api.EventFlowGraph;
 import com.datagenio.crawler.api.State;
 import com.datagenio.crawler.api.Transitionable;
 import com.datagenio.generator.api.GraphConverter;
-import com.datagenio.model.WebFlowGraphImpl;
-import com.datagenio.model.WebTransitionImpl;
-import com.datagenio.model.api.WebFlowGraph;
-import com.datagenio.model.api.WebState;
-import com.datagenio.model.api.WebTransition;
+import com.datagenio.model.WebFlowGraph;
+import com.datagenio.model.WebState;
+import com.datagenio.model.WebTransition;
 import com.datagenio.model.exception.InvalidTransitionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,7 +48,7 @@ public class GraphConverterImpl implements GraphConverter {
             WebState origin = webGraph.findStateBy(transition.getOrigin().getIdentifier());
             WebState destination = webGraph.findStateBy(transition.getDestination().getIdentifier());
 
-            WebTransition webTransition = new WebTransitionImpl(origin, destination);
+            WebTransition webTransition = new WebTransition(origin, destination);
             transition.getFilteredRequests(context.getRootUri()).forEach(
                     request -> webTransition.addRequest(requestAbstractor.process(request))
             );

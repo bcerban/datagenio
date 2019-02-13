@@ -1,7 +1,7 @@
 package com.datagenio.generator.api;
 
 import com.datagenio.crawler.api.EventFlowGraph;
-import com.datagenio.model.api.WebFlowGraph;
+import com.datagenio.model.WebFlowGraph;
 
 public interface GraphConverter {
 

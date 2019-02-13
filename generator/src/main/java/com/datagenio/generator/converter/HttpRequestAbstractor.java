@@ -1,7 +1,6 @@
 package com.datagenio.generator.converter;
 
 import com.datagenio.crawler.api.RemoteRequest;
-import com.datagenio.model.api.AbstractHttpRequest;
 import com.datagenio.model.request.AbstractRequest;
 
 import java.net.URI;
@@ -16,9 +15,9 @@ public class HttpRequestAbstractor {
         this.bodyConverter = bodyConverter;
     }
 
-    public AbstractHttpRequest process(RemoteRequest remoteRequest) {
+    public AbstractRequest process(RemoteRequest remoteRequest) {
         var remoteUri = URI.create(remoteRequest.getUrl());
-        AbstractHttpRequest request = new AbstractRequest(remoteRequest.getMethod(), urlAbstractor.process(remoteUri));
+        var request = new AbstractRequest(remoteRequest.getMethod(), urlAbstractor.process(remoteUri));
         request.setSortOrder(remoteRequest.getSortOrder());
         remoteRequest.getHeaders().forEach((name, value) -> request.addHeader(name, value));
 

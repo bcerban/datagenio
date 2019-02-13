@@ -2,9 +2,8 @@ package com.datagenio.generator.converter;
 
 import com.datagenio.crawler.api.State;
 import com.datagenio.crawler.api.Transitionable;
-import com.datagenio.model.WebStateImpl;
-import com.datagenio.model.api.AbstractHttpRequest;
-import com.datagenio.model.api.WebState;
+import com.datagenio.model.WebState;
+import com.datagenio.model.request.AbstractRequest;
 
 import java.net.URI;
 import java.util.ArrayList;
@@ -24,7 +23,7 @@ public class StateConverter {
     }
 
     public WebState convert(State eventState, Collection<Transitionable> outgoingTransitions) {
-        WebState webState = new WebStateImpl();
+        var webState = new WebState();
         webState.addExternalId(eventState.getIdentifier());
         webState.setIsRoot(eventState.isRoot());
         webState.setUrl(urlAbstractor.process(eventState.getUri()));
@@ -37,15 +36,15 @@ public class StateConverter {
         return webState;
     }
 
-    private Collection<AbstractHttpRequest> convertRequests(Collection<Transitionable> transitions) {
-        var requests = new ArrayList<AbstractHttpRequest>();
+    private Collection<AbstractRequest> convertRequests(Collection<Transitionable> transitions) {
+        var requests = new ArrayList<AbstractRequest>();
         transitions.forEach(t -> {
             requests.addAll(convertRequestsFromTransition(t));
         });
         return requests;
     }
 
-    private Collection<AbstractHttpRequest> convertRequestsFromTransition(Transitionable transition) {
+    private Collection<AbstractRequest> convertRequestsFromTransition(Transitionable transition) {
         return transition.getFilteredRequests(rootUri)
                 .stream().map(r -> requestAbstractor.process(r))
                 .collect(Collectors.toList());

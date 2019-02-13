@@ -5,7 +5,7 @@ import com.datagenio.crawler.api.Crawler;
 import com.datagenio.crawler.api.EventFlowGraph;
 
 import com.datagenio.generator.api.GraphConverter;
-import com.datagenio.model.api.WebFlowGraph;
+import com.datagenio.model.WebFlowGraph;
 import com.datagenio.storageapi.ReadAdapter;
 import com.datagenio.storageapi.WriteAdapter;
 import org.junit.Before;
@@ -36,8 +36,10 @@ public class GeneratorImplTest {
         EventFlowGraph eventFlowGraph = mock(EventFlowGraph.class);
         WebFlowGraph webFlowGraph = mock(WebFlowGraph.class);
 
+        when(context.continueExistingModel()).thenReturn(true);
+        when(readAdapter.loadWebModel()).thenReturn(webFlowGraph);
         when(crawler.crawl()).thenReturn(eventFlowGraph);
-        when(converter.convert(eventFlowGraph)).thenReturn(webFlowGraph);
+        when(converter.convert(eventFlowGraph, webFlowGraph)).thenReturn(webFlowGraph);
 
         generator.generateWebModel();
     }

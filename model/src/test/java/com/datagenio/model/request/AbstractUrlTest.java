@@ -2,19 +2,18 @@ package com.datagenio.model.request;
 
 import java.util.ArrayList;
 
-import com.datagenio.model.api.ParamTypes;
-import com.datagenio.model.api.TypedParam;
+import com.datagenio.model.ParamTypes;
 import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
-public class AbstractUrlImplTest {
+public class AbstractUrlTest {
 
-    private AbstractUrlImpl url;
+    private AbstractUrl url;
 
     @Before
     public void setUp() {
-        this.url = new AbstractUrlImpl("base_url");
+        this.url = new AbstractUrl("base_url");
     }
 
     @Test
@@ -42,15 +41,15 @@ public class AbstractUrlImplTest {
 
     @Test
     public void testAddParam() {
-        TypedParamImpl param = new TypedParamImpl("q", ParamTypes.ALPHANUMERIC);
+        TypedParam param = new TypedParam("q", ParamTypes.ALPHANUMERIC);
         this.url.addTypedParam(param);
         assertTrue(this.url.getTypedParams().contains(param));
     }
 
     @Test
     public void testGetRequiredParams() {
-        var requiredParam = new TypedParamImpl("username", ParamTypes.ALPHANUMERIC, true);
-        var optionalParam = new TypedParamImpl("password", ParamTypes.ALPHANUMERIC, false);
+        var requiredParam = new TypedParam("username", ParamTypes.ALPHANUMERIC, true);
+        var optionalParam = new TypedParam("password", ParamTypes.ALPHANUMERIC, false);
 
         this.url.addTypedParam(requiredParam);
         this.url.addTypedParam(optionalParam);
@@ -66,27 +65,27 @@ public class AbstractUrlImplTest {
 
     @Test
     public void testEqualsDiffBaseUrl() {
-        AbstractUrlImpl other = new AbstractUrlImpl("some_other_url");
+        AbstractUrl other = new AbstractUrl("some_other_url");
         assertFalse(this.url.equals(other));
     }
 
     @Test
     public void testEqualsDiffRequiredParams() {
-        AbstractUrlImpl other = new AbstractUrlImpl(this.url.getBaseUrl());
-        other.addTypedParam(new TypedParamImpl("q", ParamTypes.ALPHANUMERIC, true));
+        AbstractUrl other = new AbstractUrl(this.url.getBaseUrl());
+        other.addTypedParam(new TypedParam("q", ParamTypes.ALPHANUMERIC, true));
         assertFalse(this.url.equals(other));
     }
 
     @Test
     public void testEqualsDiffOptionalParams() {
-        AbstractUrlImpl other = new AbstractUrlImpl(this.url.getBaseUrl());
-        other.addTypedParam(new TypedParamImpl("q", ParamTypes.ALPHANUMERIC));
+        AbstractUrl other = new AbstractUrl(this.url.getBaseUrl());
+        other.addTypedParam(new TypedParam("q", ParamTypes.ALPHANUMERIC));
         assertTrue(this.url.equals(other));
     }
 
     @Test
     public void testEqualsIdentical() {
-        AbstractUrlImpl other = new AbstractUrlImpl(this.url.getBaseUrl());
+        AbstractUrl other = new AbstractUrl(this.url.getBaseUrl());
         assertTrue(this.url.equals(other));
     }
 }

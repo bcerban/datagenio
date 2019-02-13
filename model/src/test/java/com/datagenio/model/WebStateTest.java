@@ -1,8 +1,7 @@
 package com.datagenio.model;
 
-import com.datagenio.model.api.AbstractHttpRequest;
 import com.datagenio.model.request.AbstractRequest;
-import com.datagenio.model.request.AbstractUrlImpl;
+import com.datagenio.model.request.AbstractUrl;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -11,15 +10,15 @@ import java.util.ArrayList;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
-public class WebStateImplTest {
+public class WebStateTest {
 
-    private AbstractUrlImpl url;
-    private WebStateImpl state;
+    private AbstractUrl url;
+    private WebState state;
 
     @Before
     public void setUp() {
-        this.url = new AbstractUrlImpl("test_url");
-        this.state = new WebStateImpl(this.url);
+        this.url = new AbstractUrl("test_url");
+        this.state = new WebState(this.url);
     }
 
     @Test
@@ -29,7 +28,7 @@ public class WebStateImplTest {
 
     @Test
     public void testSetUrl() {
-        AbstractUrlImpl newUrl = mock(AbstractUrlImpl.class);
+        AbstractUrl newUrl = mock(AbstractUrl.class);
         this.state.setUrl(newUrl);
         assertEquals(newUrl, this.state.getUrl());
     }
@@ -42,14 +41,14 @@ public class WebStateImplTest {
 
     @Test
     public void testSetRequestSet() {
-        ArrayList<AbstractHttpRequest> set = new ArrayList<>();
+        ArrayList<AbstractRequest> set = new ArrayList<>();
         this.state.setRequests(set);
         assertEquals(set, this.state.getRequests());
     }
 
     @Test
     public void testAddRequest() {
-        AbstractRequest req = new AbstractRequest("GET", new AbstractUrlImpl("test_url"));
+        AbstractRequest req = new AbstractRequest("GET", new AbstractUrl("test_url"));
         this.state.addRequest(req);
         assertEquals(1, this.state.getRequests().size());
         assertTrue(this.state.getRequests().contains(req));
@@ -62,20 +61,20 @@ public class WebStateImplTest {
 
     @Test
     public void testEqualsIdentical() {
-        WebStateImpl other = new WebStateImpl(new AbstractUrlImpl(this.state.getUrl().getBaseUrl()));
+        WebState other = new WebState(new AbstractUrl(this.state.getUrl().getBaseUrl()));
         assertTrue(this.state.equals(other));
     }
 
     @Test
     public void testEqualsDiffUrl() {
-        WebStateImpl other = new WebStateImpl(new AbstractUrlImpl("some_new_url"));
+        WebState other = new WebState(new AbstractUrl("some_new_url"));
         assertFalse(this.state.equals(other));
     }
 
     @Test
     public void testEqualsDiffRequestSet() {
-        WebStateImpl other = new WebStateImpl(this.state.getUrl());
-        other.addRequest(new AbstractRequest("GET", new AbstractUrlImpl("yet_another_url")));
+        WebState other = new WebState(this.state.getUrl());
+        other.addRequest(new AbstractRequest("GET", new AbstractUrl("yet_another_url")));
         assertFalse(this.state.equals(other));
     }
 }

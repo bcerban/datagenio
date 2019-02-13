@@ -1,13 +1,14 @@
 package com.datagenio.storage.translator;
 
-import com.datagenio.model.WebTransitionImpl;
-import com.datagenio.model.api.AbstractHttpRequest;
-import com.datagenio.model.api.WebTransition;
+import com.datagenio.model.WebTransition;
+import com.datagenio.model.request.AbstractRequest;
 import com.datagenio.storageapi.Properties;
 import com.datagenio.storageapi.Translator;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import java.util.Arrays;
+import com.google.gson.reflect.TypeToken;
+
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -28,9 +29,10 @@ public class WebTransitionTranslator implements Translator<WebTransition, Map<St
 
     @Override
     public WebTransition translateFrom(Map<String, Object> translated) {
-        WebTransition transition = new WebTransitionImpl();
-        var abstractRequests = Arrays.asList(
-                gson.fromJson((String)translated.get(Properties.ABSTRACT_REQUESTS), AbstractHttpRequest[].class)
+        var transition = new WebTransition();
+        var abstractRequests = (ArrayList<AbstractRequest>)gson.fromJson(
+                (String)translated.get(Properties.ABSTRACT_REQUESTS),
+                new TypeToken<ArrayList<AbstractRequest>>() { }.getType()
         );
         transition.setRequests(abstractRequests);
         return transition;

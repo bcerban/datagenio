@@ -4,7 +4,7 @@ import com.datagenio.databank.api.InputBuilder;
 import com.datagenio.databank.api.InputPovider;
 import com.datagenio.databank.provider.*;
 import com.datagenio.databank.util.XPathParser;
-import com.datagenio.model.api.AbstractHttpRequest;
+import com.datagenio.model.request.AbstractRequest;
 import com.github.javafaker.Faker;
 import org.apache.commons.lang.StringUtils;
 import org.jsoup.nodes.Element;
@@ -36,7 +36,7 @@ public class CompositeInputBuilder implements InputBuilder {
     }
 
     @Override
-    public Map<String, String> buildInputs(AbstractHttpRequest request) {
+    public Map<String, String> buildInputs(AbstractRequest request) {
         return new HashMap<>();
     }
 

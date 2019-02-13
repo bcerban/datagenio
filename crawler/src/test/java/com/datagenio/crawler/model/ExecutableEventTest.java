@@ -110,11 +110,4 @@ public class ExecutableEventTest {
         ExecutableEvent other = new ExecutableEvent(this.img, Eventable.EventType.CLICK);
         assertFalse(this.executableEvent.equals(other));
     }
-
-    @Test
-    public void testEqualsDiffHandler() {
-        ExecutableEvent other = new ExecutableEvent(this.button, Eventable.EventType.CLICK);
-        other.setHandler("testHandlerAction");
-        assertFalse(this.executableEvent.equals(other));
-    }
 }
