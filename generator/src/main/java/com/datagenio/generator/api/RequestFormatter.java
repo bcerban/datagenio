@@ -6,4 +6,5 @@ import java.util.Map;
 
 public interface RequestFormatter {
     String format(AbstractRequest request, Map<String, String> inputs);
+    String getFormatExtension();
 }

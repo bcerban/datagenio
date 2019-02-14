@@ -40,7 +40,7 @@ public class GeneratorImpl implements Generator {
         this.readAdapter = readAdapter;
         this.writeAdapter = writeAdapter;
         this.inputBuilder = InputBuilderFactory.get();
-        this.formatter = RequestFormatterFactory.get();
+        this.formatter = RequestFormatterFactory.get(context.getFormat());
     }
 
     public ReadAdapter getReadAdapter() {
@@ -83,7 +83,7 @@ public class GeneratorImpl implements Generator {
     public void generateDataset(WebFlowGraph webModel) {
         logger.info("Beginning data set generation...");
 
-        DataSetWriter writer = new DataSetWriter(context);
+        DataSetWriter writer = new DataSetWriter(context, formatter);
         webModel.getTransitions().forEach(transition -> {
             List<String> lines = generateTransitionData(transition);
             try {

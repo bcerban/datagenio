@@ -188,6 +188,7 @@ public class CrawlRunner {
         );
 
         context.setContinueExistingModel((continuePrevious(arguments) || isDataSetOnly(arguments)));
+        context.setFormat("csv");
 
         System.out.println("Max exploration depth: " + context.getCrawlDepth());
         return context;
