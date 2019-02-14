@@ -276,8 +276,12 @@ public class DrivenBrowser implements Browser {
 
     private void fillElementByXpath(WebElement element, String xpath, String value) {
         try {
-            element.findElement(By.xpath(xpath)).sendKeys(value);
-        } catch (NoSuchElementException|ElementNotInteractableException e) { }
+            var webElement = element.findElement(By.xpath(xpath));
+            if (webElement.isEnabled()) {
+                webElement.clear();
+                webElement.sendKeys(value);
+            }
+        } catch (NoSuchElementException|InvalidElementStateException e) { }
     }
 
     @Override
