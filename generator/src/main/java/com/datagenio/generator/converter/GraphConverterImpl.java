@@ -70,7 +70,18 @@ public class GraphConverterImpl implements GraphConverter {
             }
         } catch (NoSuchElementException e) {
             webState = stateConverter.convert(state, eventFlowGraph.getOutgoingTransitions(state));
-            webGraph.addState(webState);
+
+            if (webGraph.containsState(webState)) {
+                try {
+                    var same = webGraph.findStateBy(webState);
+                    same.addExternalId(state.getIdentifier());
+                    if (state.hasScreenShot()) same.addScreenShot(state.getScreenShot());
+                } catch (NoSuchElementException n) {
+                    logger.info("Failed to convert state {}. Looks like a duplicate but can't be found.", state.getIdentifier(), n);
+                }
+            } else {
+                webGraph.addState(webState);
+            }
         }
 
         if (state.isRoot()) webGraph.setRoot(webState);

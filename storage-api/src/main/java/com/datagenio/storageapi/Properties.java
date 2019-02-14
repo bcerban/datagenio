@@ -29,6 +29,7 @@ public interface Properties {
     String HANDLER = "handler";
     String IS_NAV = "is_navigation";
     String PARENT = "parent_doc";
+    String DOCUMENT_FILE = "document_file";
 
     // Request properties
     String REQUEST_JSON = "json";
