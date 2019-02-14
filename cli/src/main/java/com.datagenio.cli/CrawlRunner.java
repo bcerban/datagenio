@@ -85,7 +85,7 @@ public class CrawlRunner {
 
         // Validate output dir
         String directory = arguments.getOptionValue(ArgumentParser.OUTPUT);
-        if (!outputDirIsValid(directory, !continuePrevious(arguments))) {
+        if (!outputDirIsValid(directory, !(continuePrevious(arguments) || isDataSetOnly(arguments)))) {
             System.out.println("Please check directory exists and can be written to.");
             return;
         }
@@ -93,9 +93,37 @@ public class CrawlRunner {
         System.out.println("Preparing dependencies...");
         Generator generator = getGenerator(arguments);
 
+        if (isModelOnly(arguments)) {
+            modelOnly(generator);
+        } else if (isDataSetOnly(arguments)) {
+            dataSetOnly(generator);
+        } else {
+            modelAndGenerate(generator);
+        }
+    }
+
+    private static void modelOnly(Generator generator) {
         // Begin modeling site
         System.out.println("Beginning modeling process...");
-        WebFlowGraph model = generator.generateWebModel();
+        WebFlowGraph model = generator.buildWebModel();
+
+        System.out.println("Finished modeling site.");
+        System.out.println("Found " + model.getStates().size() + " states, and " + model.getTransitions().size() + " transitions.");
+    }
+
+    private static void dataSetOnly(Generator generator) {
+        System.out.println("Loading application model...");
+        WebFlowGraph model = generator.loadWebModel();
+
+        System.out.println("Generating data set...");
+        generator.generateDataset(model);
+        System.out.println("Finished writing data set.");
+    }
+
+    private static void modelAndGenerate(Generator generator) {
+        // Begin modeling site
+        System.out.println("Beginning modeling process...");
+        WebFlowGraph model = generator.buildWebModel();
 
         System.out.println("Finished modeling site.");
         System.out.println("Found " + model.getStates().size() + " states, and " + model.getTransitions().size() + " transitions.");
@@ -133,6 +161,14 @@ public class CrawlRunner {
         return arguments.hasOption(ArgumentParser.CONTINUE);
     }
 
+    private static boolean isModelOnly(CommandLine arguments) {
+        return arguments.hasOption(ArgumentParser.MODEL_ONLY);
+    }
+
+    private static boolean isDataSetOnly(CommandLine arguments) {
+        return arguments.hasOption(ArgumentParser.DATASET_ONLY);
+    }
+
     private static int getMaxDepth(CommandLine arguments) {
         String depth = arguments.getOptionValue(ArgumentParser.DEPTH);
         try {
@@ -151,7 +187,7 @@ public class CrawlRunner {
                 getMaxDepth(arguments)
         );
 
-        context.setContinueExistingModel(continuePrevious(arguments));
+        context.setContinueExistingModel((continuePrevious(arguments) || isDataSetOnly(arguments)));
 
         System.out.println("Max exploration depth: " + context.getCrawlDepth());
         return context;
