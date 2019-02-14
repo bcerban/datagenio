@@ -10,6 +10,7 @@ public class ArgumentParser {
     public static final String TIME = "time";
     public static final String CONTINUE = "continue";
     public static final String MODEL_ONLY = "model-only";
+    public static final String DATASET_ONLY = "data-set-only";
     public static final String VERBOSE = "verbose";
     public static final String VERSION = "version";
     public static final String HELP = "help";
@@ -61,6 +62,13 @@ public class ArgumentParser {
                 .desc("Only build application model, no data set generated")
                 .build();
 
+        var dataSetOnlyOption = Option.builder("D")
+                .required(false)
+                .hasArg(false)
+                .longOpt(DATASET_ONLY)
+                .desc("Generate data set for an existing model")
+                .build();
+
         var verboseOption = Option.builder("v")
                 .required(false)
                 .hasArg(false)
@@ -88,6 +96,7 @@ public class ArgumentParser {
         options.addOption(maxTimeOption);
         options.addOption(continueOption);
         options.addOption(modelOnlyOption);
+        options.addOption(dataSetOnlyOption);
         options.addOption(verboseOption);
         options.addOption(versionOption);
         options.addOption(helpOption);

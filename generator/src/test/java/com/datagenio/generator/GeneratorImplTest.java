@@ -41,6 +41,6 @@ public class GeneratorImplTest {
         when(crawler.crawl()).thenReturn(eventFlowGraph);
         when(converter.convert(eventFlowGraph, webFlowGraph)).thenReturn(webFlowGraph);
 
-        generator.generateWebModel();
+        generator.buildWebModel();
     }
 }

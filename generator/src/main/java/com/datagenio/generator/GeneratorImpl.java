@@ -60,14 +60,23 @@ public class GeneratorImpl implements Generator {
     }
 
     @Override
-    public WebFlowGraph generateWebModel() {
+    public WebFlowGraph buildWebModel() {
         var eventModel = crawler.crawl();
-        var webModel =  converter.convert(eventModel, getWebFlowGraph());
+        var webModel =  converter.convert(eventModel, loadWebModel());
 
         logger.info("Saving generated graph...");
         writeAdapter.saveCombined(eventModel, webModel);
 
         return webModel;
+    }
+
+    @Override
+    public WebFlowGraph loadWebModel() {
+        if (context.continueExistingModel()) {
+            return readAdapter.loadWebModel();
+        }
+
+        return new WebFlowGraph();
     }
 
     @Override
@@ -98,13 +107,5 @@ public class GeneratorImpl implements Generator {
     private String getPopulatedRequest(AbstractRequest request) {
         Map<String, String> inputs = inputBuilder.buildInputs(request);
         return formatter.format(request, inputs);
-    }
-
-    private WebFlowGraph getWebFlowGraph() {
-        if (context.continueExistingModel()) {
-            return readAdapter.loadWebModel();
-        }
-
-        return new WebFlowGraph();
     }
 }
