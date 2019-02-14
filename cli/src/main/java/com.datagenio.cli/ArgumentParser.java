@@ -4,16 +4,17 @@ import org.apache.commons.cli.*;
 
 public class ArgumentParser {
 
-    public static final String URL = "url";
-    public static final String OUTPUT = "output-dir";
-    public static final String DEPTH = "depth";
-    public static final String TIME = "time";
-    public static final String CONTINUE = "continue";
-    public static final String MODEL_ONLY = "model-only";
+    public static final String CONFIG       = "configuration";
+    public static final String URL          = "url";
+    public static final String OUTPUT       = "output-dir";
+    public static final String DEPTH        = "depth";
+    public static final String TIME         = "time";
+    public static final String CONTINUE     = "continue";
+    public static final String MODEL_ONLY   = "model-only";
     public static final String DATASET_ONLY = "data-set-only";
-    public static final String VERBOSE = "verbose";
-    public static final String VERSION = "version";
-    public static final String HELP = "help";
+    public static final String VERBOSE      = "verbose";
+    public static final String VERSION      = "version";
+    public static final String HELP         = "help";
 
     public static CommandLine parse(String[] args) throws ParseException {
         var commandLineParser = new DefaultParser();
@@ -21,6 +22,13 @@ public class ArgumentParser {
     }
 
     public static Options options() {
+        var configOption = Option.builder("C")
+                .required(false)
+                .hasArg()
+                .longOpt(CONFIG)
+                .desc("Load configuration file with context data")
+                .build();
+
         var urlOption = Option.builder(URL)
                 .required(false)
                 .hasArg(true)
@@ -90,6 +98,7 @@ public class ArgumentParser {
                 .build();
 
         Options options = new Options();
+        options.addOption(configOption);
         options.addOption(urlOption);
         options.addOption(outputDirOption);
         options.addOption(maxDepthOption);

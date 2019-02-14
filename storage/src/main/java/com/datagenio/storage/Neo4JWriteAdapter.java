@@ -41,7 +41,7 @@ public class Neo4JWriteAdapter implements WriteAdapter {
         this.gson = gson;
         this.connection = connection;
         this.configuration = configuration;
-        combinedGraph = connection.create(configuration.get(Configuration.SITE_ROOT_URI));
+        combinedGraph = connection.create(configuration.getRootUrl());
 
         eventableTranslator = new EventTranslator();
         eventStateTranslator = new EventStateTranslator();
@@ -287,7 +287,7 @@ public class Neo4JWriteAdapter implements WriteAdapter {
     }
 
     private boolean addEventNodeAsJson() {
-        return configuration.get(Configuration.REQUEST_SAVE_MODE).equals(Configuration.REQUEST_SAVE_AS_JSON);
+        return configuration.getRequestSaveMode().equals(Configuration.REQUEST_SAVE_AS_JSON);
     }
 
     private void deleteUnfiredEvents(State state) {

@@ -40,7 +40,7 @@ public class Neo4JWriteAdapterTest {
         databaseService = mock(GraphDatabaseService.class);
         gson = new GsonBuilder().create();
 
-        doReturn(TEST_URL).when(configuration).get(Configuration.SITE_ROOT_URI);
+        doReturn(TEST_URL).when(configuration).getRootUrl();
         doReturn(databaseService).when(connection).create(TEST_URL);
 
         writeAdapter = new Neo4JWriteAdapter(configuration, connection, gson);
@@ -87,7 +87,7 @@ public class Neo4JWriteAdapterTest {
         doReturn(mock(Document.class)).when(first).getDocument();
         doReturn(mock(Document.class)).when(second).getDocument();
         doReturn(mock(Document.class)).when(event).getParent();
-        doReturn(Configuration.REQUEST_SAVE_AS_NODE).when(configuration).get(Configuration.REQUEST_SAVE_MODE);
+        doReturn(Configuration.REQUEST_SAVE_AS_NODE).when(configuration).getRequestSaveMode();
         doReturn(first).when(transition).getOrigin();
         doReturn(second).when(transition).getDestination();
         doReturn(executedEvent).when(transition).getExecutedEvent();

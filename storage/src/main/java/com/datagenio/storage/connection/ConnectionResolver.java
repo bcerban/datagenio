@@ -11,6 +11,6 @@ public class ConnectionResolver {
     }
 
     private static Connection buildEmbeddedConnection(Configuration configuration) {
-        return new EmbeddedConnection(configuration.get(Configuration.OUTPUT_DIRECTORY_NAME), new GraphDatabaseFactory());
+        return new EmbeddedConnection(configuration.getOutputDirName(), new GraphDatabaseFactory());
     }
 }

@@ -72,7 +72,7 @@ public class GeneratorImpl implements Generator {
 
     @Override
     public WebFlowGraph loadWebModel() {
-        if (context.continueExistingModel()) {
+        if (context.isContinueExistingModel()) {
             return readAdapter.loadWebModel();
         }
 

@@ -42,7 +42,7 @@ public class Neo4JReadAdapter implements ReadAdapter {
         eventTransitionTranslator = new EventTransitionTranslator();
 
         this.connection = connection;
-        combinedGraph = this.connection.create(configuration.get(Configuration.SITE_ROOT_URI));
+        combinedGraph = this.connection.create(configuration.getRootUrl());
     }
 
     @Override

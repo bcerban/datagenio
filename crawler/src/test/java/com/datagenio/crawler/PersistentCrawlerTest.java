@@ -29,7 +29,9 @@ public class PersistentCrawlerTest {
         browser = mock(Browser.class);
         inputBuilder = mock(InputBuilder.class);
 
-        context = new Context(ROOT_URL, OUTPUT_DIR);
+        context = new Context();
+        context.setRootUrl(ROOT_URL);
+        context.setOutputDirName(OUTPUT_DIR);
         crawler = new PersistentCrawler(context, browser, inputBuilder);
     }
 

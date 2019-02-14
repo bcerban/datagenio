@@ -1,5 +1,6 @@
 package com.datagenio.cli;
 
+import com.datagenio.context.DatagenioException;
 import com.datagenio.crawler.PersistentCrawler;
 import com.datagenio.context.Context;
 import com.datagenio.crawler.browser.BrowserFactory;
@@ -17,18 +18,19 @@ import com.datagenio.storage.Neo4JWriteAdapter;
 import com.datagenio.storage.connection.ConnectionResolver;
 import com.google.common.base.Charsets;
 import com.google.common.io.Resources;
+import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.validator.routines.UrlValidator;
+import org.neo4j.kernel.impl.core.DatabasePanicEventGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.*;
 
 public class CrawlRunner {
 
@@ -76,29 +78,20 @@ public class CrawlRunner {
     }
 
     private static void processUrl(CommandLine arguments) {
-        // Validate URL
-        String url = arguments.getOptionValue(ArgumentParser.URL);
-        if (!urlIsValid(url)) {
-            System.out.println("Please provide a valid URL.");
-            return;
-        }
 
-        // Validate output dir
-        String directory = arguments.getOptionValue(ArgumentParser.OUTPUT);
-        if (!outputDirIsValid(directory, !(continuePrevious(arguments) || isDataSetOnly(arguments)))) {
-            System.out.println("Please check directory exists and can be written to.");
-            return;
-        }
+        try {
+            Context context = getContext(arguments);
+            Generator generator = getGenerator(context);
 
-        System.out.println("Preparing dependencies...");
-        Generator generator = getGenerator(arguments);
-
-        if (isModelOnly(arguments)) {
-            modelOnly(generator);
-        } else if (isDataSetOnly(arguments)) {
-            dataSetOnly(generator);
-        } else {
-            modelAndGenerate(generator);
+            if (isModelOnly(arguments)) {
+                modelOnly(generator);
+            } else if (isDataSetOnly(arguments)) {
+                dataSetOnly(generator);
+            } else {
+                modelAndGenerate(generator);
+            }
+        } catch (DatagenioException e) {
+            System.out.println(e.getMessage());
         }
     }
 
@@ -133,11 +126,9 @@ public class CrawlRunner {
         System.out.println("Finished writing data set.");
     }
 
-    private static GeneratorImpl getGenerator(CommandLine arguments) {
-        var jsonBuilder = new GsonBuilder().setPrettyPrinting();
-        var gson = jsonBuilder.create();
+    private static GeneratorImpl getGenerator(Context context) throws DatagenioException {
+        var gson = new GsonBuilder().setPrettyPrinting().create();
 
-        var context = getContext(arguments);
         var connection = ConnectionResolver.get(context.getConfiguration());
         var readAdapter = new Neo4JReadAdapter(context.getConfiguration(), connection);
         var writeAdapter = new Neo4JWriteAdapter(context.getConfiguration(), connection, gson);
@@ -178,49 +169,48 @@ public class CrawlRunner {
         }
     }
 
-    private static Context getContext(CommandLine arguments) {
-        Context context = new Context(
-                arguments.getOptionValue(ArgumentParser.URL),
-                arguments.getOptionValue(ArgumentParser.OUTPUT),
-                isVerbose(arguments),
-                true,
-                getMaxDepth(arguments)
-        );
+    private static Context getContext(CommandLine arguments) throws DatagenioException {
+        if (StringUtils.isNotBlank(arguments.getOptionValue(ArgumentParser.CONFIG))) {
+            return getContextFromFile(arguments.getOptionValue(ArgumentParser.CONFIG));
+        }
 
+        Context context = new Context();
+        context.setRootUrl(arguments.getOptionValue(ArgumentParser.URL));
+        context.setOutputDirName(arguments.getOptionValue(ArgumentParser.OUTPUT));
+        context.setVerbose(isVerbose(arguments));
+        context.setPrintScreen(true);
+        context.setCrawlDepth(getMaxDepth(arguments));
         context.setContinueExistingModel((continuePrevious(arguments) || isDataSetOnly(arguments)));
         context.setFormat("csv");
-
-        System.out.println("Max exploration depth: " + context.getCrawlDepth());
         return context;
     }
 
-    public static boolean urlIsValid(String url) {
-        String[] schemes = {HTTP, HTTPS};
-        var validator = new UrlValidator(schemes);
+    private static Context getContextFromFile(String path) throws DatagenioException {
+        try {
+            Gson gson = new Gson();
+            BufferedReader bufferedReader = new BufferedReader(new FileReader(path));
+            Context context = gson.fromJson(bufferedReader, Context.class);
 
-        return validator.isValid(url);
-    }
+            if (context != null) {
 
-    public static boolean outputDirIsValid(String dir, boolean clear) {
-        if (dir == null) {
-            return false;
-        }
+                // TODO: this should be moved - context should self-validate
+                if (!context.outputDirIsValid(
+                        context.getOutputDirName(),
+                        !(context.isContinueExistingModel() || context.isDataSetOnly())
+                )) {
+                    throw new DatagenioException("Output directory is not valid.");
+                }
 
-        File directory = new File(dir);
-        if (!directory.exists()) {
-            directory.mkdir();
-        }
+                if (!context.urlIsValid(context.getRootUrl())) {
+                    throw new DatagenioException("Root URL is not valid.");
+                }
 
-        if (clear && directory.list().length > 0) {
-            try {
-                FileUtils.deleteDirectory(directory);
-                directory.mkdir();
-            } catch (IOException e) {
-                System.out.println(e.getMessage());
-                return false;
+                return context;
             }
-        }
 
-        return directory.exists() && directory.isDirectory() && directory.canWrite();
+            throw new DatagenioException("Configuration file not parsed.");
+        } catch (FileNotFoundException e) {
+            throw new DatagenioException("Configuration file not found.", e);
+        }
     }
 }
