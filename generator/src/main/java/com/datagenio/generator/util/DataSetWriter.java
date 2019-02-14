@@ -1,10 +1,13 @@
 package com.datagenio.generator.util;
 
 import com.datagenio.context.Context;
+import com.datagenio.generator.api.RequestFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 public class DataSetWriter {
@@ -16,10 +19,10 @@ public class DataSetWriter {
     private File outputDirectory;
     private File outputFile;
 
-    public DataSetWriter(Context context) {
+    public DataSetWriter(Context context, RequestFormatter formatter) {
         this.context = context;
         outputDirectory = getValidOutputDirectory(context.getOutputDirName());
-        outputFile = new File(outputDirectory, getFileName());
+        outputFile = new File(outputDirectory, getFileName(formatter));
     }
 
     public void writeLines(List<String> lines) throws FileNotFoundException {
@@ -55,9 +58,15 @@ public class DataSetWriter {
         return directory;
     }
 
-    private String getFileName()
+    private String getFileName(RequestFormatter formatter)
     {
-        return context.getRootUri().getHost().toLowerCase()
-                .replaceAll("[^a-zA-Z0-9]", "") + ".csv";
+        SimpleDateFormat dateFormatter = new SimpleDateFormat("dd-MM-yyyy-HH-mm-ss");
+        String fileName = String.format(
+                "%s-%s.%s",
+                context.getRootUri().getHost().toLowerCase().replaceAll("[^a-zA-Z0-9]", ""),
+                dateFormatter.format(new Date()),
+                formatter.getFormatExtension()
+        );
+        return  fileName;
     }
 }

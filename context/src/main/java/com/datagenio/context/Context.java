@@ -23,6 +23,7 @@ public class Context {
     private Configuration configuration;
     private ReadAdapter readAdapter;
     private WriteAdapter writeAdapter;
+    private String format;
 
     public Context(String rootUrl, String outputDirName) {
         this.rootUrl = rootUrl;
@@ -161,5 +162,13 @@ public class Context {
 
     public void setWriteAdapter(WriteAdapter writeAdapter) {
         this.writeAdapter = writeAdapter;
+    }
+
+    public String getFormat() {
+        return format;
+    }
+
+    public void setFormat(String format) {
+        this.format = format;
     }
 }
