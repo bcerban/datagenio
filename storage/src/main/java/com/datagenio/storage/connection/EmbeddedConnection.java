@@ -24,7 +24,7 @@ public class EmbeddedConnection extends AbstractConnection {
         this.databaseFactory = databaseFactory;
         this.outputDirectory = new File(outputDirectoryName);
 
-        if (outputDirectory.exists()) {
+        if (!outputDirectory.exists()) {
             outputDirectory.mkdir();
         }
     }

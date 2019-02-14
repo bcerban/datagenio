@@ -1,38 +1,106 @@
 package com.datagenio.context;
 
-import java.util.Map;
+import com.google.gson.annotations.SerializedName;
 
 public class Configuration {
-    public static final String CONNECTION_MODE = "connection_mode";
     public static final String CONNECTION_MODE_EMBEDDED = "embedded";
     public static final String CONNECTION_MODE_REMOTE = "remote";
-    public static final String REMOTE_HOST = "host";
-    public static final String REMOTE_PORT = "port";
-    public static final String REMOTE_PROTOCOL = "protocol";
-    public static final String USERNAME = "username";
-    public static final String PASSWORD = "password";
-    public static final String OUTPUT_DIRECTORY_NAME = "output_dir_name";
-    public static final String SITE_ROOT_URI = "root_uri";
-    public static final String REQUEST_SAVE_MODE = "request_save_mode";
     public static final String REQUEST_SAVE_AS_NODE = "as_node";
     public static final String REQUEST_SAVE_AS_JSON = "as_json";
-    public static final String MAX_GRAPH_SIZE = "max_size";
 
-    private Map<String, String> settings;
+    @SerializedName("connection_mode")
+    private String connectionMode;
 
-    public Configuration(Map<String, String> settings) {
-        this.settings = settings;
+    @SerializedName("request_save_mode")
+    private String requestSaveMode;
+
+    @SerializedName("host")
+    private String host;
+
+    @SerializedName("port")
+    private String port;
+
+    @SerializedName("protocol")
+    private String protocol;
+
+    @SerializedName("username")
+    private String username;
+
+    @SerializedName("password")
+    private String password;
+
+    private String outputDirName;
+    private String rootUrl;
+
+    public String getConnectionMode() {
+        return connectionMode;
     }
 
-    public String get(String setting) {
-        if (settings.containsKey(setting)) {
-            return settings.get(setting);
-        }
-
-        return "";
+    public void setConnectionMode(String connectionMode) {
+        this.connectionMode = connectionMode;
     }
 
-    public void set(String setting, String value) {
-        settings.put(setting, value);
+    public String getRequestSaveMode() {
+        return requestSaveMode;
+    }
+
+    public void setRequestSaveMode(String requestSaveMode) {
+        this.requestSaveMode = requestSaveMode;
+    }
+
+    public String getOutputDirName() {
+        return outputDirName;
+    }
+
+    public void setOutputDirName(String outputDirName) {
+        this.outputDirName = outputDirName;
+    }
+
+    public String getRootUrl() {
+        return rootUrl;
+    }
+
+    public void setRootUrl(String rootUrl) {
+        this.rootUrl = rootUrl;
+    }
+
+    public String getHost() {
+        return host;
+    }
+
+    public void setHost(String host) {
+        this.host = host;
+    }
+
+    public String getPort() {
+        return port;
+    }
+
+    public void setPort(String port) {
+        this.port = port;
+    }
+
+    public String getProtocol() {
+        return protocol;
+    }
+
+    public void setProtocol(String protocol) {
+        this.protocol = protocol;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 }

@@ -28,6 +28,8 @@ public class GeneratorImplTest {
         crawler = mock(Crawler.class);
         readAdapter = mock(ReadAdapter.class);
         writeAdapter = mock(WriteAdapter.class);
+
+        when(context.getFormat()).thenReturn("csv");
         generator = new GeneratorImpl(context, crawler, converter, readAdapter, writeAdapter);
     }
 
@@ -36,7 +38,7 @@ public class GeneratorImplTest {
         EventFlowGraph eventFlowGraph = mock(EventFlowGraph.class);
         WebFlowGraph webFlowGraph = mock(WebFlowGraph.class);
 
-        when(context.continueExistingModel()).thenReturn(true);
+        when(context.isContinueExistingModel()).thenReturn(true);
         when(readAdapter.loadWebModel()).thenReturn(webFlowGraph);
         when(crawler.crawl()).thenReturn(eventFlowGraph);
         when(converter.convert(eventFlowGraph, webFlowGraph)).thenReturn(webFlowGraph);

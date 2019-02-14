@@ -1,6 +1,7 @@
 package com.datagenio.crawler;
 
 import com.datagenio.context.Context;
+import com.datagenio.context.DatagenioException;
 import com.datagenio.crawler.api.*;
 import com.datagenio.crawler.exception.*;
 import com.datagenio.crawler.model.EventFlowGraphImpl;
@@ -33,7 +34,7 @@ public class PersistentCrawler implements com.datagenio.crawler.api.Crawler {
         this.browser = browser;
         this.inputBuilder = inputBuilder;
 
-        if (context.continueExistingModel()) {
+        if (context.isContinueExistingModel()) {
             graph = context.getReadAdapter().loadEventModel();
         }
     }
@@ -63,9 +64,8 @@ public class PersistentCrawler implements com.datagenio.crawler.api.Crawler {
 
     @Override
     public EventFlowGraph crawl() {
-        logger.debug("Begin crawling {}...", context.getRootUrl());
-
         try {
+            logger.debug("Begin crawling {}...", context.getRootUrl());
             setUp();
 
             while (!getGraph().getCurrentState().isFinished()) {
@@ -179,7 +179,7 @@ public class PersistentCrawler implements com.datagenio.crawler.api.Crawler {
     }
 
     private void setUp() throws UncrawlableStateException {
-        if (context.continueExistingModel()) {
+        if (context.isContinueExistingModel()) {
             boolean foundUnfinishedState = relocateFrom(getGraph().getRoot());
             if (!foundUnfinishedState) {
                 throw new UncrawlableStateException("No unfinished states found in model.");
@@ -198,7 +198,7 @@ public class PersistentCrawler implements com.datagenio.crawler.api.Crawler {
             getGraph().setRoot(initial);
             saveStateScreenShot(initial);
             saveStateHtml(initial);
-        } catch (BrowserException e) {
+        } catch (BrowserException| DatagenioException e) {
             logger.debug("Exception happened while trying to initialize EventFlowGraph. Error: {}", e.getMessage());
             throw new UncrawlableStateException(e);
         }
