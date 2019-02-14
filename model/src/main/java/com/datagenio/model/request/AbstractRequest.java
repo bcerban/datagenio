@@ -1,83 +1,79 @@
 package com.datagenio.model.request;
 
 import com.datagenio.model.Session;
-import com.datagenio.model.api.AbstractHttpRequest;
-import com.datagenio.model.api.AbstractUrl;
-import org.apache.http.Header;
-import org.apache.http.message.BasicHeader;
 
 import java.util.*;
 
-public class AbstractRequest implements AbstractHttpRequest {
+public class AbstractRequest {
     private String method;
-    private AbstractUrl requestUrl;
-    private AbstractBody requestBody;
-    private Collection<Header> headers;
+    private AbstractUrl url;
+    private AbstractBody body;
+    private Collection<HttpHeader> headers;
     private Session session;
     private int sortOrder;
 
-    public AbstractRequest(String method, AbstractUrl requestUrl) {
+    public AbstractRequest(String method, AbstractUrl url) {
+        headers = new ArrayList<>();
         this.method = method;
-        this.requestUrl = requestUrl;
-        this.headers = new ArrayList<>();
+        this.url = url;
     }
 
-    @Override
+
     public String getMethod() {
         return method;
     }
 
-    @Override
+
     public void setMethod(String method) {
         this.method = method;
     }
 
-    @Override
+
     public AbstractUrl getUrl() {
-        return requestUrl;
+        return url;
     }
 
-    @Override
+
     public void setUrl(AbstractUrl requestUrl) {
-        this.requestUrl = requestUrl;
+        this.url = requestUrl;
     }
 
-    @Override
+
     public AbstractBody getBody() {
-        return requestBody;
+        return body;
     }
 
-    @Override
+
     public void setBody(AbstractBody requestBody) {
-        this.requestBody = requestBody;
+        this.body = requestBody;
     }
 
-    @Override
-    public Collection<Header> getHeaders() {
+
+    public Collection<HttpHeader> getHeaders() {
         return headers;
     }
 
-    @Override
-    public void setHeaders(Collection<Header> headers) {
+
+    public void setHeaders(Collection<HttpHeader> headers) {
         this.headers = headers;
     }
 
-    @Override
-    public void addHeader(Header header) {
+
+    public void addHeader(HttpHeader header) {
         this.headers.add(header);
     }
 
-    @Override
+
     public void addHeader(String name, String value) {
-        this.headers.add(new BasicHeader(name, value));
+        this.headers.add(new HttpHeader(name, value));
     }
 
-    @Override
+
     public int getSortOrder() {
         return sortOrder;
     }
 
-    @Override
+
     public void setSortOrder(int sortOrder) {
         this.sortOrder = sortOrder;
     }
@@ -97,13 +93,13 @@ public class AbstractRequest implements AbstractHttpRequest {
 
         AbstractRequest that = (AbstractRequest) o;
         return Objects.equals(method, that.method) &&
-                Objects.equals(requestUrl, that.requestUrl) &&
-                Objects.equals(requestBody, that.requestBody) &&
+                Objects.equals(url, that.url) &&
+                Objects.equals(body, that.body) &&
                 Objects.equals(headers, that.headers);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(method, requestUrl, requestBody, headers);
+        return Objects.hash(method, url, body, headers);
     }
 }

@@ -2,7 +2,6 @@ package com.datagenio.generator;
 
 import com.datagenio.context.Context;
 import com.datagenio.crawler.api.Crawler;
-import com.datagenio.crawler.api.EventFlowGraph;
 import com.datagenio.databank.InputBuilderFactory;
 import com.datagenio.databank.api.InputBuilder;
 import com.datagenio.generator.api.Generator;
@@ -10,9 +9,9 @@ import com.datagenio.generator.api.GraphConverter;
 import com.datagenio.generator.api.RequestFormatter;
 import com.datagenio.generator.util.DataSetWriter;
 import com.datagenio.generator.util.RequestFormatterFactory;
-import com.datagenio.model.api.AbstractHttpRequest;
-import com.datagenio.model.api.WebFlowGraph;
-import com.datagenio.model.api.WebTransition;
+import com.datagenio.model.WebFlowGraph;
+import com.datagenio.model.WebTransition;
+import com.datagenio.model.request.AbstractRequest;
 import com.datagenio.storageapi.ReadAdapter;
 import com.datagenio.storageapi.WriteAdapter;
 import org.slf4j.Logger;
@@ -63,7 +62,7 @@ public class GeneratorImpl implements Generator {
     @Override
     public WebFlowGraph generateWebModel() {
         var eventModel = crawler.crawl();
-        var webModel =  converter.convert(eventModel);
+        var webModel =  converter.convert(eventModel, getWebFlowGraph());
 
         logger.info("Saving generated graph...");
         writeAdapter.saveCombined(eventModel, webModel);
@@ -86,15 +85,6 @@ public class GeneratorImpl implements Generator {
         logger.info("Data set generation finished.");
     }
 
-    public EventFlowGraph crawlSite() {
-        var graph = crawler.crawl();
-
-        logger.info("Saving generated graph...");
-        writeAdapter.save(graph);
-
-        return graph;
-    }
-
     @Override
     public List<String> generateTransitionData(WebTransition transition) {
         List<String> lines = new ArrayList<>();
@@ -105,8 +95,16 @@ public class GeneratorImpl implements Generator {
         return lines;
     }
 
-    private String getPopulatedRequest(AbstractHttpRequest request) {
+    private String getPopulatedRequest(AbstractRequest request) {
         Map<String, String> inputs = inputBuilder.buildInputs(request);
         return formatter.format(request, inputs);
+    }
+
+    private WebFlowGraph getWebFlowGraph() {
+        if (context.continueExistingModel()) {
+            return readAdapter.loadWebModel();
+        }
+
+        return new WebFlowGraph();
     }
 }

@@ -1,9 +1,7 @@
 package com.datagenio.model;
 
-import com.datagenio.model.api.AbstractHttpRequest;
-import com.datagenio.model.api.AbstractUrl;
-import com.datagenio.model.api.WebState;
-import com.datagenio.model.request.AbstractUrlImpl;
+import com.datagenio.model.request.AbstractRequest;
+import com.datagenio.model.request.AbstractUrl;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -11,85 +9,100 @@ import java.util.Collection;
 import java.util.Objects;
 import java.util.UUID;
 
-public class WebStateImpl implements WebState {
+public class WebState {
 
-    private final String identifier;
+    private String identifier;
     private AbstractUrl url;
-    private Collection<AbstractHttpRequest> requests;
+    private Collection<AbstractRequest> requests;
     private Collection<String> externalIds;
     private Collection<File> screenShots;
     private boolean isRoot = false;
 
-    public WebStateImpl() {
+    public WebState() {
         identifier = UUID.randomUUID().toString();
         requests = new ArrayList<>();
         externalIds = new ArrayList<>();
         screenShots = new ArrayList<>();
     }
 
-    public WebStateImpl(AbstractUrl url) {
+    public WebState(AbstractUrl url) {
         this();
         this.url = url;
     }
 
-    @Override
+
     public String getIdentifier() {
         return identifier;
     }
 
-    @Override
+
+    public void setIdentifier(String identifier) {
+        this.identifier = identifier;
+    }
+
+
     public AbstractUrl getUrl() {
         return url;
     }
 
-    @Override
+
     public void setUrl(AbstractUrl url) {
         this.url = url;
     }
 
-    @Override
-    public Collection<AbstractHttpRequest> getRequests() {
+
+    public Collection<AbstractRequest> getRequests() {
         return requests;
     }
 
-    @Override
+
     public Collection<String> getExternalIds() {
         return externalIds;
     }
 
-    @Override
-    public void setRequests(Collection<AbstractHttpRequest> requestSet) {
+
+    public void setExternalIds(Collection<String> ids) {
+        externalIds = ids;
+    }
+
+
+    public void setRequests(Collection<AbstractRequest> requestSet) {
         this.requests = requestSet;
     }
 
-    @Override
-    public void addRequest(AbstractHttpRequest request) {
+
+    public void addRequest(AbstractRequest request) {
         requests.add(request);
     }
 
-    @Override
+
     public void addExternalId(String id) {
-        externalIds.add(id);
+        if (!externalIds.contains(id)) externalIds.add(id);
     }
 
-    @Override
+
     public boolean isRoot() {
         return isRoot;
     }
 
-    @Override
+
     public void setIsRoot(boolean isRoot) {
         this.isRoot = isRoot;
     }
 
-    @Override
+
     public Collection<File> getScreenShots() {
         return screenShots;
     }
 
-    @Override
+
+    public void setScreenShots(Collection<File> screenShots) {
+        this.screenShots = screenShots;
+    }
+
+
     public void addScreenShot(File screenShot) {
-        screenShots.add(screenShot);
+        if (!screenShots.contains(screenShot)) screenShots.add(screenShot);
     }
 
     @Override
@@ -97,7 +110,7 @@ public class WebStateImpl implements WebState {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        WebStateImpl state = (WebStateImpl) o;
+        WebState state = (WebState) o;
         return Objects.equals(url, state.getUrl()) &&
                 Objects.equals(requests, state.requests);
     }

@@ -15,7 +15,9 @@ public interface EventFlowGraph {
     State getRoot();
     State getCurrentState();
     State find(State state);
+    State findById(String id);
     State findNearestUnfinishedStateFrom(State state) throws UncrawlableStateException;
+    Eventable findEvent(String id);
     GraphPath<State, Transitionable> findPath(State from, State to);
     Transitionable findTransition(Eventable eventable) throws InvalidTransitionException;
     boolean isNewState(State state);
@@ -26,6 +28,7 @@ public interface EventFlowGraph {
     void addStateAsCurrent(State state) throws UncrawlableStateException;
     void addTransition(Transitionable transition);
     void addEvent(Eventable event);
+    void addEvents(Collection<Eventable> events);
     void setCurrentState(State state) throws UncrawlableStateException;
     void setRoot(State state);
 }

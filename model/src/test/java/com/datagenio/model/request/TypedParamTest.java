@@ -1,19 +1,19 @@
 package com.datagenio.model.request;
 
 
-import com.datagenio.model.api.ParamTypes;
+import com.datagenio.model.ParamTypes;
 import org.junit.Before;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
 
-public class TypedParamImplTest {
+public class TypedParamTest {
 
-    private TypedParamImpl param;
+    private TypedParam param;
 
     @Before
     public void setUp() {
-        this.param = new TypedParamImpl("name", ParamTypes.ALPHANUMERIC);
+        this.param = new TypedParam("name", ParamTypes.ALPHANUMERIC);
     }
 
     @Test
@@ -56,19 +56,19 @@ public class TypedParamImplTest {
 
     @Test
     public void testEqualsIdentical() {
-        TypedParamImpl other = new TypedParamImpl("name", ParamTypes.ALPHANUMERIC);
+        TypedParam other = new TypedParam("name", ParamTypes.ALPHANUMERIC);
         assertTrue(this.param.equals(other));
     }
 
     @Test
     public void testEqualsDiffType() {
-        TypedParamImpl other = new TypedParamImpl("name", ParamTypes.ALPHABETIC);
+        TypedParam other = new TypedParam("name", ParamTypes.ALPHABETIC);
         assertFalse(this.param.equals(other));
     }
 
     @Test
     public void testEqualsDiffName() {
-        TypedParamImpl other = new TypedParamImpl("person", ParamTypes.ALPHANUMERIC);
+        TypedParam other = new TypedParam("person", ParamTypes.ALPHANUMERIC);
         assertFalse(this.param.equals(other));
     }
 }

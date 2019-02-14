@@ -1,7 +1,6 @@
 package com.datagenio.model.request;
 
-import com.datagenio.model.api.ParamTypes;
-import com.datagenio.model.api.TypedParam;
+import com.datagenio.model.ParamTypes;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -20,33 +19,33 @@ public class AbstractBodyTest {
 
     @Test
     public void testGetProperties() {
-        assertNotNull(this.body.getProperties());
+        assertNotNull(this.body.getTypedParams());
     }
 
     @Test
     public void testAddProperty() {
-        TypedParamImpl property = new TypedParamImpl("name", ParamTypes.ALPHANUMERIC);
+        TypedParam property = new TypedParam("name", ParamTypes.ALPHANUMERIC);
         this.body.addProperty(property);
-        assertTrue(this.body.getProperties().contains(property));
+        assertTrue(this.body.getTypedParams().contains(property));
     }
 
     @Test
     public void testSetProperties() {
         ArrayList<TypedParam> props = new ArrayList<>();
-        this.body.setProperties(props);
-        assertEquals(props, this.body.getProperties());
+        this.body.setTypedParams(props);
+        assertEquals(props, this.body.getTypedParams());
     }
 
     @Test
     public void testGetRequiredProperties() {
-        var requiredProp = new TypedParamImpl("username", ParamTypes.ALPHANUMERIC, true);
-        var optionalProp = new TypedParamImpl("password", ParamTypes.ALPHANUMERIC, false);
+        var requiredProp = new TypedParam("username", ParamTypes.ALPHANUMERIC, true);
+        var optionalProp = new TypedParam("password", ParamTypes.ALPHANUMERIC, false);
 
         this.body.addProperty(requiredProp);
         this.body.addProperty(optionalProp);
 
-        assertTrue(this.body.getRequiredProperties().contains(requiredProp));
-        assertFalse(this.body.getRequiredProperties().contains(optionalProp));
+        assertTrue(this.body.getRequiredParams().contains(requiredProp));
+        assertFalse(this.body.getRequiredParams().contains(optionalProp));
     }
 
     @Test
@@ -57,14 +56,14 @@ public class AbstractBodyTest {
     @Test
     public void testEqualsDiffRequired() {
         AbstractBody other = new AbstractBody();
-        other.addProperty(new TypedParamImpl("person", ParamTypes.ALPHANUMERIC, true));
+        other.addProperty(new TypedParam("person", ParamTypes.ALPHANUMERIC, true));
         assertFalse(this.body.equals(other));
     }
 
     @Test
     public void testEqualsDiffOptional() {
         AbstractBody other = new AbstractBody();
-        other.addProperty(new TypedParamImpl("person", ParamTypes.ALPHANUMERIC, false));
+        other.addProperty(new TypedParam("person", ParamTypes.ALPHANUMERIC, false));
         assertTrue(this.body.equals(other));
     }
 

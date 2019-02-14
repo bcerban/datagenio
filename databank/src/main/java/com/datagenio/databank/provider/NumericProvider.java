@@ -9,7 +9,11 @@ import java.util.Random;
 
 public class NumericProvider implements InputPovider {
 
-    private Faker faker = new Faker();
+    private Faker faker;
+
+    public NumericProvider(Faker faker) {
+        this.faker = faker;
+    }
 
     @Override
     public String provide() {

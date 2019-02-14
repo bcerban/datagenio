@@ -2,6 +2,7 @@ package com.datagenio.context;
 
 import org.junit.Test;
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
 public class ContextTest {
     private static String ROOT_URL = "http://test.com";
@@ -77,5 +78,18 @@ public class ContextTest {
         assertEquals(450, context.getRequestTimeout());
         assertEquals(true, context.isVerbose());
         assertEquals(false, context.isPrintScreen());
+    }
+
+    @Test
+    public void testGetConfiguration()
+    {
+        var context = new Context(ROOT_URL, OUTPUT_DIR);
+        var config = context.getConfiguration();
+
+        assertNotNull(config);
+        assertNotNull(config.get(Configuration.CONNECTION_MODE));
+        assertNotNull(config.get(Configuration.REQUEST_SAVE_MODE));
+        assertEquals(ROOT_URL, config.get(Configuration.SITE_ROOT_URI));
+        assertEquals(OUTPUT_DIR, config.get(Configuration.OUTPUT_DIRECTORY_NAME));
     }
 }

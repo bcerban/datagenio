@@ -19,11 +19,15 @@ public class Transition implements Transitionable {
     private Collection<RemoteRequest> requests;
     private Status status;
 
+    public Transition() {
+        requests = new ArrayList<>();
+    }
+
     public Transition(State origin, State destination, ExecutedEventable event) {
+        this();
         this.origin = origin;
         this.destination = destination;
         this.executedEvent = event;
-        this.requests = new ArrayList<>();
     }
 
     @Override

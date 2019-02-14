@@ -1,9 +1,7 @@
 package com.datagenio.model.request;
 
 import com.datagenio.model.Session;
-import com.datagenio.model.api.ParamTypes;
-import org.apache.http.Header;
-import org.apache.http.message.BasicHeader;
+import com.datagenio.model.ParamTypes;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -17,7 +15,7 @@ public class AbstractRequestTest {
 
     @Before
     public void setUp() {
-        AbstractUrlImpl url = new AbstractUrlImpl("some/test/url");
+        AbstractUrl url = new AbstractUrl("some/test/url");
         this.request = new AbstractRequest("GET", url);
     }
 
@@ -40,7 +38,7 @@ public class AbstractRequestTest {
 
     @Test
     public void testSetRequestUrl() {
-        AbstractUrlImpl url = new AbstractUrlImpl("some/other/url");
+        AbstractUrl url = new AbstractUrl("some/other/url");
         this.request.setUrl(url);
         assertEquals(url, this.request.getUrl());
     }
@@ -65,8 +63,8 @@ public class AbstractRequestTest {
 
     @Test
     public void testSetHeaders() {
-        Collection<Header> headers = new ArrayList<>();
-        headers.add(new BasicHeader("Content-type", "application/json"));
+        Collection<HttpHeader> headers = new ArrayList<>();
+        headers.add(new HttpHeader("Content-type", "application/json"));
         this.request.setHeaders(headers);
         assertEquals(headers, this.request.getHeaders());
         assertEquals(1, this.request.getHeaders().size());
@@ -74,7 +72,7 @@ public class AbstractRequestTest {
 
     @Test
     public void testAddHeader() {
-        var header = new BasicHeader("Content-type", "text/html");
+        var header = new HttpHeader("Content-type", "text/html");
         this.request.addHeader(header);
         assertTrue(this.request.getHeaders().contains(header));
     }
@@ -114,7 +112,7 @@ public class AbstractRequestTest {
 
     @Test
     public void testEqualsDiffUrl() {
-        AbstractRequest other = new AbstractRequest(this.request.getMethod(), new AbstractUrlImpl("new_base_url"));
+        AbstractRequest other = new AbstractRequest(this.request.getMethod(), new AbstractUrl("new_base_url"));
         other.setHeaders(this.request.getHeaders());
         other.setBody(this.request.getBody());
         assertFalse(this.request.equals(other));
@@ -122,8 +120,8 @@ public class AbstractRequestTest {
 
     @Test
     public void testEqualsDiffHeaders() {
-        Collection<Header> headers = new ArrayList<>();
-        headers.add(new BasicHeader("Content-type", "application/json"));
+        Collection<HttpHeader> headers = new ArrayList<>();
+        headers.add(new HttpHeader("Content-type", "application/json"));
 
         AbstractRequest other = new AbstractRequest("POST", this.request.getUrl());
         other.setHeaders(headers);
@@ -134,7 +132,7 @@ public class AbstractRequestTest {
     @Test
     public void testEqualsDiffBody() {
         AbstractBody body = new AbstractBody();
-        body.addProperty(new TypedParamImpl("product", ParamTypes.OBJECT));
+        body.addProperty(new TypedParam("product", ParamTypes.OBJECT));
 
         AbstractRequest other = new AbstractRequest("POST", this.request.getUrl());
         other.setHeaders(this.request.getHeaders());

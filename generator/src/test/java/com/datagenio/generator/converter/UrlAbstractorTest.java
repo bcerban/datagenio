@@ -1,6 +1,6 @@
 package com.datagenio.generator.converter;
 
-import com.datagenio.model.api.AbstractUrl;
+import com.datagenio.model.request.AbstractUrl;
 import org.junit.Before;
 import org.junit.Test;
 

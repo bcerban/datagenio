@@ -1,5 +1,8 @@
 package com.datagenio.context;
 
+import com.datagenio.storageapi.ReadAdapter;
+import com.datagenio.storageapi.WriteAdapter;
+
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
@@ -16,7 +19,10 @@ public class Context {
     private final String outputDirName;
     private final boolean verbose;
     private final boolean printScreen;
+    private boolean continueExistingModel;
     private Configuration configuration;
+    private ReadAdapter readAdapter;
+    private WriteAdapter writeAdapter;
 
     public Context(String rootUrl, String outputDirName) {
         this.rootUrl = rootUrl;
@@ -131,5 +137,29 @@ public class Context {
         }
 
         return configuration;
+    }
+
+    public boolean continueExistingModel() {
+        return continueExistingModel;
+    }
+
+    public void setContinueExistingModel(boolean continueExistingModel) {
+        this.continueExistingModel = continueExistingModel;
+    }
+
+    public ReadAdapter getReadAdapter() {
+        return readAdapter;
+    }
+
+    public void setReadAdapter(ReadAdapter readAdapter) {
+        this.readAdapter = readAdapter;
+    }
+
+    public WriteAdapter getWriteAdapter() {
+        return writeAdapter;
+    }
+
+    public void setWriteAdapter(WriteAdapter writeAdapter) {
+        this.writeAdapter = writeAdapter;
     }
 }

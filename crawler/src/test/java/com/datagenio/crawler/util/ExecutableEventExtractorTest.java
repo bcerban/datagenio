@@ -55,19 +55,19 @@ public class ExecutableEventExtractorTest {
         var eventables = this.extractor.extract(this.origin, this.root);
         assertTrue(eventables.size() == 3);
         assertTrue(eventables.stream()
-                .filter(e -> e.getIdentifier().equals("button-id") && e.getEventType() == Eventable.EventType.CLICK)
+                .filter(e -> e.getEventIdentifier().equals("button-id") && e.getEventType() == Eventable.EventType.CLICK)
                 .findFirst()
                 .isPresent()
         );
 
         assertTrue(eventables.stream()
-                .filter(e -> e.getIdentifier().equals("anchor-id") && e.getEventType() == Eventable.EventType.CLICK)
+                .filter(e -> e.getEventIdentifier().equals("anchor-id") && e.getEventType() == Eventable.EventType.CLICK)
                 .findFirst()
                 .isPresent()
         );
 
         assertTrue(eventables.stream()
-                .filter(e -> e.getIdentifier().equals("form-id") && e.getEventType() == Eventable.EventType.SUBMIT)
+                .filter(e -> e.getEventIdentifier().equals("form-id") && e.getEventType() == Eventable.EventType.SUBMIT)
                 .findFirst()
                 .isPresent()
         );

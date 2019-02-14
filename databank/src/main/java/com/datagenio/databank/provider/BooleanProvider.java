@@ -6,7 +6,11 @@ import com.github.javafaker.Faker;
 import java.util.Map;
 
 public class BooleanProvider implements InputPovider {
-    private Faker faker = new Faker();
+    private Faker faker;
+
+    public BooleanProvider(Faker faker) {
+        this.faker = faker;
+    }
 
     @Override
     public String provide() {

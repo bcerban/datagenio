@@ -1,7 +1,7 @@
 package com.datagenio.generator.api;
 
-import com.datagenio.model.api.WebFlowGraph;
-import com.datagenio.model.api.WebTransition;
+import com.datagenio.model.WebFlowGraph;
+import com.datagenio.model.WebTransition;
 
 import java.util.List;
 

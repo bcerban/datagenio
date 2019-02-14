@@ -18,21 +18,25 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-public class SimpleCrawler implements com.datagenio.crawler.api.Crawler {
+public class PersistentCrawler implements com.datagenio.crawler.api.Crawler {
 
-    private static Logger logger = LoggerFactory.getLogger(SimpleCrawler.class);
+    private static Logger logger = LoggerFactory.getLogger(PersistentCrawler.class);
 
     private Context context;
     private Browser browser;
     private EventFlowGraph graph;
     private InputBuilder inputBuilder;
 
-    public SimpleCrawler(Context context, Browser browser, InputBuilder inputBuilder) {
+    public PersistentCrawler(Context context, Browser browser, InputBuilder inputBuilder) {
         this.context = context;
         this.browser = browser;
         this.inputBuilder = inputBuilder;
-        graph = new EventFlowGraphImpl();
+
+        if (context.continueExistingModel()) {
+            graph = context.getReadAdapter().loadEventModel();
+        }
     }
+
 
     public Context getContext() {
         return context;
@@ -52,6 +56,7 @@ public class SimpleCrawler implements com.datagenio.crawler.api.Crawler {
 
     @Override
     public EventFlowGraph getGraph() {
+        if (graph == null) graph = new EventFlowGraphImpl();
         return graph;
     }
 
@@ -60,7 +65,7 @@ public class SimpleCrawler implements com.datagenio.crawler.api.Crawler {
         logger.debug("Begin crawling {}...", context.getRootUrl());
 
         try {
-            initCrawl(URI.create(context.getRootUrl()));
+            setUp();
 
             while (!getGraph().getCurrentState().isFinished()) {
                 State current = getGraph().getCurrentState();
@@ -98,7 +103,6 @@ public class SimpleCrawler implements com.datagenio.crawler.api.Crawler {
 
         // TODO: this is temporary. Graph diameter check should take into account disconnected components
         return getGraph().getStates().size() >= context.getCrawlDepth();
-//        return getGraph().getGraphDiameter() >= context.getCrawlDepth();
     }
 
     private void crawlState(State current, Eventable event) throws UncrawlableStateException, BrowserException {
@@ -124,7 +128,7 @@ public class SimpleCrawler implements com.datagenio.crawler.api.Crawler {
             getGraph().addTransition(transition);
 
         } catch (UnsupportedEventTypeException | EventTriggerException e) {
-            logger.info("Tried to crawl invalid event with ID '{}' from {}", event.getIdentifier(), current.getIdentifier());
+            logger.info("Tried to crawl invalid event with ID '{}' from {}", event.getEventIdentifier(), current.getIdentifier());
             event.setStatus(Eventable.Status.FAILED);
             event.setReasonForFailure(e.getMessage());
         } catch (OutOfBoundsException e) {
@@ -172,18 +176,25 @@ public class SimpleCrawler implements com.datagenio.crawler.api.Crawler {
         }
     }
 
-    private void initCrawl(URI root) throws UncrawlableStateException {
+    private void setUp() throws UncrawlableStateException {
+        if (context.continueExistingModel()) {
+            boolean foundUnfinishedState = relocateFrom(getGraph().getRoot());
+            if (!foundUnfinishedState) {
+                throw new UncrawlableStateException("No unfinished states found in model.");
+            }
+        } else {
+            initCrawl();
+        }
+    }
+
+    private void initCrawl() throws UncrawlableStateException {
         try {
+            var root = URI.create(context.getRootUrl());
             browser.navigateTo(root);
             State initial = browser.getCurrentBrowserState();
             getGraph().addStateAsCurrent(initial);
             getGraph().setRoot(initial);
             saveStateScreenShot(initial);
-
-            // TODO: save to init event
-//            Collection<RemoteRequest> requests = getRequestsForEvent(initial);
-//            String requestString = requests.stream().map((r) -> r.toString()).collect(Collectors.joining("\n"));
-//            logger.info("Requests that should be saved to init event: {}", requestString);
         } catch (BrowserException e) {
             logger.debug("Exception happened while trying to initialize EventFlowGraph. Error: {}", e.getMessage());
             throw new UncrawlableStateException(e);

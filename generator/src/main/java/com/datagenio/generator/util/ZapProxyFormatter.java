@@ -1,14 +1,14 @@
 package com.datagenio.generator.util;
 
 import com.datagenio.generator.api.RequestFormatter;
-import com.datagenio.model.api.AbstractHttpRequest;
+import com.datagenio.model.request.AbstractRequest;
 
 import java.util.Map;
 
 public class ZapProxyFormatter implements RequestFormatter {
 
     @Override
-    public String format(AbstractHttpRequest request, Map<String, String> inputs) {
+    public String format(AbstractRequest request, Map<String, String> inputs) {
         return "";
     }
 }

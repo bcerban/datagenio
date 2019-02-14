@@ -1,9 +1,9 @@
 package com.datagenio.generator.api;
 
-import com.datagenio.model.api.AbstractHttpRequest;
+import com.datagenio.model.request.AbstractRequest;
 
 import java.util.Map;
 
 public interface RequestFormatter {
-    String format(AbstractHttpRequest request, Map<String, String> inputs);
+    String format(AbstractRequest request, Map<String, String> inputs);
 }

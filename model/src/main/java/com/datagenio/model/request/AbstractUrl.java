@@ -1,66 +1,56 @@
 package com.datagenio.model.request;
 
-import com.datagenio.model.api.AbstractUrl;
-import com.datagenio.model.api.ParamTypes;
-import com.datagenio.model.api.TypedParam;
-import org.apache.commons.lang.StringUtils;
+import com.datagenio.model.ParamTypes;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-public class AbstractUrlImpl implements AbstractUrl {
+public class AbstractUrl {
     private String baseUrl;
-    private Collection<TypedParam> params;
+    private Collection<TypedParam> typedParams;
 
-    public AbstractUrlImpl() {
-        this.params = new ArrayList<>();
-    }
-
-    public AbstractUrlImpl(String baseUrl) {
+    public AbstractUrl(String baseUrl) {
         this.baseUrl = baseUrl;
-        this.params = new ArrayList<>();
+        this.typedParams = new ArrayList<>();
     }
 
-    @Override
+    public AbstractUrl(String baseUrl, Collection<TypedParam> typedParams) {
+        this.baseUrl = baseUrl;
+        this.typedParams = typedParams;
+    }
+
     public String getBaseUrl() {
         return baseUrl;
     }
 
-    @Override
     public void setBaseUrl(String baseUrl) {
         this.baseUrl = baseUrl;
     }
 
-    @Override
     public Collection<TypedParam> getTypedParams() {
-        return params;
+        return typedParams;
     }
 
-    @Override
     public void setTypedParams(Collection<TypedParam> params) {
-        this.params = params;
+        this.typedParams = params;
     }
 
-    @Override
     public void addTypedParam(TypedParam param) {
-        this.params.add(param);
+        this.typedParams.add(param);
     }
 
-    @Override
     public void addTypedParam(String name, ParamTypes type) {
-        this.addTypedParam(new TypedParamImpl(name, type, false));
+        this.addTypedParam(new TypedParam(name, type, false));
     }
 
-    @Override
     public void addTypedParam(String name, ParamTypes type, boolean required) {
-        this.params.add(new TypedParamImpl(name, type, required));
+        this.typedParams.add(new TypedParam(name, type, required));
     }
 
-    @Override
     public Collection<TypedParam> getRequiredParams() {
-        return this.params.stream().filter(p -> p.isRequired()).collect(Collectors.toList());
+        return this.typedParams.stream().filter(p -> p.isRequired()).collect(Collectors.toList());
     }
 
     @Override
@@ -68,19 +58,19 @@ public class AbstractUrlImpl implements AbstractUrl {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        AbstractUrlImpl that = (AbstractUrlImpl) o;
+        AbstractUrl that = (AbstractUrl) o;
         return Objects.equals(baseUrl, that.baseUrl) &&
                 Objects.equals(this.getRequiredParams(), that.getRequiredParams());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(baseUrl, params);
+        return Objects.hash(baseUrl, typedParams);
     }
 
     @Override
     public String toString() {
-        String ps = params.stream().map(p -> "{" + p.getName() + "}").collect(Collectors.joining("&"));
-        return params.isEmpty() ? baseUrl : String.format("%s?%s", baseUrl, ps);
+        String ps = typedParams.stream().map(p -> "{" + p.getName() + "}").collect(Collectors.joining("&"));
+        return typedParams.isEmpty() ? baseUrl : String.format("%s?%s", baseUrl, ps);
     }
 }

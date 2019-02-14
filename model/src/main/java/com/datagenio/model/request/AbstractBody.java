@@ -1,38 +1,31 @@
 package com.datagenio.model.request;
 
-import com.datagenio.model.api.AbstractHttpBody;
-import com.datagenio.model.api.TypedParam;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-public class AbstractBody implements AbstractHttpBody {
-    private Collection<TypedParam> properties;
+public class AbstractBody {
+    private Collection<TypedParam> typedParams;
 
     public AbstractBody() {
-        this.properties = new ArrayList<>();
+        this.typedParams = new ArrayList<>();
     }
 
-    @Override
-    public Collection<TypedParam> getProperties() {
-        return properties;
+    public Collection<TypedParam> getTypedParams() {
+        return typedParams;
     }
 
-    @Override
-    public void setProperties(Collection<TypedParam> properties) {
-        this.properties = properties;
+    public void setTypedParams(Collection<TypedParam> typedParams) {
+        this.typedParams = typedParams;
     }
 
-    @Override
     public void addProperty(TypedParam param) {
-        this.properties.add(param);
+        typedParams.add(param);
     }
 
-    @Override
-    public Collection<TypedParam> getRequiredProperties() {
-        return this.properties.stream().filter(p -> p.isRequired()).collect(Collectors.toList());
+    public Collection<TypedParam> getRequiredParams() {
+        return this.typedParams.stream().filter(p -> p.isRequired()).collect(Collectors.toList());
     }
 
     @Override
@@ -40,11 +33,11 @@ public class AbstractBody implements AbstractHttpBody {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         AbstractBody that = (AbstractBody) o;
-        return Objects.equals(this.getRequiredProperties(), that.getRequiredProperties());
+        return Objects.equals(getRequiredParams(), that.getRequiredParams());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(properties);
+        return Objects.hash(typedParams);
     }
 }

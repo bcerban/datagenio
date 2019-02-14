@@ -9,8 +9,8 @@ public class RegexProvider implements InputPovider {
 
     private Faker faker;
 
-    public RegexProvider() {
-        faker = new Faker();
+    public RegexProvider(Faker faker) {
+        this.faker = faker;
     }
 
     @Override

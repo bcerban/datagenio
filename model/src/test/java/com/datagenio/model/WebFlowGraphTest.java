@@ -1,7 +1,7 @@
 package com.datagenio.model;
 
 import com.datagenio.model.exception.InvalidTransitionException;
-import com.datagenio.model.request.AbstractUrlImpl;
+import com.datagenio.model.request.AbstractUrl;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -10,11 +10,11 @@ import static org.junit.Assert.*;
 
 public class WebFlowGraphTest {
 
-    private WebFlowGraphImpl graph;
+    private WebFlowGraph graph;
 
     @Before
     public void setUp() {
-        this.graph = new WebFlowGraphImpl();
+        this.graph = new WebFlowGraph();
     }
 
     @Test
@@ -29,15 +29,15 @@ public class WebFlowGraphTest {
 
     @Test
     public void testAddStateNew() {
-        var state = new WebStateImpl(new AbstractUrlImpl("added_state_url"));
+        var state = new WebState(new AbstractUrl("added_state_url"));
         this.graph.addState(state);
         assertTrue(this.graph.getStates().contains(state));
     }
 
     @Test
     public void testAddStateAlreadyExists() {
-        var state = new WebStateImpl(new AbstractUrlImpl("added_state_url"));
-        var newState = new WebStateImpl(state.getUrl());
+        var state = new WebState(new AbstractUrl("added_state_url"));
+        var newState = new WebState(state.getUrl());
 
         this.graph.addState(state);
         this.graph.addState(newState);
@@ -71,14 +71,14 @@ public class WebFlowGraphTest {
         this.graph.addState(transition.getOrigin());
         this.graph.addState(transition.getDestination());
         this.graph.addTransition(transition);
-        this.graph.addTransition(new WebTransitionImpl(transition.getOrigin(), transition.getDestination()));
+        this.graph.addTransition(new WebTransition(transition.getOrigin(), transition.getDestination()));
 
         assertEquals(1, this.graph.getTransitions().size());
     }
 
-    private WebTransitionImpl getTestTransition() {
-        var origin = new WebStateImpl(new AbstractUrlImpl("origin"));
-        var destination = new WebStateImpl(new AbstractUrlImpl("destination"));
-        return new WebTransitionImpl(origin, destination);
+    private WebTransition getTestTransition() {
+        var origin = new WebState(new AbstractUrl("origin"));
+        var destination = new WebState(new AbstractUrl("destination"));
+        return new WebTransition(origin, destination);
     }
 }

@@ -79,13 +79,13 @@ public class ExecutableEventTest {
 
     @Test
     public void testGetIdentifierID() {
-        assertEquals("button-id", this.executableEvent.getIdentifier());
+        assertEquals("button-id", this.executableEvent.getEventIdentifier());
     }
 
     @Test
     public void testGetIdentifierXPath() {
         this.button.attr("id", null);
-        assertEquals("/html/body/span[1]/button", this.executableEvent.getIdentifier());
+        assertEquals("/html/body/span[1]/button", this.executableEvent.getEventIdentifier());
     }
 
     @Test
@@ -108,13 +108,6 @@ public class ExecutableEventTest {
     @Test
     public void testEqualsDiffSourceIdentifier() {
         ExecutableEvent other = new ExecutableEvent(this.img, Eventable.EventType.CLICK);
-        assertFalse(this.executableEvent.equals(other));
-    }
-
-    @Test
-    public void testEqualsDiffHandler() {
-        ExecutableEvent other = new ExecutableEvent(this.button, Eventable.EventType.CLICK);
-        other.setHandler("testHandlerAction");
         assertFalse(this.executableEvent.equals(other));
     }
 }

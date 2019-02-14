@@ -89,11 +89,11 @@ public class DrivenBrowserTest {
 
         String xpath = "/html/body/span[1]/button";
         when(event.getXpath()).thenReturn(xpath);
-        when(event.getIdentifier()).thenReturn(xpath);
+        when(event.getEventIdentifier()).thenReturn(xpath);
         when(driver.findElement(any(By.class))).thenReturn(null);
         browser.triggerEvent(event, null);
 
-        verify(event, times(2)).getIdentifier();
+        verify(event, times(2)).getEventIdentifier();
         verify(event, times(1)).getXpath();
     }
 
@@ -104,13 +104,13 @@ public class DrivenBrowserTest {
 
         String xpath = "/html/body/span[1]/button";
         when(event.getXpath()).thenReturn(xpath);
-        when(event.getIdentifier()).thenReturn(xpath);
+        when(event.getEventIdentifier()).thenReturn(xpath);
         when(event.getEventType()).thenReturn(Eventable.EventType.CLICK);
         doThrow(new StaleElementReferenceException("")).when(element).click();
 
         browser.triggerEvent(event, null);
 
-        verify(event, times(2)).getIdentifier();
+        verify(event, times(2)).getEventIdentifier();
         verify(event, times(1)).getXpath();
     }
 
@@ -121,14 +121,14 @@ public class DrivenBrowserTest {
 
         String xpath = "/html/body/span[1]/button";
         when(event.getXpath()).thenReturn(xpath);
-        when(event.getIdentifier()).thenReturn(xpath);
+        when(event.getEventIdentifier()).thenReturn(xpath);
         when(event.getEventType()).thenReturn(Eventable.EventType.CLICK);
         when(driver.findElement(any(By.class))).thenReturn(element);
         doThrow(new ElementNotInteractableException("")).when(element).click();
 
         browser.triggerEvent(event, null);
 
-        verify(event, times(2)).getIdentifier();
+        verify(event, times(2)).getEventIdentifier();
         verify(event, times(1)).getXpath();
     }
 
@@ -139,14 +139,14 @@ public class DrivenBrowserTest {
 
         String xpath = "/html/body/span[1]/button";
         when(event.getXpath()).thenReturn(xpath);
-        when(event.getIdentifier()).thenReturn(xpath);
+        when(event.getEventIdentifier()).thenReturn(xpath);
         when(event.getEventType()).thenReturn(Eventable.EventType.CLICK);
         when(driver.findElement(any(By.class))).thenReturn(element);
         when(driver.getPageSource()).thenReturn("");
 
         browser.triggerEvent(event, null);
 
-        verify(event, times(2)).getIdentifier();
+        verify(event, times(2)).getEventIdentifier();
         verify(event, times(1)).getXpath();
     }
 
@@ -158,7 +158,7 @@ public class DrivenBrowserTest {
 
         String xpath = "/html/body/span[1]/button";
         when(event.getXpath()).thenReturn(xpath);
-        when(event.getIdentifier()).thenReturn(xpath);
+        when(event.getEventIdentifier()).thenReturn(xpath);
         when(event.getEventType()).thenReturn(Eventable.EventType.SUBMIT);
         when(driver.findElement(any(By.class))).thenReturn(element);
         when(event.getSource()).thenReturn(source);
@@ -169,7 +169,7 @@ public class DrivenBrowserTest {
 
         browser.triggerEvent(event, new HashMap<>());
 
-        verify(event, times(2)).getIdentifier();
+        verify(event, times(2)).getEventIdentifier();
         verify(event, times(1)).getXpath();
     }
 
@@ -181,7 +181,7 @@ public class DrivenBrowserTest {
 
         String xpath = "/html/body/span[1]/button";
         when(event.getXpath()).thenReturn(xpath);
-        when(event.getIdentifier()).thenReturn(xpath);
+        when(event.getEventIdentifier()).thenReturn(xpath);
         when(event.getEventType()).thenReturn(Eventable.EventType.SUBMIT);
         when(event.getSource()).thenReturn(source);
         when(driver.findElement(any(By.class))).thenReturn(element);
@@ -192,7 +192,7 @@ public class DrivenBrowserTest {
 
         browser.triggerEvent(event, new HashMap<>());
 
-        verify(event, times(2)).getIdentifier();
+        verify(event, times(2)).getEventIdentifier();
         verify(event, times(1)).getXpath();
     }
 
@@ -204,7 +204,7 @@ public class DrivenBrowserTest {
 
         String xpath = "/html/body/span[1]/button";
         when(event.getXpath()).thenReturn(xpath);
-        when(event.getIdentifier()).thenReturn(xpath);
+        when(event.getEventIdentifier()).thenReturn(xpath);
         when(event.getEventType()).thenReturn(Eventable.EventType.SUBMIT);
         when(event.getSource()).thenReturn(source);
         when(driver.findElement(any(By.class))).thenReturn(element);
@@ -215,7 +215,7 @@ public class DrivenBrowserTest {
 
         browser.triggerEvent(event, new HashMap<>());
 
-        verify(event, times(2)).getIdentifier();
+        verify(event, times(2)).getEventIdentifier();
         verify(event, times(1)).getXpath();
     }
 
@@ -227,7 +227,7 @@ public class DrivenBrowserTest {
 
         String xpath = "/html/body/span[1]/button";
         when(event.getXpath()).thenReturn(xpath);
-        when(event.getIdentifier()).thenReturn(xpath);
+        when(event.getEventIdentifier()).thenReturn(xpath);
         when(event.getEventType()).thenReturn(Eventable.EventType.SUBMIT);
         when(event.getSource()).thenReturn(source);
         when(driver.findElement(any(By.class))).thenReturn(element);
@@ -238,7 +238,7 @@ public class DrivenBrowserTest {
 
         browser.triggerEvent(event, new HashMap<>());
 
-        verify(event, times(2)).getIdentifier();
+        verify(event, times(2)).getEventIdentifier();
         verify(event, times(1)).getXpath();
         verify(element, times(1)).click();
     }
@@ -250,13 +250,13 @@ public class DrivenBrowserTest {
 
         String xpath = "/html/body/span[1]/button";
         when(event.getXpath()).thenReturn(xpath);
-        when(event.getIdentifier()).thenReturn(xpath);
+        when(event.getEventIdentifier()).thenReturn(xpath);
         when(event.getEventType()).thenReturn(Eventable.EventType.HOVER);
         when(driver.findElement(any(By.class))).thenReturn(element);
 
         browser.triggerEvent(event, new HashMap<>());
 
-        verify(event, times(1)).getIdentifier();
+        verify(event, times(1)).getEventIdentifier();
         verify(event, times(1)).getXpath();
     }
 }

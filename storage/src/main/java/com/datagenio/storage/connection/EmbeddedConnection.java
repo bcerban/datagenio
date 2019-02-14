@@ -1,5 +1,6 @@
 package com.datagenio.storage.connection;
 
+import com.datagenio.storageapi.Properties;
 import com.datagenio.storageapi.StorageException;
 import org.neo4j.graphdb.*;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
@@ -7,10 +8,8 @@ import org.neo4j.graphdb.schema.IndexDefinition;
 import org.neo4j.graphdb.schema.Schema;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class EmbeddedConnection extends AbstractConnection {
     public static String STORAGE_DIRECTORY = "data";
@@ -19,6 +18,7 @@ public class EmbeddedConnection extends AbstractConnection {
 
     private File outputDirectory;
     private GraphDatabaseFactory databaseFactory;
+    private GraphDatabaseService dbService;
 
     public EmbeddedConnection(String outputDirectoryName, GraphDatabaseFactory databaseFactory) {
         this.databaseFactory = databaseFactory;
@@ -31,11 +31,13 @@ public class EmbeddedConnection extends AbstractConnection {
 
     @Override
     public GraphDatabaseService create(String name) {
-        File databaseFile = new File(outputDirectory, generateDatabaseName(name, PREFIX_COMBINED));
-        GraphDatabaseService service = databaseFactory.newEmbeddedDatabase(databaseFile);
-        registerShutdownHook(service);
-//        addIndexOnProperty(service, Label.label(Labels.WEB_STATE), Properties.IDENTIFICATION);
-        return service;
+        if (dbService == null) {
+            File databaseFile = new File(outputDirectory, generateDatabaseName(name, PREFIX_COMBINED));
+            dbService = databaseFactory.newEmbeddedDatabase(databaseFile);
+            registerShutdownHook(dbService);
+        }
+
+        return dbService;
     }
 
     @Override
@@ -91,6 +93,13 @@ public class EmbeddedConnection extends AbstractConnection {
     }
 
     @Override
+    public Collection<Map<String, Object>> findNodesAsMap(GraphDatabaseService graph, Label label) throws StorageException {
+        validateConnection(graph);
+        String query = String.format("MATCH (n:%s) RETURN properties(n)", label.toString());
+        return execute(graph, query, "properties(n)");
+    }
+
+    @Override
     public ResourceIterator<Node> findNodes(GraphDatabaseService graph, Label label, Map<String, Object> properties) throws StorageException {
         validateConnection(graph);
 
@@ -105,12 +114,90 @@ public class EmbeddedConnection extends AbstractConnection {
     }
 
     @Override
-    public Collection<Node> findNodes(GraphDatabaseService graph, Label label, String where) throws StorageException {
+    public Collection<Node> findNodes(GraphDatabaseService graph, Label label, String query) throws StorageException {
+        validateConnection(graph);
+        return executeNodeSearchQuery(graph, query);
+    }
+
+    @Override
+    public Collection<Map<String, Object>> findEdges(GraphDatabaseService graph, RelationshipType relationshipType) throws StorageException {
+        validateConnection(graph);
+        String query = String.format(
+                "MATCH (origin)-[rel:%s]-(dest) RETURN origin.%s, dest.%s, properties(rel)",
+                relationshipType.toString(),
+                Properties.IDENTIFICATION,
+                Properties.IDENTIFICATION
+        );
+        return execute(graph, query);
+    }
+
+    @Override
+    public Collection<Map<String, Object>> execute(GraphDatabaseService graph, String query) throws StorageException {
         validateConnection(graph);
 
-        var nodes = new ArrayList<Node>();
-        String query = String.format("MATCH (n:%s) WHERE %s RETURN n", label.toString(), where);
+        var results = new ArrayList<Map<String, Object>>();
+        try (Transaction tx = graph.beginTx()) {
+            var queryResult = graph.execute(query);
 
+            while(queryResult.hasNext()) {
+                results.add(queryResult.next());
+            }
+            tx.success();
+        } catch (Exception e) {
+            throw new StorageException("Couldn't execute query.", e);
+        }
+
+        return results;
+    }
+
+    @Override
+    public Collection<Map<String, Object>> execute(GraphDatabaseService graph, String query, String key) throws StorageException {
+        validateConnection(graph);
+
+        var results = new ArrayList<Map<String, Object>>();
+        try (Transaction tx = graph.beginTx()) {
+            var queryResult = graph.execute(query);
+
+            while(queryResult.hasNext()) {
+                results.add((Map<String, Object>)queryResult.next().get(key));
+            }
+            tx.success();
+        } catch (Exception e) {
+            throw new StorageException("Couldn't execute query.", e);
+        }
+
+        return results;
+    }
+
+    @Override
+    public boolean areConnected(String firstIdentifier, String secondIdentifier, List<RelationshipType> relationshipTypes) throws StorageException {
+        validateConnection(dbService);
+
+        boolean connected = false;
+        try (Transaction tx = dbService.beginTx()) {
+            String relations = relationshipTypes.stream()
+                    .map(rel -> ":" + rel.name())
+                    .collect(Collectors.joining("|"));
+            String query = String.format(
+                    "EXISTS(({identifier: \"%s\"})-[%s]-({identifier: \"%s\"}))",
+                    firstIdentifier, relations, secondIdentifier
+            );
+            var queryResult = dbService.execute("RETURN " + query);
+            while (queryResult.hasNext()) {
+                var next = queryResult.next();
+                connected = (boolean)next.getOrDefault(query, false);
+            }
+
+            tx.success();
+        } catch (Exception e) {
+            throw new StorageException("Couldn't execute query.", e);
+        }
+
+        return connected;
+    }
+
+    private Collection<Node> executeNodeSearchQuery(GraphDatabaseService graph, String query) {
+        var nodes = new ArrayList<Node>();
         try (Transaction tx = graph.beginTx()) {
             Result result = graph.execute(query);
 

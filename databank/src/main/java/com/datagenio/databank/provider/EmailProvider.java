@@ -8,8 +8,8 @@ import java.util.Map;
 public class EmailProvider implements InputPovider {
     private Faker faker;
 
-    public EmailProvider() {
-        faker = new Faker();
+    public EmailProvider(Faker faker) {
+        this.faker = faker;
     }
 
     @Override
