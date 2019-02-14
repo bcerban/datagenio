@@ -105,13 +105,19 @@ public class Neo4JWriteAdapter implements WriteAdapter {
                 logger.info("Saving state {}.", state.getIdentifier());
 
                 Node stateNode = addOrUpdate(state);
+
+                /**
+                 * Unfired event should be deleted and re-added, since:
+                 * 1. It is faster than searching for each one
+                 * 2. It is more efficient than looking for the ones that were executed and deleting those
+                 */
+                deleteUnfiredEvents(state);
                 state.getUnfiredEventables().forEach(event -> {
-                    Node eventNode = addOrUpdateEventNode(event);
+
+                    Node eventNode = addEventNode(event);
                     if (eventNode != null) {
                         try {
-                            if (!connection.areConnected(state.getIdentifier(), event.getId(), List.of(Relationships.NON_EXECUTED_EVENT))) {
-                                connection.addEdge(combinedGraph, stateNode, eventNode, Relationships.NON_EXECUTED_EVENT, new HashMap<>());
-                            }
+                            connection.addEdge(combinedGraph, stateNode, eventNode, Relationships.NON_EXECUTED_EVENT, new HashMap<>());
                         } catch (StorageException e) {
                             logger.info("Failed to save unfired event transition from {}: {}", state.getIdentifier(), e.getMessage(), e);
                         }
@@ -131,7 +137,7 @@ public class Neo4JWriteAdapter implements WriteAdapter {
             stateNode = connection.findNode(combinedGraph, Label.label(Labels.EVENT_STATE), Map.of(Properties.IDENTIFICATION, state.getIdentifier()));
             // update properties...
             String sets = properties.keySet().stream()
-                    .map(prop -> "s." + prop + " = \"" + properties.get(prop).toString() + "\"")
+                    .map(prop -> "s." + prop + " = \"" + properties.get(prop).toString().replaceAll("\"", "'") + "\"")
                     .collect(Collectors.joining(", "));
 
             String query = String.format(
@@ -158,7 +164,7 @@ public class Neo4JWriteAdapter implements WriteAdapter {
             stateNode = connection.findNode(combinedGraph, Label.label(Labels.WEB_STATE), Map.of(Properties.IDENTIFICATION, state.getIdentifier()));
             // update properties...
             String sets = properties.keySet().stream()
-                    .map(prop -> "s." + prop + " = \"" + properties.get(prop).toString() + "\"")
+                    .map(prop -> "s." + prop + " = \"" + properties.get(prop).toString().replaceAll("\"", "'") + "\"")
                     .collect(Collectors.joining(", "));
 
             String query = String.format(
@@ -255,31 +261,12 @@ public class Neo4JWriteAdapter implements WriteAdapter {
         return node;
     }
 
-    private Node addOrUpdateEventNode(Eventable event) {
-        var properties = buildEventProperties(event);
+    private Node addEventNode(Eventable event) {
         Node eventNode = null;
         try {
-            eventNode = findEventNode(event);
-
-            String sets = properties.keySet().stream()
-                    .map(prop -> "s." + prop + " = \"" + properties.get(prop).toString() + "\"")
-                    .collect(Collectors.joining(", "));
-
-            String query = String.format(
-                    "MATCH (e:%s {%s: \"%s\"}) SET %s RETURN s.%s",
-                    Labels.EVENT,
-                    Properties.IDENTIFICATION,
-                    event.getId(),
-                    sets,
-                    Properties.IDENTIFICATION
-            );
-            connection.execute(combinedGraph, query);
+            eventNode = connection.addNode(combinedGraph, Label.label(Labels.EVENT), buildEventProperties(event));
         } catch (StorageException e) {
-            try {
-                eventNode = connection.addNode(combinedGraph, Label.label(Labels.EVENT), properties);
-            } catch (StorageException s) {
-                logger.info("Failed to save event: " + e.getMessage(), e);
-            }
+            logger.info("Failed to save event: " + e.getMessage(), e);
         }
 
         return eventNode;
@@ -301,6 +288,23 @@ public class Neo4JWriteAdapter implements WriteAdapter {
 
     private boolean addEventNodeAsJson() {
         return configuration.get(Configuration.REQUEST_SAVE_MODE).equals(Configuration.REQUEST_SAVE_AS_JSON);
+    }
+
+    private void deleteUnfiredEvents(State state) {
+        String query = String.format(
+                "MATCH (p:%s {%s: \"%s\"})-[r:%s]->(e:%s) DETACH DELETE e",
+                Labels.EVENT_STATE,
+                Properties.IDENTIFICATION,
+                state.getIdentifier(),
+                Relationships.NON_EXECUTED_EVENT,
+                Labels.EVENT
+        );
+
+        try {
+            connection.execute(combinedGraph, query);
+        } catch (StorageException e) {
+            logger.info("Events for state {} could not be deleted.", state.getIdentifier(), e);
+        }
     }
 
     private Node findWebNode(WebState state) throws StorageException {
