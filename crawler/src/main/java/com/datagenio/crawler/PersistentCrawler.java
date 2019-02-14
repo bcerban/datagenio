@@ -6,6 +6,7 @@ import com.datagenio.crawler.exception.*;
 import com.datagenio.crawler.model.EventFlowGraphImpl;
 import com.datagenio.crawler.model.ExecutedEvent;
 import com.datagenio.crawler.model.Transition;
+import com.datagenio.crawler.util.HtmlSaver;
 import com.datagenio.crawler.util.ScreenShotSaver;
 import com.datagenio.crawler.util.SiteBoundChecker;
 import com.datagenio.databank.api.InputBuilder;
@@ -115,6 +116,7 @@ public class PersistentCrawler implements com.datagenio.crawler.api.Crawler {
             if (getGraph().isNewState(newState)) {
                 getGraph().addStateAsCurrent(newState);
                 saveStateScreenShot(newState);
+                saveStateHtml(newState);
             } else {
                 newState = getGraph().find(newState);
             }
@@ -195,6 +197,7 @@ public class PersistentCrawler implements com.datagenio.crawler.api.Crawler {
             getGraph().addStateAsCurrent(initial);
             getGraph().setRoot(initial);
             saveStateScreenShot(initial);
+            saveStateHtml(initial);
         } catch (BrowserException e) {
             logger.debug("Exception happened while trying to initialize EventFlowGraph. Error: {}", e.getMessage());
             throw new UncrawlableStateException(e);
@@ -259,6 +262,19 @@ public class PersistentCrawler implements com.datagenio.crawler.api.Crawler {
                 }
             }).start();
         }
+    }
+
+    private void saveStateHtml(State state) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    state.setDocumentFilePath(HtmlSaver.saveHtml(state.getDocument().toString(), state.getIdentifier(), context.getOutputDirName()));
+                } catch (PersistenceException e) {
+                    logger.info(e.getMessage(), e);
+                }
+            }
+        }).start();
     }
 
     private void handleClosing() {

@@ -88,12 +88,18 @@ public class Neo4JReadAdapter implements ReadAdapter {
                 var state = eventStateTranslator.translateFrom(stateNode);
 
                 Collection<Eventable> unfiredEvents = findUnfiredEventsFor(state).stream()
-                        .map(unfiredEventNode -> eventableTranslator.translateFrom(unfiredEventNode))
-                        .collect(Collectors.toList());
+                        .map(unfiredEventNode -> {
+                            var translatedEvent = eventableTranslator.translateFrom(unfiredEventNode);
+                            translatedEvent.setParent(state.getDocument());
+                            return translatedEvent;
+                        }).collect(Collectors.toList());
 
                 Collection<Eventable> firedEvents = findFiredEventsFor(state).stream()
-                        .map(firedEventNode -> eventableTranslator.translateFrom(firedEventNode))
-                        .collect(Collectors.toList());
+                        .map(firedEventNode -> {
+                            var translatedEvent = eventableTranslator.translateFrom(firedEventNode);
+                            translatedEvent.setParent(state.getDocument());
+                            return translatedEvent;
+                        }).collect(Collectors.toList());
 
                 state.setUnfiredEventables(unfiredEvents);
                 unfiredEvents.addAll(firedEvents);

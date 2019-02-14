@@ -123,7 +123,7 @@ public class EmbeddedConnection extends AbstractConnection {
     public Collection<Map<String, Object>> findEdges(GraphDatabaseService graph, RelationshipType relationshipType) throws StorageException {
         validateConnection(graph);
         String query = String.format(
-                "MATCH (origin)-[rel:%s]-(dest) RETURN origin.%s, dest.%s, properties(rel)",
+                "MATCH (origin)-[rel:%s]->(dest) RETURN origin.%s, dest.%s, properties(rel)",
                 relationshipType.toString(),
                 Properties.IDENTIFICATION,
                 Properties.IDENTIFICATION

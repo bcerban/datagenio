@@ -19,6 +19,7 @@ public interface State {
     boolean isRoot();
     boolean hasScreenShot();
     File getScreenShot();
+    String getDocumentFilePath();
 
     void setIdentifier(String identifier);
     void setUri(URI uri);
@@ -28,4 +29,5 @@ public interface State {
     void markEventAsFired(ExecutedEventable event);
     void setScreenShot(File screenshot);
     void setIsRoot(boolean isRoot);
+    void setDocumentFilePath(String path);
 }

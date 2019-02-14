@@ -23,6 +23,7 @@ public class StateImpl implements State {
     private File screenShot;
     private boolean isRoot;
     private String uid;
+    private String documentFilePath;
 
     public StateImpl() {
         eventables = new ArrayList<>();
@@ -89,6 +90,11 @@ public class StateImpl implements State {
     }
 
     @Override
+    public String getDocumentFilePath() {
+        return documentFilePath;
+    }
+
+    @Override
     public boolean hasScreenShot() {
         return screenShot != null;
     }
@@ -112,6 +118,11 @@ public class StateImpl implements State {
     @Override
     public void setIsRoot(boolean isRoot) {
         this.isRoot = isRoot;
+    }
+
+    @Override
+    public void setDocumentFilePath(String path) {
+        this.documentFilePath = path;
     }
 
     @Override

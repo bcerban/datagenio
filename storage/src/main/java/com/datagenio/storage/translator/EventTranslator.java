@@ -4,22 +4,13 @@ import com.datagenio.crawler.api.Eventable;
 import com.datagenio.crawler.model.ExecutableEvent;
 import com.datagenio.storageapi.Properties;
 import com.datagenio.storageapi.Translator;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public class EventTranslator implements Translator<Eventable, Map<String, Object>> {
-
-    private Gson gson;
-
-    public EventTranslator() {
-        gson = new GsonBuilder().setPrettyPrinting().create();
-    }
 
     @Override
     public Map<String, Object> buildProperties(Eventable original) {
@@ -32,7 +23,6 @@ public class EventTranslator implements Translator<Eventable, Map<String, Object
         properties.put(Properties.ELEMENT, original.getSource().toString());
         properties.put(Properties.STATUS, original.getStatus().toString());
         properties.put(Properties.IS_NAV, (original.isNavigation() ? BOOLEAN_TRUE : BOOLEAN_FALSE));
-        properties.put(Properties.PARENT, original.getParent().toString());
 
         if (original.getStatus().equals(Eventable.Status.FAILED)) {
             properties.put(Properties.REASON_FOR_FAILRE, original.getReasonForFailure());
@@ -44,7 +34,6 @@ public class EventTranslator implements Translator<Eventable, Map<String, Object
     @Override
     public Eventable translateFrom(Map<String, Object> translated) {
         Element source = Jsoup.parseBodyFragment((String)translated.get(Properties.ELEMENT)).body().child(0);
-        Document parent = Jsoup.parse((String)translated.get(Properties.PARENT));
         Eventable.EventType type = Eventable.EventType.valueOf((String)translated.get(Properties.EVENT_TYPE));
 
         Eventable event = new ExecutableEvent();
@@ -55,7 +44,6 @@ public class EventTranslator implements Translator<Eventable, Map<String, Object
         event.setReasonForFailure((String)translated.get(Properties.REASON_FOR_FAILRE));
         event.setEventType(type);
         event.setSource(source);
-        event.setParent(parent);
         event.setIsNavigation(translated.get(Properties.IS_NAV).equals(BOOLEAN_TRUE));
 
         return event;
