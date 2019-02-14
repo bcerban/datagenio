@@ -3,25 +3,30 @@ package com.datagenio.crawler.util;
 import com.datagenio.crawler.exception.PersistenceException;
 import net.lightbody.bmp.core.har.Har;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 
-public class HarSaver {
-    public static String HAR_DIRECTORY = "hars";
-    public static String HAR_SUFFIX = "har";
+public class HtmlSaver {
+    public static String HTML_DIRECTORY = "html";
+    public static String HTML_SUFFIX = "html";
 
-    public static void saveHarFile(Har har, String fileName, String outputDirectoryName) throws PersistenceException {
+    public static String saveHtml(String content, String fileName, String outputDirectoryName) throws PersistenceException {
         File outputDirectory = getValidOutputDirectory(outputDirectoryName);
-        File harFile = new File(outputDirectory, fileName + "." + HAR_SUFFIX);
+        File htmlFile = new File(outputDirectory, fileName + "." + HTML_SUFFIX);
         try {
-            har.writeTo(harFile);
+            BufferedWriter writer = new BufferedWriter(new FileWriter(htmlFile));
+            writer.write(content);
+            writer.close();
+            return htmlFile.getAbsolutePath();
         } catch (IOException e) {
-            throw new PersistenceException("Can't save har.", e);
+            throw new PersistenceException("Can't save html file.", e);
         }
     }
 
     private static File getValidOutputDirectory(String directoryName) {
-        File directory = new File(directoryName, HAR_DIRECTORY);
+        File directory = new File(directoryName, HTML_DIRECTORY);
         if (!directory.exists()) {
             directory.mkdir();
         }
