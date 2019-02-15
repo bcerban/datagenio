@@ -11,6 +11,12 @@ import java.util.*;
 
 public class ExecutableEventExtractor implements EventableExtractor {
 
+    public static final String NAV_MATCHER = "nav, header";
+    public static final String ATTR_STYLE = "style";
+    public static final String ATTR_HIDDEN = "hidden";
+    public static final String ATTR_ARIA_HIDDEN = "aria-hidden";
+    public static final String ATTR_VISIBILITY_HIDDEN = "visibility: hidden";
+
     private Collection<ExtractionRule> rules;
 
     public ExecutableEventExtractor(Collection<ExtractionRule> rules) {
@@ -25,7 +31,8 @@ public class ExecutableEventExtractor implements EventableExtractor {
         this.rules = rules;
     }
 
-    public Collection<Eventable> extract(State origin, Element node) {
+    @Override
+    public List<Eventable> extract(State origin, Element node) {
         var eventables = new ArrayList<Eventable>();
 
         if (isEventableElement(node)) {
@@ -33,21 +40,21 @@ public class ExecutableEventExtractor implements EventableExtractor {
             eventable.setIsNavigation(isNavigationElement(node));
             eventables.add(eventable);
         } else {
-            node.children().forEach(child -> eventables.addAll(extract(origin, child)));
+            if (!isHidden(node)) node.children().forEach(child -> eventables.addAll(extract(origin, child)));
         }
 
         return eventables;
     }
 
     @Override
-    public Collection<Eventable> extractSorted(State origin, Element node, Comparator comparator) {
+    public List<Eventable> extractSorted(State origin, Element node, Comparator comparator) {
         List<Eventable> events = new ArrayList<>(extract(origin, node));
         Collections.sort(events, comparator);
         return events;
     }
 
-    public Element findSubmitableChild(Element element) {
-        if (isSubmitableElement(element)) {
+    public Element findSubmittableChild(Element element) {
+        if (isSubmittableElement(element)) {
             return element;
         }
 
@@ -55,13 +62,13 @@ public class ExecutableEventExtractor implements EventableExtractor {
         var iterator = element.children().iterator();
         while (iterator.hasNext() && found == null) {
             var child = iterator.next();
-            found = findSubmitableChild(child);
+            found = findSubmittableChild(child);
         }
 
         return found;
     }
 
-    private boolean isSubmitableElement(Element element) {
+    private boolean isSubmittableElement(Element element) {
         boolean isSubmitable = false;
 
         String type = element.attr("type");
@@ -95,14 +102,18 @@ public class ExecutableEventExtractor implements EventableExtractor {
         return Eventable.EventType.CLICK;
     }
 
+    private boolean isHidden(Element element) {
+        String style = element.attr(ATTR_STYLE);
+        return element.hasAttr(ATTR_HIDDEN) || element.hasAttr(ATTR_ARIA_HIDDEN) || style.contains(ATTR_VISIBILITY_HIDDEN);
+    }
+
     private boolean isNavigationElement(Element element) {
-        String matcher = "nav, header";
-        if (element.is(matcher)) return true;
+        if (element.is(NAV_MATCHER)) return true;
 
         Element current = element;
         while (current.hasParent()) {
             current = current.parent();
-            if (current.is(matcher)) return true;
+            if (current.is(NAV_MATCHER)) return true;
         }
 
         return false;

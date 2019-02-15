@@ -214,7 +214,7 @@ public class Neo4JWriteAdapter implements WriteAdapter {
                     "Adding transition between {} and {} via {}.",
                     transition.getOrigin().getIdentifier(),
                     transition.getDestination().getIdentifier(),
-                    transition.getExecutedEvent().getEvent().getEventIdentifier()
+                    transition.getExecutedEvent().getEvent().getId()
             );
 
             try {
