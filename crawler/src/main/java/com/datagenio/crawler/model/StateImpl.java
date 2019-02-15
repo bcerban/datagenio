@@ -111,6 +111,14 @@ public class StateImpl implements State {
     }
 
     @Override
+    public void markEventAsUnfired(Eventable event) {
+        if (!unfiredEventables.contains(event)) unfiredEventables.add(event);
+
+        var executed = executedEventables.stream().filter(e -> e.getEvent().equals(event)).findFirst();
+        if (executed.isPresent()) executedEventables.remove(executed.get());
+    }
+
+    @Override
     public void setScreenShot(File screenshot) {
         this.screenShot = screenshot;
     }

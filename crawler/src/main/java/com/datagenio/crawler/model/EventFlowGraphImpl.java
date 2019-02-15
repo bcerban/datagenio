@@ -92,7 +92,7 @@ public class EventFlowGraphImpl implements EventFlowGraph {
     }
 
     @Override
-    public Transitionable findTransition(Eventable eventable) throws InvalidTransitionException {
+    public Transitionable findTransitions(Eventable eventable) throws InvalidTransitionException {
         List<Transitionable> transitions = getTransitions().stream()
                 .filter(transition -> transition.getExecutedEvent().getEvent().equals(eventable))
                 .collect(Collectors.toList());
@@ -105,13 +105,22 @@ public class EventFlowGraphImpl implements EventFlowGraph {
     }
 
     @Override
+    public List<Transitionable> findTransitions(Eventable eventable, State origin) {
+        return getTransitions().stream()
+                .filter(transition -> transition.getExecutedEvent().getEvent().equals(eventable) && transition.getOrigin().equals(origin))
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public boolean isNewState(State state) {
         return !getStates().contains(state);
     }
 
     @Override
     public boolean isRegistered(Eventable eventable) {
-        return getEvents().contains(eventable);
+        return getTransitions().stream()
+                .filter(transition -> transition.getExecutedEvent().getEvent().equals(eventable))
+                .count() > 0;
     }
 
     @Override
@@ -121,8 +130,9 @@ public class EventFlowGraphImpl implements EventFlowGraph {
 
     @Override
     public void addState(State state) {
-        graph.addVertex(state);
         logger.debug("Adding state {} to graph.", state.getIdentifier());
+        graph.addVertex(state);
+        processNewStateEvents(state);
     }
 
     @Override
@@ -139,7 +149,7 @@ public class EventFlowGraphImpl implements EventFlowGraph {
 
     @Override
     public void addEvent(Eventable event) {
-        events.add(event);
+        if (!events.contains(event)) events.add(event);
     }
 
     @Override
@@ -159,5 +169,36 @@ public class EventFlowGraphImpl implements EventFlowGraph {
     public void setRoot(State state) {
         state.setIsRoot(true);
         root = state;
+    }
+
+    @Override
+    public void removeTransition(Transitionable transition) {
+        graph.removeEdge(transition);
+
+        if (getTransitions()
+                .stream()
+                .filter(t -> t.getExecutedEvent().getEvent().equals(transition.getExecutedEvent().getEvent()))
+                .count() == 0
+        ) {
+            events.remove(transition.getExecutedEvent().getEvent());
+        }
+    }
+
+    private void processNewStateEvents(State state) {
+        var stateEvents = new ArrayList<Eventable>();
+        state.getEventables().forEach(e -> {
+            if (events.contains(e)) {
+                stateEvents.add(getEvent(e));
+            } else {
+                stateEvents.add(e);
+                addEvent(e);
+            }
+        });
+        state.setEventables(stateEvents);
+        state.setUnfiredEventables(stateEvents);
+    }
+
+    private Eventable getEvent(Eventable e) {
+        return events.stream().filter(event -> event.equals(e)).findFirst().get();
     }
 }

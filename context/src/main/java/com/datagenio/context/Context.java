@@ -38,7 +38,7 @@ public class Context {
     @SerializedName("output_format")
     private String format;
 
-    @SerializedName("verbode")
+    @SerializedName("verbose")
     private boolean verbose;
 
     @SerializedName("save_screen_shots")
@@ -46,6 +46,9 @@ public class Context {
 
     @SerializedName("continue_model")
     private boolean continueExistingModel;
+
+    @SerializedName("model_only")
+    private boolean modelOnly;
 
     @SerializedName("data_set_only")
     private boolean dataSetOnly;
@@ -190,6 +193,14 @@ public class Context {
 
     public void setFormat(String format) {
         this.format = format;
+    }
+
+    public boolean isModelOnly() {
+        return modelOnly;
+    }
+
+    public void setModelOnly(boolean modelOnly) {
+        this.modelOnly = modelOnly;
     }
 
     public List<EventInput> getEventInputs() {

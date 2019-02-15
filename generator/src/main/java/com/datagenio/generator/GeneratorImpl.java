@@ -39,7 +39,7 @@ public class GeneratorImpl implements Generator {
         this.converter = converter;
         this.readAdapter = readAdapter;
         this.writeAdapter = writeAdapter;
-        this.inputBuilder = InputBuilderFactory.get();
+        this.inputBuilder = InputBuilderFactory.get(context);
         this.formatter = RequestFormatterFactory.get(context.getFormat());
     }
 

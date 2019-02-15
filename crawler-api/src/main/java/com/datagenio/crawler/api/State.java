@@ -27,6 +27,7 @@ public interface State {
     void setEventables(Collection<Eventable> eventables);
     void setUnfiredEventables(Collection<Eventable> eventables);
     void markEventAsFired(ExecutedEventable event);
+    void markEventAsUnfired(Eventable event);
     void setScreenShot(File screenshot);
     void setIsRoot(boolean isRoot);
     void setDocumentFilePath(String path);

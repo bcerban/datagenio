@@ -5,6 +5,7 @@ import com.datagenio.crawler.exception.UncrawlableStateException;
 import org.jgrapht.GraphPath;
 
 import java.util.Collection;
+import java.util.List;
 
 public interface EventFlowGraph {
 
@@ -19,7 +20,8 @@ public interface EventFlowGraph {
     State findNearestUnfinishedStateFrom(State state) throws UncrawlableStateException;
     Eventable findEvent(String id);
     GraphPath<State, Transitionable> findPath(State from, State to);
-    Transitionable findTransition(Eventable eventable) throws InvalidTransitionException;
+    Transitionable findTransitions(Eventable eventable) throws InvalidTransitionException;
+    List<Transitionable> findTransitions(Eventable eventable, State state);
     boolean isNewState(State state);
     boolean isRegistered(Eventable eventable);
     int getGraphDiameter();
@@ -31,4 +33,5 @@ public interface EventFlowGraph {
     void addEvents(Collection<Eventable> events);
     void setCurrentState(State state) throws UncrawlableStateException;
     void setRoot(State state);
+    void removeTransition(Transitionable transition);
 }

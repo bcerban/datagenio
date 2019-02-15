@@ -1,6 +1,9 @@
 package com.datagenio.databank.util;
 
+import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+
+import java.util.NoSuchElementException;
 
 public class XPathParser {
 
@@ -24,6 +27,16 @@ public class XPathParser {
         }
 
         return '/' + xpath;
+    }
+
+    public static Element getChildByXpath(Document document, String xpath) throws NoSuchElementException {
+        String selector = xpath.replaceFirst("/", "")
+                .replaceAll("/", " > ")
+                .replaceAll("\\Q[\\E(\\d*)\\Q]\\E", ":nth-of-type($1)");
+        Element child = document.selectFirst(selector);
+
+        if (child == null) throw new NoSuchElementException("Child element not found");
+        return child;
     }
 
     /**

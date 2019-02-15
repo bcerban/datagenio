@@ -83,9 +83,9 @@ public class CrawlRunner {
             Context context = getContext(arguments);
             Generator generator = getGenerator(context);
 
-            if (isModelOnly(arguments)) {
+            if (context.isModelOnly()) {
                 modelOnly(generator);
-            } else if (isDataSetOnly(arguments)) {
+            } else if (context.isDataSetOnly()) {
                 dataSetOnly(generator);
             } else {
                 modelAndGenerate(generator);
@@ -140,7 +140,7 @@ public class CrawlRunner {
         context.setReadAdapter(readAdapter);
         context.setWriteAdapter(writeAdapter);
 
-        var crawler = new PersistentCrawler(context, BrowserFactory.drivenByFirefox(), InputBuilderFactory.get());
+        var crawler = new PersistentCrawler(context, BrowserFactory.drivenByFirefox(), InputBuilderFactory.get(context));
         return new GeneratorImpl(context, crawler, new GraphConverterImpl(context, stateConverter, requestAbstractor), readAdapter, writeAdapter);
     }
 
@@ -182,6 +182,7 @@ public class CrawlRunner {
         context.setCrawlDepth(getMaxDepth(arguments));
         context.setContinueExistingModel((continuePrevious(arguments) || isDataSetOnly(arguments)));
         context.setFormat("csv");
+        context.setModelOnly(isModelOnly(arguments));
         return context;
     }
 
