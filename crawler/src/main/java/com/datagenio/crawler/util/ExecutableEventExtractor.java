@@ -66,9 +66,10 @@ public class ExecutableEventExtractor implements EventableExtractor {
 
         String type = element.attr("type");
         String action = element.attr("action");
+        String classes = element.className();
 
         if ((element.is("input") || element.is("button"))
-                && (type.equals("submit") || action.equals("submit"))) {
+                && (type.contains("submit") || action.contains("submit") || classes.contains("submit"))) {
             isSubmitable = true;
         }
 

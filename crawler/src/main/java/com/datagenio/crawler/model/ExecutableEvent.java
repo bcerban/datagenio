@@ -6,6 +6,7 @@ import org.apache.commons.lang.StringUtils;
 import org.jsoup.nodes.Element;
 import org.jsoup.nodes.Document;
 
+import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -87,7 +88,14 @@ public class ExecutableEvent implements Eventable {
 
     @Override
     public void setParent(Document parent) {
-        this.parent = parent;
+        if (xpath != null) {
+            try {
+                source = XPathParser.getChildByXpath(parent, xpath);
+                this.parent = parent;
+            } catch (NoSuchElementException e) {}
+        } else {
+            this.parent = parent;
+        }
     }
 
     @Override

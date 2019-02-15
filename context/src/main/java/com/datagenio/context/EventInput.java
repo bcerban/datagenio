@@ -1,19 +1,20 @@
 package com.datagenio.context;
 
+import com.google.gson.annotations.SerializedName;
+
 public class EventInput {
 
-    private String stateId;
+    @SerializedName("event_id")
+    private String eventId;
+
+    @SerializedName("xpath")
     private String xpath;
+
+    @SerializedName("input_type")
     private String inputType;
+
+    @SerializedName("input_value")
     private String inputValue;
-
-    public String getStateId() {
-        return stateId;
-    }
-
-    public void setStateId(String stateId) {
-        this.stateId = stateId;
-    }
 
     public String getXpath() {
         return xpath;
@@ -37,5 +38,13 @@ public class EventInput {
 
     public void setInputValue(String inputValue) {
         this.inputValue = inputValue;
+    }
+
+    public String getEventId() {
+        return eventId;
+    }
+
+    public void setEventId(String eventId) {
+        this.eventId = eventId;
     }
 }

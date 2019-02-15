@@ -87,13 +87,13 @@ public class DrivenBrowser implements Browser {
             task.get(BROWSER_CLOSE_TIMEOUT, TimeUnit.SECONDS);
             Thread.sleep(BROWSER_CLOSE_TIMEOUT);
         } catch (TimeoutException e) {
-            logger.debug("Browser timed out while trying to close at {}.", this.driver.getCurrentUrl());
+            logger.debug("Browser timed out while trying to close.");
             Thread.currentThread().interrupt();
         } catch (ExecutionException e) {
-            logger.debug("Unexpected exception while trying to close browser at {}.", this.driver.getCurrentUrl());
+            logger.debug("Unexpected exception while trying to close browser.");
             throw new BrowserException(e);
         } catch (InterruptedException|NoSuchWindowException e) {
-            logger.debug("Interruption while trying to close browser at {}. Will proceed to forced interruption.", this.driver.getCurrentUrl());
+            logger.debug("Interruption while trying to close browser. Will proceed to forced interruption.");
             Thread.currentThread().interrupt();
         }
     }
@@ -251,6 +251,7 @@ public class DrivenBrowser implements Browser {
             // Instead, we are required to find the submit button/input and CLICK on it.
             // element.submit();
             findSubmitElement(event).click();
+            Thread.sleep(5000);
             this.driver.manage().timeouts().implicitlyWait(DEFAULT_WAIT_AFTER_LOAD, TimeUnit.SECONDS);
         } catch (StaleElementReferenceException|ElementNotInteractableException|NoSuchElementException e) {
             logger.debug(
@@ -258,6 +259,8 @@ public class DrivenBrowser implements Browser {
                     event.getEventIdentifier(), driver.getCurrentUrl(), e.getMessage()
             );
             throw new EventTriggerException("Selected event is stale.", e);
+        } catch (InterruptedException e) {
+            logger.debug(e.getMessage());
         }
     }
 
@@ -267,7 +270,7 @@ public class DrivenBrowser implements Browser {
             return driver.findElement(By.xpath(XPathParser.getXPathFor(child)));
         }
 
-        throw new NoSuchElementException("Submitable child not found.");
+        throw new NoSuchElementException("Submittable child not found.");
     }
 
     private void fillElementInputs(WebElement element, Map<String, String> inputs) {

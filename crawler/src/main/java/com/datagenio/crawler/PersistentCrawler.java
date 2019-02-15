@@ -2,6 +2,7 @@ package com.datagenio.crawler;
 
 import com.datagenio.context.Context;
 import com.datagenio.context.DatagenioException;
+import com.datagenio.context.EventInput;
 import com.datagenio.crawler.api.*;
 import com.datagenio.crawler.exception.*;
 import com.datagenio.crawler.model.EventFlowGraphImpl;
@@ -18,6 +19,7 @@ import org.slf4j.LoggerFactory;
 import java.net.URI;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class PersistentCrawler implements com.datagenio.crawler.api.Crawler {
@@ -36,6 +38,7 @@ public class PersistentCrawler implements com.datagenio.crawler.api.Crawler {
 
         if (context.isContinueExistingModel()) {
             graph = context.getReadAdapter().loadEventModel();
+            updateGraphFromContext();
         }
     }
 
@@ -109,7 +112,7 @@ public class PersistentCrawler implements com.datagenio.crawler.api.Crawler {
     private void crawlState(State current, Eventable event) throws UncrawlableStateException, BrowserException {
         try {
             Map<String, String> inputs = new HashMap<>();
-            if (event.requiresInput()) inputs = inputBuilder.buildInputs(event.getSource());
+            if (event.requiresInput()) inputs = inputBuilder.buildInputs(event);
 
             State newState = executeEvent(event, inputs);
 
@@ -123,12 +126,13 @@ public class PersistentCrawler implements com.datagenio.crawler.api.Crawler {
 
             event.setStatus(Eventable.Status.SUCCEEDED);
 
-            // Transition added regardless, as this is a multigraph
-            var transition = new Transition(current, newState, new ExecutedEvent(event, inputs));
-            transition.setRequests(getRequestsForEvent(newState));
-            transition.setStatus(Transitionable.Status.TRAVERSED);
-            getGraph().addTransition(transition);
-
+            // Add transition only if new for state and event
+            if (graph.findTransitions(event, newState).size() == 0) {
+                var transition = new Transition(current, newState, new ExecutedEvent(event, inputs));
+                transition.setRequests(getRequestsForEvent(newState));
+                transition.setStatus(Transitionable.Status.TRAVERSED);
+                getGraph().addTransition(transition);
+            }
         } catch (UnsupportedEventTypeException | EventTriggerException e) {
             logger.info("Tried to crawl invalid event with ID '{}' from {}", event.getEventIdentifier(), current.getIdentifier());
             event.setStatus(Eventable.Status.FAILED);
@@ -143,13 +147,21 @@ public class PersistentCrawler implements com.datagenio.crawler.api.Crawler {
 
     private boolean shouldSkip(Eventable event) {
         // Skip navigation events if they have already been executed from some other state
-        return getGraph().isRegistered(event);
+        return getGraph().isRegistered(event) && !hasManualInputs(event);
+    }
+
+    private boolean hasManualInputs(Eventable eventable) {
+        return context.getEventInputs().stream()
+                .filter(i -> i.getEventId().equals(eventable.getId()))
+                .count() > 0;
     }
 
     private void addSuspectedTransition(State state, Eventable event) {
+        if (graph.findTransitions(event, state).size() > 0) return;
+
         try {
             // find event destination in graph and set tentative transition
-            var transition = getGraph().findTransition(event);
+            var transition = getGraph().findTransitions(event);
             var suspectedTransition = new Transition(state, transition.getDestination(), transition.getExecutedEvent());
             suspectedTransition.setStatus(Transitionable.Status.SUSPECTED);
             suspectedTransition.setRequests(transition.getRequests());
@@ -245,6 +257,22 @@ public class PersistentCrawler implements com.datagenio.crawler.api.Crawler {
         } catch (BrowserException|UnsupportedEventTypeException|EventTriggerException|UncrawlableStateException e) {
             throw new UncrawlablePathException("Stopped path crawling due to unexpected exception.", e);
         }
+    }
+
+    private void updateGraphFromContext() {
+        context.getEventInputs().forEach(eventInput -> applyEventInput(eventInput));
+    }
+
+    private void applyEventInput(EventInput eventInput) {
+        try {
+            Eventable eventable = graph.findEvent(eventInput.getEventId());
+            List<State> states = graph.getStates(eventable);
+            states.forEach(s -> {
+                s.markEventAsUnfired(eventable);
+                List<Transitionable> transitions = graph.findTransitions(eventable, s);
+                transitions.forEach(t -> graph.removeTransition(t));
+            });
+        } catch (Exception e) { }
     }
 
     private void saveStateScreenShot(State state) {

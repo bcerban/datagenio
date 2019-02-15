@@ -5,8 +5,8 @@ import com.google.gson.annotations.SerializedName;
 public class Configuration {
     public static final String CONNECTION_MODE_EMBEDDED = "embedded";
     public static final String CONNECTION_MODE_REMOTE = "remote";
-    public static final String REQUEST_SAVE_AS_NODE = "as_node";
-    public static final String REQUEST_SAVE_AS_JSON = "as_json";
+    public static final String REQUEST_SAVE_AS_NODE = "node";
+    public static final String REQUEST_SAVE_AS_JSON = "json";
 
     @SerializedName("connection_mode")
     private String connectionMode;

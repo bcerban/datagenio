@@ -1,5 +1,8 @@
 package com.datagenio.databank;
 
+import com.datagenio.context.Context;
+import com.datagenio.context.EventInput;
+import com.datagenio.crawler.api.Eventable;
 import com.datagenio.databank.api.InputBuilder;
 import com.datagenio.databank.api.InputPovider;
 import com.datagenio.databank.provider.*;
@@ -16,15 +19,19 @@ public class CompositeInputBuilder implements InputBuilder {
 
     public static String INPUT_SELECTOR = "input, textarea, select";
 
+    private Context context;
     private Map<String, InputPovider> providersByType;
 
-    public CompositeInputBuilder() {
+    public CompositeInputBuilder(Context context) {
+        this.context = context;
+
         var faker = new Faker();
         providersByType = new HashMap<>();
         providersByType.put(ALPHABETIC, new AlphabeticProvider());
         providersByType.put(ALPHANUMERIC, new AlphanumericProvider());
         providersByType.put(EMAIL, new EmailProvider(faker));
         providersByType.put(PASSWORD, new PasswordProvider(faker));
+        providersByType.put(USERNAME, new UsernameProvider(faker));
         providersByType.put(NUMBER, new NumericProvider(faker));
         providersByType.put(REGEX, new RegexProvider(faker));
         providersByType.put(BOOLEAN, new BooleanProvider(faker));
@@ -41,17 +48,18 @@ public class CompositeInputBuilder implements InputBuilder {
     }
 
     @Override
-    public Map<String, String> buildInputs(Element element) {
-        return buildInputs(element, new HashMap<>());
+    public Map<String, String> buildInputs(Eventable event) {
+        return buildInputs(event, event.getSource(), new HashMap<>());
     }
 
-    public Map<String, String> buildInputs(Element element, Map<String, String> presents) {
+    public Map<String, String> buildInputs(Eventable event, Element element, Map<String, String> presents) {
         Map<String, String> inputs = new HashMap<>();
 
         if (isInput(element)) {
-            inputs.put(XPathParser.getXPathFor(element), getInputForElement(element, presents));
+            String xpath = XPathParser.getXPathFor(element);
+            inputs.put(xpath, getInputForElement(event.getId(), xpath, element, presents));
         } else {
-            element.children().forEach((child) -> inputs.putAll(buildInputs(child, presents)));
+            element.children().forEach((child) -> inputs.putAll(buildInputs(event, child, presents)));
         }
         return inputs;
     }
@@ -65,7 +73,17 @@ public class CompositeInputBuilder implements InputBuilder {
         return element.is(INPUT_SELECTOR);
     }
 
-    private String getInputForElement(Element element, Map<String, String> presents) {
+    private String getInputForElement(String eventId, String elementXpath, Element element, Map<String, String> presents) {
+        if (contextHasInputDefinition(eventId, elementXpath)) {
+            EventInput definedInput = getInputDefinitionFromContext(eventId, elementXpath);
+
+            if (StringUtils.isNotBlank(definedInput.getInputValue())) {
+                return definedInput.getInputValue();
+            } else if (StringUtils.isNotBlank(definedInput.getInputType())) {
+                return getInputForElement(element, definedInput.getInputType(), presents);
+            }
+        }
+
         String elementType = element.attr("type");
         if (StringUtils.isNotBlank(elementType)) {
             return getInputForElement(element, elementType, presents);
@@ -113,5 +131,19 @@ public class CompositeInputBuilder implements InputBuilder {
         }
 
         return providersByType.get(DEFAULT).provide(constraints);
+    }
+
+    private boolean contextHasInputDefinition(String eventId, String elementXpath) {
+        return context.getEventInputs()
+                .stream()
+                .filter(i -> i.getEventId().equals(eventId) && i.getXpath().equals(elementXpath))
+                .count() > 0;
+    }
+
+    private EventInput getInputDefinitionFromContext(String eventId, String elementXpath) {
+        return context.getEventInputs()
+                .stream()
+                .filter(i -> i.getEventId().equals(eventId) && i.getXpath().equals(elementXpath))
+                .findFirst().get();
     }
 }
