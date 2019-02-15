@@ -31,12 +31,10 @@ public class StateImpl implements State {
         executedEventables = new ArrayList<>();
     }
 
-    public StateImpl(URI uri, Document view, EventableExtractor extractor) {
+    public StateImpl(URI uri, Document view) {
+        this();
         this.uri = uri;
         this.document = view;
-        this.eventables = extractor.extractSorted(this, document, new SubmitFirstComparator());
-        this.unfiredEventables = new LinkedList<>(eventables);
-        this.executedEventables = new ArrayList<>();
         this.uid = UUID.randomUUID().toString();
     }
 

@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.net.URI;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.*;
 import java.util.concurrent.TimeoutException;
@@ -117,11 +118,19 @@ public class DrivenBrowser implements Browser {
 
     @Override
     public State getCurrentBrowserState() throws BrowserException {
-        return new StateImpl(
-                URI.create(driver.getCurrentUrl()),
-                getDOM(),
-                extractor
-        );
+        Document view = getDOM();
+        State state = new StateImpl(URI.create(driver.getCurrentUrl()), view);
+        List<Eventable> events = extractor.extract(state, view);
+
+        // Check that all eventables detected are interactable
+        events.forEach(e -> {
+
+        });
+
+        state.setEventables(events);
+        state.setUnfiredEventables(events);
+
+        return state;
     }
 
     @Override
@@ -265,7 +274,7 @@ public class DrivenBrowser implements Browser {
     }
 
     private WebElement findSubmitElement(Eventable event) {
-        Element child = extractor.findSubmitableChild(event.getSource());
+        Element child = extractor.findSubmittableChild(event.getSource());
         if (child != null) {
             return driver.findElement(By.xpath(XPathParser.getXPathFor(child)));
         }

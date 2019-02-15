@@ -37,9 +37,9 @@ public class StateImplTest {
         this.eventables = new ArrayList<>();
 
         this.eventableExtractor = mock(ExecutableEventExtractor.class);
-        when(this.eventableExtractor.extract(this.state, this.document)).thenReturn(this.eventables);
+//        when(this.eventableExtractor.extract(this.state, this.document)).thenReturn(this.eventables);
 
-        this.state = new StateImpl(this.uri, this.document, this.eventableExtractor);
+        this.state = new StateImpl(this.uri, this.document);
     }
 
     @Test
@@ -96,7 +96,7 @@ public class StateImplTest {
         ExecutableEventExtractor extractor = mock(ExecutableEventExtractor.class);
 
         when(extractor.extractSorted(any(), any(), any())).thenReturn(List.of(event));
-        newState = new StateImpl(uri, document, extractor);
+        newState = new StateImpl(uri, document);
 
         // Check preconditions for test
         assertFalse(newState.isFinished());
@@ -117,14 +117,14 @@ public class StateImplTest {
 
     @Test
     public void testEqualsIdentical() {
-        StateImpl other = new StateImpl(this.uri, this.document, this.eventableExtractor);
+        StateImpl other = new StateImpl(this.uri, this.document);
         assertTrue(this.state.equals(other));
     }
 
     @Test
     public void testEqualsDifferent() {
         Document newDocument = Jsoup.parse("<html><head><title>Test html document</title></head></html>");
-        StateImpl other = new StateImpl(this.uri, newDocument, this.eventableExtractor);
+        StateImpl other = new StateImpl(this.uri, newDocument);
         other.setEventables(
                 List.of(new ExecutableEvent(new Element("button"), Eventable.EventType.CLICK))
         );
