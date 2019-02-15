@@ -266,11 +266,12 @@ public class PersistentCrawler implements com.datagenio.crawler.api.Crawler {
     private void applyEventInput(EventInput eventInput) {
         try {
             Eventable eventable = graph.findEvent(eventInput.getEventId());
-            State state = graph.findById(eventInput.getStateId());
-            List<Transitionable> transitions = graph.findTransitions(eventable, state);
-
-            state.markEventAsUnfired(eventable);
-            transitions.forEach(t -> graph.removeTransition(t));
+            List<State> states = graph.getStates(eventable);
+            states.forEach(s -> {
+                s.markEventAsUnfired(eventable);
+                List<Transitionable> transitions = graph.findTransitions(eventable, s);
+                transitions.forEach(t -> graph.removeTransition(t));
+            });
         } catch (Exception e) { }
     }
 

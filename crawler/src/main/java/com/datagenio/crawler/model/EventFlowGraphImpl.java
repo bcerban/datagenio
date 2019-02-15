@@ -87,6 +87,11 @@ public class EventFlowGraphImpl implements EventFlowGraph {
     }
 
     @Override
+    public List<State> getStates(Eventable event) {
+        return getStates().stream().filter(s -> s.getEventables().contains(event)).collect(Collectors.toList());
+    }
+
+    @Override
     public GraphPath<State, Transitionable> findPath(State from, State to) {
         return StateTraversalManager.findPath(graph, from, to);
     }

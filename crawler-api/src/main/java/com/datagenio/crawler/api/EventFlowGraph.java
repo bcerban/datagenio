@@ -18,6 +18,7 @@ public interface EventFlowGraph {
     State find(State state);
     State findById(String id);
     State findNearestUnfinishedStateFrom(State state) throws UncrawlableStateException;
+    List<State> getStates(Eventable event);
     Eventable findEvent(String id);
     GraphPath<State, Transitionable> findPath(State from, State to);
     Transitionable findTransitions(Eventable eventable) throws InvalidTransitionException;
