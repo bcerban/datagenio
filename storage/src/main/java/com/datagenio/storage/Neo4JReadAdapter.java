@@ -6,6 +6,7 @@ import com.datagenio.crawler.api.State;
 import com.datagenio.crawler.api.Transitionable;
 import com.datagenio.crawler.model.EventFlowGraphImpl;
 import com.datagenio.crawler.model.ExecutedEvent;
+import com.datagenio.databank.util.XPathParser;
 import com.datagenio.model.WebFlowGraph;
 import com.datagenio.model.WebState;
 import com.datagenio.model.WebTransition;
@@ -20,6 +21,7 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
 public class Neo4JReadAdapter implements ReadAdapter {
@@ -90,14 +92,24 @@ public class Neo4JReadAdapter implements ReadAdapter {
                 Collection<Eventable> unfiredEvents = findUnfiredEventsFor(state).stream()
                         .map(unfiredEventNode -> {
                             var translatedEvent = eventableTranslator.translateFrom(unfiredEventNode);
-                            translatedEvent.setParent(state.getDocument());
+
+                            // The source has to be updated because later xpath lookup will use source structure
+                            try {
+                                translatedEvent.setSource(XPathParser.getChildByXpath(state.getDocument(), translatedEvent.getXpath()));
+                            } catch (NoSuchElementException e) {}
+
                             return translatedEvent;
                         }).collect(Collectors.toList());
 
                 Collection<Eventable> firedEvents = findFiredEventsFor(state).stream()
                         .map(firedEventNode -> {
                             var translatedEvent = eventableTranslator.translateFrom(firedEventNode);
-                            translatedEvent.setParent(state.getDocument());
+
+                            // The source has to be updated because later xpath lookup will use source structure
+                            try {
+                                translatedEvent.setSource(XPathParser.getChildByXpath(state.getDocument(), translatedEvent.getXpath()));
+                            } catch (NoSuchElementException e) {}
+
                             return translatedEvent;
                         }).collect(Collectors.toList());
 

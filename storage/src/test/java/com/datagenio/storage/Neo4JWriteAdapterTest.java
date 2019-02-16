@@ -86,7 +86,6 @@ public class Neo4JWriteAdapterTest {
         doReturn("id2").when(second).getIdentifier();
         doReturn(mock(Document.class)).when(first).getDocument();
         doReturn(mock(Document.class)).when(second).getDocument();
-        doReturn(mock(Document.class)).when(event).getParent();
         doReturn(Configuration.REQUEST_SAVE_AS_NODE).when(configuration).getRequestSaveMode();
         doReturn(first).when(transition).getOrigin();
         doReturn(second).when(transition).getDestination();

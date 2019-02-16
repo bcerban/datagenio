@@ -23,12 +23,18 @@ import java.util.Map;
 import java.util.concurrent.*;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class DrivenBrowser implements Browser {
 
     private static final int BROWSER_CLOSE_TIMEOUT = 5;
     private static Logger logger = LoggerFactory.getLogger(DrivenBrowser.class);
     private static ExecutorService closeExecutor = Executors.newCachedThreadPool(new BrowserCloserFactory());
+
+    private final Lock readLock;
+    private final Lock writeLock;
 
     private NetworkProxy proxy;
     private WebDriver driver;
@@ -43,6 +49,10 @@ public class DrivenBrowser implements Browser {
 
         this.driver.manage().window().maximize();
         this.driver.manage().timeouts().implicitlyWait(DEFAULT_WAIT_AFTER_LOAD, TimeUnit.SECONDS);
+
+        ReadWriteLock lock = new ReentrantReadWriteLock();
+        readLock = lock.readLock();
+        writeLock = lock.writeLock();
     }
 
     @Override
@@ -118,30 +128,38 @@ public class DrivenBrowser implements Browser {
 
     @Override
     public State getCurrentBrowserState() throws BrowserException {
-        Document view = getDOM();
-        State state = new StateImpl(URI.create(driver.getCurrentUrl()), view);
-        List<Eventable> events = extractor.extract(state, view);
+        readLock.lock();
 
-        // Check that all eventables detected are interactable
-        events.forEach(e -> {
+        try {
+            Document view = getDOM();
+            State state = new StateImpl(URI.create(driver.getCurrentUrl()), view);
+            List<Eventable> events = extractor.extract(state, view);
 
-        });
+            // Check that all eventables detected are interactable
+//            events.forEach(e -> {
+//
+//            });
 
-        state.setEventables(events);
-        state.setUnfiredEventables(events);
-
-        return state;
+            state.setEventables(events);
+            state.setUnfiredEventables(events);
+            return state;
+        } finally {
+            readLock.unlock();
+        }
     }
 
     @Override
     public File getScreenShotFile() {
         logger.debug("Capturing screen for " + driver.getCurrentUrl());
 
+        readLock.lock();
         TakesScreenshot screenshotDriver = (TakesScreenshot) driver;
         File screenshot = screenshotDriver.getScreenshotAs(OutputType.FILE);
         removeScreenShotCanvas();
 
         logger.debug("Screen capture for " + driver.getCurrentUrl() + " saved to " + screenshot.getName() + ".");
+
+        readLock.unlock();
         return screenshot;
     }
 
@@ -149,9 +167,11 @@ public class DrivenBrowser implements Browser {
     public byte[] getScreenShotBytes() {
         logger.debug("Capturing screen for " + driver.getCurrentUrl());
 
+        readLock.lock();
         TakesScreenshot screenshotDriver = (TakesScreenshot) driver;
         byte[] screenshot = screenshotDriver.getScreenshotAs(OutputType.BYTES);
         removeScreenShotCanvas();
+        readLock.unlock();
 
         logger.debug("Screen capture for " + driver.getCurrentUrl() + " returned.");
         return screenshot;
@@ -159,12 +179,22 @@ public class DrivenBrowser implements Browser {
 
     @Override
     public Collection<RemoteRequest> getCapturedRequests(URI domain) {
-        return proxy.getLoggedRequestsForDomain(domain);
+        readLock.lock();
+        try {
+            return proxy.getLoggedRequestsForDomain(domain);
+        } finally {
+            readLock.unlock();
+        }
     }
 
     @Override
     public Collection<RemoteRequest> getCapturedRequests(URI domain, String fileName, String saveToDirectory) {
-        return proxy.getLoggedRequestsForDomain(domain, fileName, saveToDirectory);
+        readLock.lock();
+        try {
+            return proxy.getLoggedRequestsForDomain(domain, fileName, saveToDirectory);
+        } finally {
+            readLock.unlock();
+        }
     }
 
     /**
@@ -186,6 +216,7 @@ public class DrivenBrowser implements Browser {
 
     @Override
     public void navigateTo(URI uri) throws BrowserException {
+        writeLock.lock();
         try {
             logger.debug("Navigating to {}.", uri.toString());
 
@@ -197,18 +228,23 @@ public class DrivenBrowser implements Browser {
         } catch (WebDriverException e) {
             logger.debug("Navigation was interrupted before completing page load.", e);
             throw new BrowserException(e);
+        } finally {
+            writeLock.unlock();
         }
     }
 
     @Override
     public void triggerEvent(Eventable event, Map<String, String> inputs) throws UnsupportedEventTypeException, EventTriggerException {
         logger.debug("Attempting to trigger event {}...", event.getEventIdentifier());
+        writeLock.lock();
         WebElement element = null;
 
         try {
             // Check element is present in current web interface
             element = driver.findElement(By.xpath(event.getXpath()));
-        } catch (NoSuchElementException e) { }
+        } catch (NoSuchElementException e) { } finally {
+            writeLock.unlock();
+        }
 
         if (element == null) {
             logger.debug("Element not found for event {} in {}", event.getEventIdentifier(), driver.getCurrentUrl());
@@ -223,7 +259,7 @@ public class DrivenBrowser implements Browser {
         Eventable.EventType type = event.getEventType();
         switch (type) {
             case CLICK:
-                triggerClickableEvent(event, element);
+                triggerClickEvent(event, element);
                 break;
             case SUBMIT:
                 triggerSubmitEvent(event, element, inputs);
@@ -233,7 +269,8 @@ public class DrivenBrowser implements Browser {
         }
     }
 
-    public void triggerClickableEvent(Eventable event, WebElement element) throws EventTriggerException {
+    public void triggerClickEvent(Eventable event, WebElement element) throws EventTriggerException {
+        writeLock.lock();
         try {
             int handleCount = driver.getWindowHandles().size();
             element.click();
@@ -248,10 +285,13 @@ public class DrivenBrowser implements Browser {
                     event.getEventIdentifier(), driver.getCurrentUrl(), e.getMessage()
             );
             throw new EventTriggerException("Selected event is unavailable.", e);
+        } finally {
+            writeLock.lock();
         }
     }
 
     public void triggerSubmitEvent(Eventable event, WebElement element, Map<String, String> inputs) throws EventTriggerException {
+        writeLock.lock();
         try {
             driver.manage().timeouts().implicitlyWait(DEFAULT_WAIT_AFTER_SUBMIT, TimeUnit.SECONDS);
             fillElementInputs(element, inputs);
@@ -261,7 +301,6 @@ public class DrivenBrowser implements Browser {
             // element.submit();
             findSubmitElement(event).click();
             Thread.sleep(5000);
-            this.driver.manage().timeouts().implicitlyWait(DEFAULT_WAIT_AFTER_LOAD, TimeUnit.SECONDS);
         } catch (StaleElementReferenceException|ElementNotInteractableException|NoSuchElementException e) {
             logger.debug(
                     "Element for event {} is unavailable in {}. Error: {}",
@@ -270,6 +309,9 @@ public class DrivenBrowser implements Browser {
             throw new EventTriggerException("Selected event is stale.", e);
         } catch (InterruptedException e) {
             logger.debug(e.getMessage());
+        } finally {
+            driver.manage().timeouts().implicitlyWait(DEFAULT_WAIT_AFTER_LOAD, TimeUnit.SECONDS);
+            writeLock.unlock();
         }
     }
 
@@ -298,10 +340,13 @@ public class DrivenBrowser implements Browser {
 
     @Override
     public Document getDOM() throws BrowserException {
+        readLock.lock();
         try {
             return Jsoup.parse(driver.getPageSource());
         } catch (NoSuchWindowException e) {
             throw new BrowserException("Can't access browser.", e);
+        } finally {
+            readLock.unlock();
         }
     }
 

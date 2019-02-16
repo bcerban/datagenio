@@ -137,7 +137,7 @@ public class EventFlowGraphImpl implements EventFlowGraph {
     public void addState(State state) {
         logger.debug("Adding state {} to graph.", state.getIdentifier());
         graph.addVertex(state);
-        processNewStateEvents(state);
+        addEvents(state.getEventables());
     }
 
     @Override
@@ -149,7 +149,6 @@ public class EventFlowGraphImpl implements EventFlowGraph {
     @Override
     public void addTransition(Transitionable transition) {
         graph.addEdge(transition.getOrigin(), transition.getDestination(), transition);
-        addEvent(transition.getExecutedEvent().getEvent());
     }
 
     @Override
@@ -159,7 +158,7 @@ public class EventFlowGraphImpl implements EventFlowGraph {
 
     @Override
     public void addEvents(Collection<Eventable> events) {
-        this.events.addAll(events);
+        events.forEach(e -> addEvent(e));
     }
 
     @Override
@@ -179,31 +178,15 @@ public class EventFlowGraphImpl implements EventFlowGraph {
     @Override
     public void removeTransition(Transitionable transition) {
         graph.removeEdge(transition);
+    }
 
-        if (getTransitions()
-                .stream()
-                .filter(t -> t.getExecutedEvent().getEvent().equals(transition.getExecutedEvent().getEvent()))
-                .count() == 0
-        ) {
-            events.remove(transition.getExecutedEvent().getEvent());
+    @Override
+    public Eventable getEvent(Eventable e) {
+        var maybe = events.stream().filter(event -> event.equals(e)).findFirst();
+        if (maybe.isPresent()) {
+            return maybe.get();
         }
-    }
 
-    private void processNewStateEvents(State state) {
-        var stateEvents = new ArrayList<Eventable>();
-        state.getEventables().forEach(e -> {
-            if (events.contains(e)) {
-                stateEvents.add(getEvent(e));
-            } else {
-                stateEvents.add(e);
-                addEvent(e);
-            }
-        });
-        state.setEventables(stateEvents);
-        state.setUnfiredEventables(stateEvents);
-    }
-
-    private Eventable getEvent(Eventable e) {
-        return events.stream().filter(event -> event.equals(e)).findFirst().get();
+        return null;
     }
 }
