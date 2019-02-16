@@ -14,6 +14,7 @@ import org.openqa.selenium.firefox.FirefoxDriver;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import static org.mockito.Mockito.*;
@@ -167,7 +168,7 @@ public class DrivenBrowserTest {
         when(source.tagName()).thenReturn("#root");
         doThrow(new StaleElementReferenceException("")).when(element).click();
 
-        browser.triggerEvent(event, new HashMap<>());
+        browser.triggerEvent(event, new ArrayList<>());
 
         verify(event, times(2)).getEventIdentifier();
         verify(event, times(1)).getXpath();
@@ -190,7 +191,7 @@ public class DrivenBrowserTest {
         when(source.tagName()).thenReturn("#root");
         doThrow(new ElementNotInteractableException("")).when(element).click();
 
-        browser.triggerEvent(event, new HashMap<>());
+        browser.triggerEvent(event, new ArrayList<>());
 
         verify(event, times(2)).getEventIdentifier();
         verify(event, times(1)).getXpath();
@@ -213,7 +214,7 @@ public class DrivenBrowserTest {
         when(source.tagName()).thenReturn("#root");
         doThrow(new NoSuchElementException("")).when(element).click();
 
-        browser.triggerEvent(event, new HashMap<>());
+        browser.triggerEvent(event, new ArrayList<>());
 
         verify(event, times(2)).getEventIdentifier();
         verify(event, times(1)).getXpath();
@@ -236,7 +237,7 @@ public class DrivenBrowserTest {
         when(source.attr("type")).thenReturn("submit");
         when(source.tagName()).thenReturn("#root");
 
-        browser.triggerEvent(event, new HashMap<>());
+        browser.triggerEvent(event, new ArrayList<>());
 
         verify(event, times(2)).getEventIdentifier();
         verify(event, times(1)).getXpath();
@@ -254,7 +255,7 @@ public class DrivenBrowserTest {
         when(event.getEventType()).thenReturn(Eventable.EventType.HOVER);
         when(driver.findElement(any(By.class))).thenReturn(element);
 
-        browser.triggerEvent(event, new HashMap<>());
+        browser.triggerEvent(event, new ArrayList<>());
 
         verify(event, times(1)).getEventIdentifier();
         verify(event, times(1)).getXpath();

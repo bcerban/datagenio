@@ -1,5 +1,6 @@
 package com.datagenio.databank.provider;
 
+import com.datagenio.databank.api.InputBuilder;
 import com.datagenio.databank.api.InputPovider;
 import com.github.javafaker.Faker;
 
@@ -10,6 +11,11 @@ public class BooleanProvider implements InputPovider {
 
     public BooleanProvider(Faker faker) {
         this.faker = faker;
+    }
+
+    @Override
+    public String getType() {
+        return InputBuilder.BOOLEAN;
     }
 
     @Override

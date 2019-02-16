@@ -1,5 +1,6 @@
 package com.datagenio.databank.provider;
 
+import com.datagenio.databank.api.InputBuilder;
 import com.datagenio.databank.api.InputPovider;
 import com.github.javafaker.Faker;
 
@@ -10,6 +11,11 @@ public class DateProvider implements InputPovider {
 
     public DateProvider(Faker faker) {
         this.faker = faker;
+    }
+
+    @Override
+    public String getType() {
+        return InputBuilder.DATE;
     }
 
     @Override

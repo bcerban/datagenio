@@ -1,5 +1,6 @@
 package com.datagenio.databank.provider;
 
+import com.datagenio.databank.api.InputBuilder;
 import com.datagenio.databank.api.InputPovider;
 import com.github.javafaker.Faker;
 import org.apache.commons.lang.RandomStringUtils;
@@ -13,6 +14,11 @@ public class NumericProvider implements InputPovider {
 
     public NumericProvider(Faker faker) {
         this.faker = faker;
+    }
+
+    @Override
+    public String getType() {
+        return InputBuilder.NUMBER;
     }
 
     @Override

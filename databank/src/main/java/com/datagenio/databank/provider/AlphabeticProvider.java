@@ -2,10 +2,17 @@ package com.datagenio.databank.provider;
 
 import java.util.Map;
 import java.util.Random;
+
+import com.datagenio.databank.api.InputBuilder;
 import com.datagenio.databank.api.InputPovider;
 import org.apache.commons.lang.RandomStringUtils;
 
 public class AlphabeticProvider implements InputPovider {
+
+    @Override
+    public String getType() {
+        return InputBuilder.ALPHABETIC;
+    }
 
     @Override
     public String provide() {

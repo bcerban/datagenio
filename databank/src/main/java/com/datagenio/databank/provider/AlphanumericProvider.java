@@ -1,5 +1,6 @@
 package com.datagenio.databank.provider;
 
+import com.datagenio.databank.api.InputBuilder;
 import com.datagenio.databank.api.InputPovider;
 import org.apache.commons.lang.RandomStringUtils;
 
@@ -7,6 +8,11 @@ import java.util.Map;
 import java.util.Random;
 
 public class AlphanumericProvider implements InputPovider {
+
+    @Override
+    public String getType() {
+        return InputBuilder.ALPHANUMERIC;
+    }
 
     @Override
     public String provide() {

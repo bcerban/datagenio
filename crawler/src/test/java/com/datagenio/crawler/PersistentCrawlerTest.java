@@ -4,6 +4,7 @@ import com.datagenio.context.Context;
 import com.datagenio.crawler.api.*;
 import com.datagenio.crawler.exception.*;
 import com.datagenio.databank.api.InputBuilder;
+import com.datagenio.storageapi.ReadAdapter;
 import org.jgrapht.GraphPath;
 import org.junit.Before;
 import org.junit.Test;
@@ -23,16 +24,18 @@ public class PersistentCrawlerTest {
     private Context context;
     private PersistentCrawler crawler;
     private InputBuilder inputBuilder;
+    private ReadAdapter readAdapter;
 
     @Before
     public void setUp() {
         browser = mock(Browser.class);
         inputBuilder = mock(InputBuilder.class);
+        readAdapter = mock(ReadAdapter.class);
 
         context = new Context();
         context.setRootUrl(ROOT_URL);
         context.setOutputDirName(OUTPUT_DIR);
-        crawler = new PersistentCrawler(context, browser, inputBuilder);
+        crawler = new PersistentCrawler(context, browser, inputBuilder, readAdapter);
     }
 
     @Test

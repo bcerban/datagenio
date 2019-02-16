@@ -10,9 +10,12 @@ import com.datagenio.databank.util.XPathParser;
 import com.datagenio.model.request.AbstractRequest;
 import com.github.javafaker.Faker;
 import org.apache.commons.lang.StringUtils;
+import org.jgrapht.alg.util.Pair;
 import org.jsoup.nodes.Element;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class CompositeInputBuilder implements InputBuilder {
@@ -48,18 +51,18 @@ public class CompositeInputBuilder implements InputBuilder {
     }
 
     @Override
-    public Map<String, String> buildInputs(Eventable event) {
+    public List<EventInput> buildInputs(Eventable event) {
         return buildInputs(event, event.getSource(), new HashMap<>());
     }
 
-    public Map<String, String> buildInputs(Eventable event, Element element, Map<String, String> presents) {
-        Map<String, String> inputs = new HashMap<>();
+    public List<EventInput> buildInputs(Eventable event, Element element, Map<String, String> presents) {
+        List<EventInput> inputs = new ArrayList<>();
 
         if (isInput(element)) {
             String xpath = XPathParser.getXPathFor(element);
-            inputs.put(xpath, getInputForElement(event.getId(), xpath, element, presents));
+            inputs.add(getInputForElement(event.getId(), xpath, element, presents));
         } else {
-            element.children().forEach((child) -> inputs.putAll(buildInputs(event, child, presents)));
+            element.children().forEach((child) -> inputs.addAll(buildInputs(event, child, presents)));
         }
         return inputs;
     }
@@ -73,27 +76,39 @@ public class CompositeInputBuilder implements InputBuilder {
         return element.is(INPUT_SELECTOR);
     }
 
-    private String getInputForElement(String eventId, String elementXpath, Element element, Map<String, String> presents) {
-        if (contextHasInputDefinition(eventId, elementXpath)) {
-            EventInput definedInput = getInputDefinitionFromContext(eventId, elementXpath);
-
-            if (StringUtils.isNotBlank(definedInput.getInputValue())) {
-                return definedInput.getInputValue();
-            } else if (StringUtils.isNotBlank(definedInput.getInputType())) {
-                return getInputForElement(element, definedInput.getInputType(), presents);
+    private EventInput getInputForElement(String eventId, String elementXpath, Element element, Map<String, String> presents) {
+        EventInput definedInput = getInputDefinitionFromContext(eventId, elementXpath);
+        if (definedInput != null) {
+            if (!StringUtils.isNotBlank(definedInput.getInputType())) {
+                if (!StringUtils.isNotBlank(definedInput.getInputValue())) {
+                    definedInput.setInputValue(getInputForElement(element, definedInput.getInputType(), presents).getSecond());
+                }
+            } else if (StringUtils.isNotBlank(definedInput.getInputValue())) {
+                definedInput.setInputType(REGEX);
             }
+
+            return definedInput;
         }
+
+        definedInput = new EventInput();
+        definedInput.setEventId(eventId);
 
         String elementType = element.attr("type");
         if (StringUtils.isNotBlank(elementType)) {
-            return getInputForElement(element, elementType, presents);
+            var typeValuePair = getInputForElement(element, elementType, presents);
+            definedInput.setInputType(typeValuePair.getFirst());
+            definedInput.setInputValue(typeValuePair.getSecond());
+        } else {
+            var defaultProvider = providersByType.get(DEFAULT);
+            definedInput.setInputType(defaultProvider.getType());
+            definedInput.setInputValue(defaultProvider.provide());
         }
 
-        return providersByType.get(DEFAULT).provide();
+        return definedInput;
     }
 
-    private String getInputForElement(Element element, String type, Map<String, String> presents) {
-        if (type.equals(HIDDEN)) return element.val();
+    private Pair<String, String> getInputForElement(Element element, String type, Map<String, String> presents) {
+        if (type.equals(HIDDEN)) return new Pair<>(HIDDEN, element.val());
 
         String maxLength = element.attr("maxlength");
         String pattern = element.attr("pattern");
@@ -123,27 +138,31 @@ public class CompositeInputBuilder implements InputBuilder {
             if (!presents.containsKey(PASSWORD)) {
                 presents.put(PASSWORD, providersByType.get(PASSWORD).provide(constraints));
             }
-            return presents.get(PASSWORD);
+            return new Pair<>(PASSWORD, presents.get(PASSWORD));
         }
 
         if (providersByType.containsKey(type)) {
-            return providersByType.get(type).provide(constraints);
+            return new Pair<>(type, providersByType.get(type).provide(constraints));
         }
 
-        return providersByType.get(DEFAULT).provide(constraints);
-    }
-
-    private boolean contextHasInputDefinition(String eventId, String elementXpath) {
-        return context.getEventInputs()
-                .stream()
-                .filter(i -> i.getEventId().equals(eventId) && i.getXpath().equals(elementXpath))
-                .count() > 0;
+        var defaultProvider = providersByType.get(DEFAULT);
+        return new Pair<>(defaultProvider.getType(), defaultProvider.provide(constraints));
     }
 
     private EventInput getInputDefinitionFromContext(String eventId, String elementXpath) {
-        return context.getEventInputs()
+        var maybe = context.getEventInputs()
                 .stream()
                 .filter(i -> i.getEventId().equals(eventId) && i.getXpath().equals(elementXpath))
-                .findFirst().get();
+                .findFirst();
+
+        if (maybe.isPresent()) {
+            var defined = maybe.get();
+            if (canUseDefined(defined)) return defined;
+        }
+        return null;
+    }
+
+    private boolean canUseDefined(EventInput defined) {
+        return StringUtils.isNotBlank(defined.getInputType()) || StringUtils.isNotBlank(defined.getInputValue());
     }
 }
