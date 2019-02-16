@@ -17,10 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.URI;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class PersistentCrawler implements com.datagenio.crawler.api.Crawler {
 
@@ -183,6 +180,18 @@ public class PersistentCrawler implements com.datagenio.crawler.api.Crawler {
             if (SiteBoundChecker.isOutOfBounds(newState.getUri(), context)) {
                 throw new OutOfBoundsException("Trying to access " + newState.getUri().toString());
             }
+
+            var stateEvents = new ArrayList<Eventable>();
+            newState.getEventables().forEach(e -> {
+                var graphEvent = graph.getEvent(e);
+                if (graphEvent != null) {
+                    stateEvents.add(graphEvent);
+                } else {
+                    stateEvents.add(e);
+                }
+            });
+            newState.setEventables(stateEvents);
+            newState.setUnfiredEventables(stateEvents);
 
             return newState;
         } catch (BrowserException e) {

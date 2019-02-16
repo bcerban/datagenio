@@ -300,12 +300,15 @@ public class DrivenBrowser implements Browser {
             // Instead, we are required to find the submit button/input and CLICK on it.
             // element.submit();
             findSubmitElement(event).click();
+            Thread.sleep(5000);
         } catch (StaleElementReferenceException|ElementNotInteractableException|NoSuchElementException e) {
             logger.debug(
                     "Element for event {} is unavailable in {}. Error: {}",
                     event.getEventIdentifier(), driver.getCurrentUrl(), e.getMessage()
             );
             throw new EventTriggerException("Selected event is stale.", e);
+        } catch (InterruptedException e) {
+            logger.debug(e.getMessage());
         } finally {
             driver.manage().timeouts().implicitlyWait(DEFAULT_WAIT_AFTER_LOAD, TimeUnit.SECONDS);
             writeLock.unlock();
