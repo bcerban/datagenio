@@ -1,6 +1,5 @@
 package com.datagenio.crawler.api;
 
-import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
 public interface Eventable {
@@ -23,7 +22,6 @@ public interface Eventable {
     boolean requiresInput();
     Status getStatus();
     String getReasonForFailure();
-    Document getParent();
 
     void setId(String id);
     void setSource(Element source);
@@ -32,6 +30,5 @@ public interface Eventable {
     void setIsNavigation(boolean isNavigation);
     void setStatus(Status status);
     void setReasonForFailure(String reasonForFailure);
-    void setParent(Document parent);
     void setXpath(String xpath);
 }

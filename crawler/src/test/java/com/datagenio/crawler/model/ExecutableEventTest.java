@@ -61,18 +61,6 @@ public class ExecutableEventTest {
     }
 
     @Test
-    public void testGetParent() {
-        assertEquals(this.parent, this.executableEvent.getParent());
-    }
-
-    @Test
-    public void testSetParent() {
-        var newParent = new Document("some-uri");
-        this.executableEvent.setParent(newParent);
-        assertEquals(newParent, this.executableEvent.getParent());
-    }
-
-    @Test
     public void testGetXpath() {
         assertEquals("/html/body/span[1]/button", this.executableEvent.getXpath());
     }

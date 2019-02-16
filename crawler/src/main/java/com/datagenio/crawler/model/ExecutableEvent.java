@@ -25,16 +25,12 @@ public class ExecutableEvent implements Eventable {
     private Status status = Status.NOT_EXECUTED;
     private String reasonForFailure = "";
 
-    /** Not sure whether saving the full DOM is necessary, but it can be removed later. */
-    private Document parent;
-
     public ExecutableEvent() {}
 
     public ExecutableEvent(Element e, EventType event) {
         uid = UUID.randomUUID().toString();
         source = e;
         eventType = event;
-        parent = source.ownerDocument();
         xpath = XPathParser.getXPathFor(source);
     }
 
@@ -79,23 +75,6 @@ public class ExecutableEvent implements Eventable {
     @Override
     public void setHandler(String handler) {
         this.handler = handler;
-    }
-
-    @Override
-    public Document getParent() {
-        return parent;
-    }
-
-    @Override
-    public void setParent(Document parent) {
-        if (xpath != null) {
-            try {
-                source = XPathParser.getChildByXpath(parent, xpath);
-                this.parent = parent;
-            } catch (NoSuchElementException e) {}
-        } else {
-            this.parent = parent;
-        }
     }
 
     @Override
