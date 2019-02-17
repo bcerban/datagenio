@@ -20,7 +20,7 @@ public class PasswordProvider implements InputPovider {
 
     @Override
     public String provide() {
-        return faker.internet().password();
+        return faker.internet().password(8, 16, true, true);
     }
 
     @Override

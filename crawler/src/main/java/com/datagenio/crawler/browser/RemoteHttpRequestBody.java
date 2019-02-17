@@ -11,11 +11,12 @@ import java.util.List;
 
 public class RemoteHttpRequestBody implements RemoteRequestBody {
 
-    private static final String MULTIPART_FORM_DATA = "multipart/form-data;";
-    private static final String FORM_DATA_BOUNDARY = "boundary=";
-    private static final String FORM_DATA_CONTENT = "Content-Disposition: form-data;";
+    public static final String MULTIPART_FORM_DATA = "multipart/form-data;";
+    public static final String FORM_DATA_BOUNDARY  = "boundary=";
+    public static final String FORM_DATA_CONTENT   = "Content-Disposition: form-data;";
 
     private String mimeType;
+    private String boundary;
     private Collection<RemoteRequestBodyPart> parts;
 
     public RemoteHttpRequestBody() {
@@ -43,7 +44,7 @@ public class RemoteHttpRequestBody implements RemoteRequestBody {
         String[] mimeTypeParts = mimeType.split(FORM_DATA_BOUNDARY);
         if (mimeTypeParts.length >= 2 && mimeTypeParts[0].trim().toLowerCase().equals(MULTIPART_FORM_DATA)) {
             mimeType = mimeTypeParts[0].trim();
-            String boundary = mimeTypeParts[1];
+            boundary = mimeTypeParts[1];
 
             String[] textParts = postDataText.split(boundary);
             if (textParts.length > 0) {
@@ -77,6 +78,16 @@ public class RemoteHttpRequestBody implements RemoteRequestBody {
     @Override
     public void setMimeType(String type) {
         mimeType = type;
+    }
+
+    @Override
+    public String getBoundary() {
+        return boundary;
+    }
+
+    @Override
+    public void setBoundary(String boundary) {
+        this.boundary = boundary;
     }
 
     @Override
