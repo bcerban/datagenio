@@ -1,7 +1,9 @@
 package com.datagenio.databank.api;
 
+import java.util.List;
 import java.util.Map;
 
+import com.datagenio.context.EventInput;
 import com.datagenio.crawler.api.Eventable;
 import com.datagenio.model.request.AbstractRequest;
 
@@ -21,6 +23,7 @@ public interface InputBuilder {
     String RADIO = "radio";
     String HIDDEN = "hidden";
 
-    Map<String, String> buildInputs(Eventable event);
+    InputPovider getProviderByType(String type);
+    List<EventInput> buildInputs(Eventable event);
     Map<String, String> buildInputs(AbstractRequest request);
 }

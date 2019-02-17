@@ -12,6 +12,7 @@ import com.datagenio.crawler.util.HtmlSaver;
 import com.datagenio.crawler.util.ScreenShotSaver;
 import com.datagenio.crawler.util.SiteBoundChecker;
 import com.datagenio.databank.api.InputBuilder;
+import com.datagenio.storageapi.ReadAdapter;
 import org.jgrapht.GraphPath;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,14 +28,16 @@ public class PersistentCrawler implements com.datagenio.crawler.api.Crawler {
     private Browser browser;
     private EventFlowGraph graph;
     private InputBuilder inputBuilder;
+    private ReadAdapter readAdapter;
 
-    public PersistentCrawler(Context context, Browser browser, InputBuilder inputBuilder) {
+    public PersistentCrawler(Context context, Browser browser, InputBuilder inputBuilder, ReadAdapter readAdapter) {
         this.context = context;
         this.browser = browser;
         this.inputBuilder = inputBuilder;
+        this.readAdapter = readAdapter;
 
         if (context.isContinueExistingModel()) {
-            graph = context.getReadAdapter().loadEventModel();
+            graph = readAdapter.loadEventModel();
             updateGraphFromContext();
         }
     }
@@ -108,9 +111,7 @@ public class PersistentCrawler implements com.datagenio.crawler.api.Crawler {
 
     private void crawlState(State current, Eventable event) throws UncrawlableStateException, BrowserException {
         try {
-            Map<String, String> inputs = new HashMap<>();
-            if (event.requiresInput()) inputs = inputBuilder.buildInputs(event);
-
+            List<EventInput> inputs = event.requiresInput() ? inputBuilder.buildInputs(event) : new ArrayList<>();
             State newState = executeEvent(event, inputs);
 
             if (getGraph().isNewState(newState)) {
@@ -126,7 +127,7 @@ public class PersistentCrawler implements com.datagenio.crawler.api.Crawler {
             // Add transition only if new for state and event
             if (graph.findTransitions(event, newState).size() == 0) {
                 var transition = new Transition(current, newState, new ExecutedEvent(event, inputs));
-                transition.setRequests(getRequestsForEvent(newState));
+                transition.setRequests(getRequestsForEvent(event));
                 transition.setStatus(Transitionable.Status.TRAVERSED);
                 getGraph().addTransition(transition);
             }
@@ -167,12 +168,12 @@ public class PersistentCrawler implements com.datagenio.crawler.api.Crawler {
 
     }
 
-    private Collection<RemoteRequest> getRequestsForEvent(State state) {
+    private Collection<RemoteRequest> getRequestsForEvent(Eventable event) {
         // Save har
-        return browser.getCapturedRequests(context.getRootUri(), state.getIdentifier(), context.getOutputDirName());
+        return browser.getCapturedRequests(context.getRootUri(), event.getId(), context.getOutputDirName());
     }
 
-    private State executeEvent(Eventable event, Map<String, String> inputs) throws UnsupportedEventTypeException, OutOfBoundsException, EventTriggerException {
+    private State executeEvent(Eventable event, List<EventInput> inputs) throws UnsupportedEventTypeException, OutOfBoundsException, EventTriggerException {
         try {
             browser.triggerEvent(event, inputs);
             State newState = browser.getCurrentBrowserState();

@@ -1,11 +1,12 @@
 package com.datagenio.crawler.model;
 
+import com.datagenio.context.EventInput;
 import com.datagenio.crawler.api.Eventable;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.mockito.Mockito.*;
 import static org.junit.Assert.*;
@@ -40,15 +41,8 @@ public class ExecutedEventTest {
 
     @Test
     public void testSetDataInputs() {
-        Map<String, String> newInputs = new LinkedHashMap<>();
+        List<EventInput> newInputs = new ArrayList<>();
         this.executedEvent.setDataInputs(newInputs);
         assertEquals(newInputs, this.executedEvent.getDataInputs());
-    }
-
-    @Test
-    public void testAddInput() {
-        this.executedEvent.addInput("name", "testname");
-        assertTrue(this.executedEvent.getDataInputs().containsKey("name"));
-        assertEquals("testname", this.executedEvent.getDataInputs().get("name"));
     }
 }

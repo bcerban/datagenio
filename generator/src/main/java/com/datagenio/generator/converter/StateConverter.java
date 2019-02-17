@@ -46,7 +46,7 @@ public class StateConverter {
 
     private Collection<AbstractRequest> convertRequestsFromTransition(Transitionable transition) {
         return transition.getFilteredRequests(rootUri)
-                .stream().map(r -> requestAbstractor.process(r))
+                .stream().map(r -> requestAbstractor.process(r, transition.getExecutedEvent().getEvent(), transition.getExecutedEvent().getDataInputs()))
                 .collect(Collectors.toList());
     }
 }

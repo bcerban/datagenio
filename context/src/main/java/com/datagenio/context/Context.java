@@ -1,7 +1,5 @@
 package com.datagenio.context;
 
-import com.datagenio.storageapi.ReadAdapter;
-import com.datagenio.storageapi.WriteAdapter;
 import com.google.gson.annotations.SerializedName;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
@@ -58,9 +56,6 @@ public class Context {
 
     @SerializedName("event_inputs")
     private List<EventInput> eventInputs;
-
-    private ReadAdapter readAdapter;
-    private WriteAdapter writeAdapter;
 
     public Context() {
         crawlDepth      = NO_MAX_DEPTH;
@@ -169,22 +164,6 @@ public class Context {
 
     public void setDataSetOnly(boolean dataSetOnly) {
         this.dataSetOnly = dataSetOnly;
-    }
-
-    public ReadAdapter getReadAdapter() {
-        return readAdapter;
-    }
-
-    public void setReadAdapter(ReadAdapter readAdapter) {
-        this.readAdapter = readAdapter;
-    }
-
-    public WriteAdapter getWriteAdapter() {
-        return writeAdapter;
-    }
-
-    public void setWriteAdapter(WriteAdapter writeAdapter) {
-        this.writeAdapter = writeAdapter;
     }
 
     public String getFormat() {

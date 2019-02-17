@@ -1,5 +1,6 @@
 package com.datagenio.databank.provider;
 
+import com.datagenio.databank.api.InputBuilder;
 import com.datagenio.databank.api.InputPovider;
 import com.github.javafaker.Faker;
 
@@ -11,6 +12,11 @@ public class RegexProvider implements InputPovider {
 
     public RegexProvider(Faker faker) {
         this.faker = faker;
+    }
+
+    @Override
+    public String getType() {
+        return InputBuilder.REGEX;
     }
 
     @Override

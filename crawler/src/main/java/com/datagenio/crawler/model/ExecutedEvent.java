@@ -1,22 +1,23 @@
 package com.datagenio.crawler.model;
 
+import com.datagenio.context.EventInput;
 import com.datagenio.crawler.api.Eventable;
 import com.datagenio.crawler.api.ExecutedEventable;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ExecutedEvent implements ExecutedEventable {
 
     private Eventable event;
-    private Map<String, String> inputs;
+    private List<EventInput> inputs;
 
     public ExecutedEvent(Eventable event) {
         this.event = event;
-        this.inputs = new HashMap<>();
+        this.inputs = new ArrayList<>();
     }
 
-    public ExecutedEvent(Eventable event, Map<String, String> inputs) {
+    public ExecutedEvent(Eventable event, List<EventInput> inputs) {
         this.event = event;
         this.inputs = inputs;
     }
@@ -27,7 +28,7 @@ public class ExecutedEvent implements ExecutedEventable {
     }
 
     @Override
-    public Map<String, String> getDataInputs() {
+    public List<EventInput> getDataInputs() {
         return this.inputs;
     }
 
@@ -37,12 +38,7 @@ public class ExecutedEvent implements ExecutedEventable {
     }
 
     @Override
-    public void setDataInputs(Map<String, String> inputs) {
+    public void setDataInputs(List<EventInput> inputs) {
         this.inputs = inputs;
-    }
-
-    @Override
-    public void addInput(String field, String value) {
-        this.inputs.put(field, value);
     }
 }

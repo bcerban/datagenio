@@ -1,5 +1,6 @@
 package com.datagenio.crawler.browser;
 
+import com.datagenio.context.EventInput;
 import com.datagenio.crawler.api.*;
 import com.datagenio.crawler.exception.BrowserException;
 import com.datagenio.crawler.exception.EventTriggerException;
@@ -234,7 +235,7 @@ public class DrivenBrowser implements Browser {
     }
 
     @Override
-    public void triggerEvent(Eventable event, Map<String, String> inputs) throws UnsupportedEventTypeException, EventTriggerException {
+    public void triggerEvent(Eventable event, List<EventInput> inputs) throws UnsupportedEventTypeException, EventTriggerException {
         logger.debug("Attempting to trigger event {}...", event.getEventIdentifier());
         writeLock.lock();
         WebElement element = null;
@@ -255,7 +256,7 @@ public class DrivenBrowser implements Browser {
         handleEventByType(event, element, inputs);
     }
 
-    private void handleEventByType(Eventable event, WebElement element, Map<String, String> inputs) throws UnsupportedEventTypeException, EventTriggerException {
+    private void handleEventByType(Eventable event, WebElement element, List<EventInput> inputs) throws UnsupportedEventTypeException, EventTriggerException {
         Eventable.EventType type = event.getEventType();
         switch (type) {
             case CLICK:
@@ -290,7 +291,7 @@ public class DrivenBrowser implements Browser {
         }
     }
 
-    public void triggerSubmitEvent(Eventable event, WebElement element, Map<String, String> inputs) throws EventTriggerException {
+    public void triggerSubmitEvent(Eventable event, WebElement element, List<EventInput> inputs) throws EventTriggerException {
         writeLock.lock();
         try {
             driver.manage().timeouts().implicitlyWait(DEFAULT_WAIT_AFTER_SUBMIT, TimeUnit.SECONDS);
@@ -324,8 +325,8 @@ public class DrivenBrowser implements Browser {
         throw new NoSuchElementException("Submittable child not found.");
     }
 
-    private void fillElementInputs(WebElement element, Map<String, String> inputs) {
-        inputs.forEach((xpath, value) -> fillElementByXpath(element, xpath, value));
+    private void fillElementInputs(WebElement element, List<EventInput> inputs) {
+        inputs.forEach(input -> fillElementByXpath(element, input.getXpath(), input.getInputValue()));
     }
 
     private void fillElementByXpath(WebElement element, String xpath, String value) {

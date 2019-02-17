@@ -16,6 +16,9 @@ public class EventInput {
     @SerializedName("input_value")
     private String inputValue;
 
+    @SerializedName("input_required")
+    private String required;
+
     public String getXpath() {
         return xpath;
     }
@@ -46,5 +49,13 @@ public class EventInput {
 
     public void setEventId(String eventId) {
         this.eventId = eventId;
+    }
+
+    public String getRequired() {
+        return required;
+    }
+
+    public void setRequired(String required) {
+        this.required = required;
     }
 }

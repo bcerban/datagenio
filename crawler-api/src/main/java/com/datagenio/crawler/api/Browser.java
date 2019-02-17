@@ -1,5 +1,6 @@
 package com.datagenio.crawler.api;
 
+import com.datagenio.context.EventInput;
 import com.datagenio.crawler.exception.BrowserException;
 import com.datagenio.crawler.exception.EventTriggerException;
 import com.datagenio.crawler.exception.UnsupportedEventTypeException;
@@ -9,6 +10,7 @@ import org.jsoup.nodes.Document;
 import java.io.File;
 import java.net.URI;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 public interface Browser {
@@ -22,7 +24,7 @@ public interface Browser {
     void close() throws BrowserException;
     void quit() throws BrowserException;
     void pause() throws BrowserException;
-    void triggerEvent(Eventable event, Map<String, String> inputs) throws UnsupportedEventTypeException, EventTriggerException;
+    void triggerEvent(Eventable event, List<EventInput> inputs) throws UnsupportedEventTypeException, EventTriggerException;
 
     State getCurrentBrowserState() throws BrowserException;
     Document getDOM() throws BrowserException;

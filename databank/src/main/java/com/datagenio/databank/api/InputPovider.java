@@ -12,6 +12,7 @@ public interface InputPovider {
     int DEFAULT_MIN_LENGTH = 4;
     int DEFAULT_MAX_LENGTH = 256;
 
+    String getType();
     String provide();
     String provide(Map<String, Object> constraints);
 }

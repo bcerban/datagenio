@@ -12,6 +12,7 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module" module-name="crawler-api" />
+    <orderEntry type="module" module-name="context" />
     <orderEntry type="library" name="Maven: org.jsoup:jsoup:1.11.3" level="project" />
     <orderEntry type="library" name="Maven: org.jgrapht:jgrapht-core:1.3.0" level="project" />
     <orderEntry type="library" name="Maven: org.jheaps:jheaps:0.9" level="project" />
