@@ -28,7 +28,7 @@ public class AbstractBodyTest {
     @Test
     public void testAddProperty() {
         TypedParam property = new TypedParam("name", ALPHANUMERIC);
-        this.body.addProperty(property);
+        this.body.addParam(property);
         assertTrue(this.body.getTypedParams().contains(property));
     }
 
@@ -44,8 +44,8 @@ public class AbstractBodyTest {
         var requiredProp = new TypedParam("username", ALPHANUMERIC, true);
         var optionalProp = new TypedParam("password", ALPHANUMERIC, false);
 
-        this.body.addProperty(requiredProp);
-        this.body.addProperty(optionalProp);
+        this.body.addParam(requiredProp);
+        this.body.addParam(optionalProp);
 
         assertTrue(this.body.getRequiredParams().contains(requiredProp));
         assertFalse(this.body.getRequiredParams().contains(optionalProp));
@@ -59,14 +59,14 @@ public class AbstractBodyTest {
     @Test
     public void testEqualsDiffRequired() {
         AbstractBody other = new AbstractBody();
-        other.addProperty(new TypedParam("person", ALPHANUMERIC, true));
+        other.addParam(new TypedParam("person", ALPHANUMERIC, true));
         assertFalse(this.body.equals(other));
     }
 
     @Test
     public void testEqualsDiffOptional() {
         AbstractBody other = new AbstractBody();
-        other.addProperty(new TypedParam("person", ALPHANUMERIC, false));
+        other.addParam(new TypedParam("person", ALPHANUMERIC, false));
         assertTrue(this.body.equals(other));
     }
 

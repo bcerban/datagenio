@@ -20,7 +20,7 @@ public class AbstractBody {
         this.typedParams = typedParams;
     }
 
-    public void addProperty(TypedParam param) {
+    public void addParam(TypedParam param) {
         typedParams.add(param);
     }
 

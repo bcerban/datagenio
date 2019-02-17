@@ -25,4 +25,9 @@ public class HttpHeader {
     public void setValue(String value) {
         this.value = value;
     }
+
+    @Override
+    public String toString() {
+        return String.format("%s: %s", getName(), getValue());
+    }
 }

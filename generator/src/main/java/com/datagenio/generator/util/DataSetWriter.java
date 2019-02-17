@@ -31,7 +31,7 @@ public class DataSetWriter {
 
         lines.forEach(line -> {
             try {
-                bw.write(line);
+                bw.append(line);
                 bw.newLine();
             } catch (IOException e) {
                 logger.info("Failed to write line.", e);

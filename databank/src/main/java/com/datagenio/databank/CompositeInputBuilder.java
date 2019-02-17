@@ -47,7 +47,19 @@ public class CompositeInputBuilder implements InputBuilder {
 
     @Override
     public Map<String, String> buildInputs(AbstractRequest request) {
-        return new HashMap<>();
+        var inputs = new HashMap<String, String>();
+
+        request.getUrl().getTypedParams().forEach(p -> {
+            inputs.put(p.getName(), getProviderByType(p.getType()).provide());
+        });
+
+        if (request.hasBody()) {
+            request.getBody().getTypedParams().forEach(p -> {
+                inputs.put(p.getName(), getProviderByType(p.getType()).provide());
+            });
+        }
+
+        return inputs;
     }
 
     @Override
