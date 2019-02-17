@@ -132,7 +132,7 @@ public class AbstractRequestTest {
     @Test
     public void testEqualsDiffBody() {
         AbstractBody body = new AbstractBody();
-        body.addProperty(new TypedParam("product", AbstractBodyTest.OBJECT));
+        body.addParam(new TypedParam("product", AbstractBodyTest.OBJECT));
 
         AbstractRequest other = new AbstractRequest("POST", this.request.getUrl());
         other.setHeaders(this.request.getHeaders());

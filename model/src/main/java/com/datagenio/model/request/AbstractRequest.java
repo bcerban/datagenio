@@ -18,61 +18,53 @@ public class AbstractRequest {
         this.url = url;
     }
 
-
     public String getMethod() {
         return method;
     }
-
 
     public void setMethod(String method) {
         this.method = method;
     }
 
-
     public AbstractUrl getUrl() {
         return url;
     }
-
 
     public void setUrl(AbstractUrl requestUrl) {
         this.url = requestUrl;
     }
 
+    public boolean hasBody() {
+        return body != null;
+    }
 
     public AbstractBody getBody() {
         return body;
     }
 
-
     public void setBody(AbstractBody requestBody) {
         this.body = requestBody;
     }
-
 
     public Collection<HttpHeader> getHeaders() {
         return headers;
     }
 
-
     public void setHeaders(Collection<HttpHeader> headers) {
         this.headers = headers;
     }
-
 
     public void addHeader(HttpHeader header) {
         this.headers.add(header);
     }
 
-
     public void addHeader(String name, String value) {
         this.headers.add(new HttpHeader(name, value));
     }
 
-
     public int getSortOrder() {
         return sortOrder;
     }
-
 
     public void setSortOrder(int sortOrder) {
         this.sortOrder = sortOrder;

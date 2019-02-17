@@ -27,7 +27,7 @@ public class BodyConverter {
     public AbstractBody process(RemoteRequestBody remoteRequestBody, Eventable event, List<EventInput> inputs) {
         var body = new AbstractBody();
         remoteRequestBody.getParts().forEach(part -> {
-            body.addProperty(ParamProcessor.processPart(part, event.getSource(), inputs, inputBuilder));
+            body.addParam(ParamProcessor.processPart(part, event.getSource(), inputs, inputBuilder));
         });
         return body;
     }

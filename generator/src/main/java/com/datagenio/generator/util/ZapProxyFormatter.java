@@ -18,4 +18,14 @@ public class ZapProxyFormatter implements RequestFormatter {
     public String getFormatExtension() {
         return ZAP_EXTENSION;
     }
+
+    @Override
+    public String getHeaderLine() {
+        return "";
+    }
+
+    @Override
+    public boolean requiredHeader() {
+        return false;
+    }
 }

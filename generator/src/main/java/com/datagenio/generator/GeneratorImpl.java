@@ -84,13 +84,14 @@ public class GeneratorImpl implements Generator {
         logger.info("Beginning data set generation...");
 
         DataSetWriter writer = new DataSetWriter(context, formatter);
-        webModel.getTransitions().forEach(transition -> {
-            List<String> lines = generateTransitionData(transition);
-            try {
-                writer.writeLines(lines);
-            } catch (FileNotFoundException e) { }
-        });
+        List<String> lines = new ArrayList<>();
 
+        if (formatter.requiredHeader()) lines.add(formatter.getHeaderLine());
+        webModel.getTransitions().forEach(transition -> lines.addAll(generateTransitionData(transition)));
+
+        try {
+            writer.writeLines(lines);
+        } catch (FileNotFoundException e) { }
         logger.info("Data set generation finished.");
     }
 
