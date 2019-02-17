@@ -1,7 +1,6 @@
 package com.datagenio.model.request;
 
 import com.datagenio.model.Session;
-import com.datagenio.model.ParamTypes;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -11,6 +10,7 @@ import java.util.Collection;
 import static org.junit.Assert.*;
 
 public class AbstractRequestTest {
+
     private AbstractRequest request;
 
     @Before
@@ -132,7 +132,7 @@ public class AbstractRequestTest {
     @Test
     public void testEqualsDiffBody() {
         AbstractBody body = new AbstractBody();
-        body.addProperty(new TypedParam("product", ParamTypes.OBJECT));
+        body.addProperty(new TypedParam("product", AbstractBodyTest.OBJECT));
 
         AbstractRequest other = new AbstractRequest("POST", this.request.getUrl());
         other.setHeaders(this.request.getHeaders());

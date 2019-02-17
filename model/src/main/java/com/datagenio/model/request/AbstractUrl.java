@@ -1,7 +1,5 @@
 package com.datagenio.model.request;
 
-import com.datagenio.model.ParamTypes;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Objects;
@@ -41,11 +39,11 @@ public class AbstractUrl {
         this.typedParams.add(param);
     }
 
-    public void addTypedParam(String name, ParamTypes type) {
+    public void addTypedParam(String name, String type) {
         this.addTypedParam(new TypedParam(name, type, false));
     }
 
-    public void addTypedParam(String name, ParamTypes type, boolean required) {
+    public void addTypedParam(String name, String type, boolean required) {
         this.typedParams.add(new TypedParam(name, type, required));
     }
 

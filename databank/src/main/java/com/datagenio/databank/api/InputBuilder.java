@@ -23,6 +23,7 @@ public interface InputBuilder {
     String RADIO = "radio";
     String HIDDEN = "hidden";
 
+    InputPovider getProviderByType(String type);
     List<EventInput> buildInputs(Eventable event);
     Map<String, String> buildInputs(AbstractRequest request);
 }

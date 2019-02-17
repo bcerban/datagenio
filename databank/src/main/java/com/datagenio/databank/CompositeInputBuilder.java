@@ -51,6 +51,15 @@ public class CompositeInputBuilder implements InputBuilder {
     }
 
     @Override
+    public InputPovider getProviderByType(String type) {
+        if (providersByType.containsKey(type)) {
+            return providersByType.get(type);
+        }
+
+        return providersByType.get(DEFAULT);
+    }
+
+    @Override
     public List<EventInput> buildInputs(Eventable event) {
         return buildInputs(event, event.getSource(), new HashMap<>());
     }
@@ -92,6 +101,7 @@ public class CompositeInputBuilder implements InputBuilder {
 
         definedInput = new EventInput();
         definedInput.setEventId(eventId);
+        definedInput.setXpath(elementXpath);
 
         String elementType = element.attr("type");
         if (StringUtils.isNotBlank(elementType)) {
@@ -141,12 +151,8 @@ public class CompositeInputBuilder implements InputBuilder {
             return new Pair<>(PASSWORD, presents.get(PASSWORD));
         }
 
-        if (providersByType.containsKey(type)) {
-            return new Pair<>(type, providersByType.get(type).provide(constraints));
-        }
-
-        var defaultProvider = providersByType.get(DEFAULT);
-        return new Pair<>(defaultProvider.getType(), defaultProvider.provide(constraints));
+        var provider = getProviderByType(type);
+        return new Pair<>(provider.getType(), provider.provide(constraints));
     }
 
     private EventInput getInputDefinitionFromContext(String eventId, String elementXpath) {

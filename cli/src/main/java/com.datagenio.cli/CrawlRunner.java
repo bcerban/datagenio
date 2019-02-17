@@ -126,16 +126,13 @@ public class CrawlRunner {
     private static GeneratorImpl getGenerator(Context context) throws DatagenioException {
         var gson = new GsonBuilder().setPrettyPrinting().create();
 
-        var connection = ConnectionResolver.get(context.getConfiguration());
-        var readAdapter = new Neo4JReadAdapter(context.getConfiguration(), connection);
-        var writeAdapter = new Neo4JWriteAdapter(context.getConfiguration(), connection, gson);
-        var urlAbstractor = new UrlAbstractor();
-        var bodyConverter = new BodyConverter();
-        var requestAbstractor = new HttpRequestAbstractor(urlAbstractor, bodyConverter);
-        var stateConverter = new StateConverter(urlAbstractor, requestAbstractor, context.getRootUri());
-
-//        context.setReadAdapter(readAdapter);
-//        context.setWriteAdapter(writeAdapter);
+        var connection          = ConnectionResolver.get(context.getConfiguration());
+        var readAdapter         = new Neo4JReadAdapter(context.getConfiguration(), connection);
+        var writeAdapter        = new Neo4JWriteAdapter(context.getConfiguration(), connection, gson);
+        var urlAbstractor       = new UrlAbstractor(InputBuilderFactory.get(context));
+        var bodyConverter       = new BodyConverter(InputBuilderFactory.get(context));
+        var requestAbstractor   = new HttpRequestAbstractor(urlAbstractor, bodyConverter);
+        var stateConverter      = new StateConverter(urlAbstractor, requestAbstractor, context.getRootUri());
 
         var crawler = new PersistentCrawler(context, BrowserFactory.drivenByFirefox(), InputBuilderFactory.get(context), readAdapter);
         return new GeneratorImpl(context, crawler, new GraphConverterImpl(context, stateConverter, requestAbstractor), readAdapter, writeAdapter);

@@ -50,7 +50,7 @@ public class GraphConverterImpl implements GraphConverter {
 
             WebTransition webTransition = new WebTransition(origin, destination);
             transition.getFilteredRequests(context.getRootUri()).forEach(
-                    request -> webTransition.addRequest(requestAbstractor.process(request))
+                    request -> webTransition.addRequest(requestAbstractor.process(request, transition.getExecutedEvent().getEvent(), transition.getExecutedEvent().getDataInputs()))
             );
 
             webGraph.addTransition(webTransition);

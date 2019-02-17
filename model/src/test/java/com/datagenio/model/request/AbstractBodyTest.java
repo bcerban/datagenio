@@ -1,6 +1,5 @@
 package com.datagenio.model.request;
 
-import com.datagenio.model.ParamTypes;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -9,6 +8,10 @@ import java.util.ArrayList;
 import static org.junit.Assert.*;
 
 public class AbstractBodyTest {
+
+    public static final String ALPHANUMERIC = "alphanumeric";
+    public static final String ALPHABETIC = "alphabetic";
+    public static final String OBJECT = "object";
 
     private AbstractBody body;
 
@@ -24,7 +27,7 @@ public class AbstractBodyTest {
 
     @Test
     public void testAddProperty() {
-        TypedParam property = new TypedParam("name", ParamTypes.ALPHANUMERIC);
+        TypedParam property = new TypedParam("name", ALPHANUMERIC);
         this.body.addProperty(property);
         assertTrue(this.body.getTypedParams().contains(property));
     }
@@ -38,8 +41,8 @@ public class AbstractBodyTest {
 
     @Test
     public void testGetRequiredProperties() {
-        var requiredProp = new TypedParam("username", ParamTypes.ALPHANUMERIC, true);
-        var optionalProp = new TypedParam("password", ParamTypes.ALPHANUMERIC, false);
+        var requiredProp = new TypedParam("username", ALPHANUMERIC, true);
+        var optionalProp = new TypedParam("password", ALPHANUMERIC, false);
 
         this.body.addProperty(requiredProp);
         this.body.addProperty(optionalProp);
@@ -56,14 +59,14 @@ public class AbstractBodyTest {
     @Test
     public void testEqualsDiffRequired() {
         AbstractBody other = new AbstractBody();
-        other.addProperty(new TypedParam("person", ParamTypes.ALPHANUMERIC, true));
+        other.addProperty(new TypedParam("person", ALPHANUMERIC, true));
         assertFalse(this.body.equals(other));
     }
 
     @Test
     public void testEqualsDiffOptional() {
         AbstractBody other = new AbstractBody();
-        other.addProperty(new TypedParam("person", ParamTypes.ALPHANUMERIC, false));
+        other.addProperty(new TypedParam("person", ALPHANUMERIC, false));
         assertTrue(this.body.equals(other));
     }
 
