@@ -6,7 +6,13 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class AbstractBody {
+    public static final String MULTIPART_FORM_DATA = "multipart/form-data;";
+    public static final String FORM_DATA_BOUNDARY  = "boundary=";
+    public static final String FORM_DATA_CONTENT   = "Content-Disposition: form-data;";
+
     private Collection<TypedParam> typedParams;
+    private String contentType;
+    private String boundary;
 
     public AbstractBody() {
         this.typedParams = new ArrayList<>();
@@ -18,6 +24,22 @@ public class AbstractBody {
 
     public void setTypedParams(Collection<TypedParam> typedParams) {
         this.typedParams = typedParams;
+    }
+
+    public String getContentType() {
+        return contentType;
+    }
+
+    public void setContentType(String contentType) {
+        this.contentType = contentType;
+    }
+
+    public String getBoundary() {
+        return boundary;
+    }
+
+    public void setBoundary(String boundary) {
+        this.boundary = boundary;
     }
 
     public void addParam(TypedParam param) {

@@ -7,6 +7,7 @@ import com.datagenio.crawler.exception.EventTriggerException;
 import com.datagenio.crawler.exception.UnsupportedEventTypeException;
 import com.datagenio.crawler.model.StateImpl;
 import com.datagenio.crawler.util.EventExtractorFactory;
+import com.datagenio.crawler.util.SubmitFirstComparator;
 import com.datagenio.databank.util.XPathParser;
 import org.apache.commons.lang.NotImplementedException;
 import org.jsoup.Jsoup;
@@ -134,7 +135,7 @@ public class DrivenBrowser implements Browser {
         try {
             Document view = getDOM();
             State state = new StateImpl(URI.create(driver.getCurrentUrl()), view);
-            List<Eventable> events = extractor.extract(state, view);
+            List<Eventable> events = extractor.extractSorted(state, view, new SubmitFirstComparator());
 
             // Check that all eventables detected are interactable
 //            events.forEach(e -> {
@@ -307,6 +308,8 @@ public class DrivenBrowser implements Browser {
                     "Element for event {} is unavailable in {}. Error: {}",
                     event.getEventIdentifier(), driver.getCurrentUrl(), e.getMessage()
             );
+            clearElementInputs(element, inputs);
+
             throw new EventTriggerException("Selected event is stale.", e);
         } catch (InterruptedException e) {
             logger.debug(e.getMessage());
@@ -337,6 +340,15 @@ public class DrivenBrowser implements Browser {
                 webElement.sendKeys(value);
             }
         } catch (NoSuchElementException|InvalidElementStateException e) { }
+    }
+
+    private void clearElementInputs(WebElement element, List<EventInput> inputs) {
+        inputs.forEach(input -> {
+            try {
+                var webElement = element.findElement(By.xpath(input.getXpath()));
+                webElement.clear();
+            } catch (java.util.NoSuchElementException e) { }
+        });
     }
 
     @Override

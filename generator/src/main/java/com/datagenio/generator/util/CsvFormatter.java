@@ -69,9 +69,31 @@ public class CsvFormatter implements RequestFormatter {
     }
 
     private String formatBody(AbstractBody body, Map<String, String> inputs) {
+        if (body.getContentType().equals(AbstractBody.MULTIPART_FORM_DATA)) {
+            return formatBodyMultiPart(body, inputs);
+        }
+
+        return formatBodyUrlEncoded(body, inputs);
+    }
+
+    private String formatBodyUrlEncoded(AbstractBody body, Map<String, String> inputs) {
         String formattedBody = body.getTypedParams().stream()
                 .map(p -> String.format("%s=%s", p.getName(), inputs.get(p.getName())))
-                .collect(Collectors.joining("\n"));
-        return String.format("\"%s\"", formattedBody);
+                .collect(Collectors.joining("&"));
+        return String.format("%s", formattedBody);
+    }
+
+    private String formatBodyMultiPart(AbstractBody body, Map<String, String> inputs) {
+        String formattedBody = body.getTypedParams().stream()
+                .map(p -> String.format("%s name=%s\r\n\r\n%s", AbstractBody.FORM_DATA_CONTENT, p.getName(), inputs.get(p.getName())))
+                .collect(Collectors.joining("\r\n--" + body.getBoundary() + "\n"));
+        return String.format(
+                "\"%s %s%s\r\n\r\n--%s\r\n%s\"",
+                AbstractBody.MULTIPART_FORM_DATA,
+                AbstractBody.FORM_DATA_BOUNDARY,
+                body.getBoundary(),
+                body.getBoundary(),
+                formattedBody
+        );
     }
 }
