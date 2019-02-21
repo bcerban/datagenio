@@ -18,6 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.net.SocketTimeoutException;
 import java.net.URI;
 import java.util.Collection;
 import java.util.List;
@@ -276,6 +277,7 @@ public class DrivenBrowser implements Browser {
         try {
             int handleCount = driver.getWindowHandles().size();
             element.click();
+            Thread.sleep(1000);
 
             if (driver.getWindowHandles().size() > handleCount) {
                 String newest = (String)driver.getWindowHandles().toArray()[driver.getWindowHandles().size() - 1];
@@ -287,6 +289,8 @@ public class DrivenBrowser implements Browser {
                     event.getEventIdentifier(), driver.getCurrentUrl(), e.getMessage()
             );
             throw new EventTriggerException("Selected event is unavailable.", e);
+        } catch (InterruptedException e) {
+            logger.debug(e.getMessage());
         } finally {
             writeLock.lock();
         }
@@ -295,14 +299,13 @@ public class DrivenBrowser implements Browser {
     public void triggerSubmitEvent(Eventable event, WebElement element, List<EventInput> inputs) throws EventTriggerException {
         writeLock.lock();
         try {
-            driver.manage().timeouts().implicitlyWait(DEFAULT_WAIT_AFTER_SUBMIT, TimeUnit.SECONDS);
             fillElementInputs(element, inputs);
 
             // Submit on form is unreliable because it doesn't trigger javascript functions.
             // Instead, we are required to find the submit button/input and CLICK on it.
             // element.submit();
             findSubmitElement(event).click();
-            Thread.sleep(5000);
+            Thread.sleep(1000);
         } catch (StaleElementReferenceException|ElementNotInteractableException|NoSuchElementException e) {
             logger.debug(
                     "Element for event {} is unavailable in {}. Error: {}",
@@ -314,7 +317,6 @@ public class DrivenBrowser implements Browser {
         } catch (InterruptedException e) {
             logger.debug(e.getMessage());
         } finally {
-            driver.manage().timeouts().implicitlyWait(DEFAULT_WAIT_AFTER_LOAD, TimeUnit.SECONDS);
             writeLock.unlock();
         }
     }
@@ -347,7 +349,7 @@ public class DrivenBrowser implements Browser {
             try {
                 var webElement = element.findElement(By.xpath(input.getXpath()));
                 webElement.clear();
-            } catch (java.util.NoSuchElementException e) { }
+            } catch (java.util.NoSuchElementException|InvalidElementStateException e) { }
         });
     }
 

@@ -14,6 +14,7 @@ import com.datagenio.crawler.util.SiteBoundChecker;
 import com.datagenio.databank.api.InputBuilder;
 import com.datagenio.storageapi.ReadAdapter;
 import org.jgrapht.GraphPath;
+import org.openqa.selenium.WebDriverException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -131,7 +132,7 @@ public class PersistentCrawler implements com.datagenio.crawler.api.Crawler {
                 transition.setStatus(Transitionable.Status.TRAVERSED);
                 getGraph().addTransition(transition);
             }
-        } catch (UnsupportedEventTypeException | EventTriggerException e) {
+        } catch (UnsupportedEventTypeException | EventTriggerException | WebDriverException e) {
             logger.info("Tried to crawl invalid event with ID '{}' from {}", event.getEventIdentifier(), current.getIdentifier());
             event.setStatus(Eventable.Status.FAILED);
             event.setReasonForFailure(e.getMessage());
