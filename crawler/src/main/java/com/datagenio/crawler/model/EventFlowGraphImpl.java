@@ -74,7 +74,12 @@ public class EventFlowGraphImpl implements EventFlowGraph {
 
     @Override
     public Eventable findEvent(String id) {
-        return getEvents().stream().filter(e -> e.getId().equals(id)).findFirst().get();
+        var maybe = getEvents().stream().filter(e -> e.getId().equals(id)).findFirst();
+        if (maybe.isPresent()) {
+            return maybe.get();
+        }
+
+        return null;
     }
 
     @Override

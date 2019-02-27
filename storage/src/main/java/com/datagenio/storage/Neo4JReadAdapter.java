@@ -127,16 +127,17 @@ public class Neo4JReadAdapter implements ReadAdapter {
 
             Collection<Map<String, Object>> edges = getEventTransitionData();
             edges.forEach(edge -> {
-                var transition = eventTransitionTranslator.translateFrom(edge);
+                var event = eventModel.findEvent((String)edge.get("e." + Properties.IDENTIFICATION));
+                if (event != null) {
+                    var transition = eventTransitionTranslator.translateFrom(edge);
 
-                transition.setOrigin(eventModel.findById((String)edge.get("origin." + Properties.IDENTIFICATION)));
-                transition.setDestination(eventModel.findById((String)edge.get("dest." + Properties.IDENTIFICATION)));
+                    transition.setOrigin(eventModel.findById((String)edge.get("origin." + Properties.IDENTIFICATION)));
+                    transition.setDestination(eventModel.findById((String)edge.get("dest." + Properties.IDENTIFICATION)));
 
-                // TODO: add data inputs
-                transition.setExecutedEvent(
-                        new ExecutedEvent(eventModel.findEvent((String)edge.get("e." + Properties.IDENTIFICATION)))
-                );
-                eventModel.addTransition(transition);
+                    // TODO: add data inputs
+                    transition.setExecutedEvent(new ExecutedEvent(event));
+                    eventModel.addTransition(transition);
+                }
             });
         } catch (StorageException e) {
             logger.info("Failure while loading web graph.", e);

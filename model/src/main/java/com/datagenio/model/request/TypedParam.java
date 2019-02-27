@@ -6,6 +6,7 @@ public class TypedParam {
 
     private String name;
     private String type;
+    private String value;
     private boolean required = false;
 
     public TypedParam(String name, String type) {
@@ -16,6 +17,13 @@ public class TypedParam {
     public TypedParam(String name, String type, boolean required) {
         this.name = name;
         this.type = type;
+        this.required = required;
+    }
+
+    public TypedParam(String name, String type, boolean required, String value) {
+        this.name = name;
+        this.type = type;
+        this.value = value;
         this.required = required;
     }
 
@@ -41,6 +49,14 @@ public class TypedParam {
 
     public void setIsRequired(boolean required) {
         this.required = required;
+    }
+
+    public String getValue() {
+        return value;
+    }
+
+    public void setValue(String value) {
+        this.value = value;
     }
 
     @Override

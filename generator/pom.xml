@@ -65,6 +65,12 @@
 
         <dependency>
             <groupId>${project.groupId}</groupId>
+            <artifactId>crawler</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>${project.groupId}</groupId>
             <artifactId>storage-api</artifactId>
             <version>${project.version}</version>
         </dependency>

@@ -4,6 +4,7 @@ import com.datagenio.context.Context;
 import com.datagenio.crawler.api.EventFlowGraph;
 import com.datagenio.crawler.api.State;
 import com.datagenio.crawler.api.Transitionable;
+import com.datagenio.crawler.model.Transition;
 import com.datagenio.generator.api.GraphConverter;
 import com.datagenio.model.WebFlowGraph;
 import com.datagenio.model.WebState;
@@ -12,6 +13,8 @@ import com.datagenio.model.exception.InvalidTransitionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.NoSuchElementException;
 
 public class GraphConverterImpl implements GraphConverter {
@@ -30,6 +33,8 @@ public class GraphConverterImpl implements GraphConverter {
 
     @Override
     public WebFlowGraph convert(EventFlowGraph eventFlowGraph, WebFlowGraph webFlowGraph) {
+//        mergeLocalTransitions(eventFlowGraph);
+
         eventFlowGraph.getStates().forEach(state -> {
             convertAndAdd(state, webFlowGraph, eventFlowGraph);
         });
@@ -86,5 +91,31 @@ public class GraphConverterImpl implements GraphConverter {
 
         if (state.isRoot()) webGraph.setRoot(webState);
         return webState;
+    }
+
+    private void mergeLocalTransitions(EventFlowGraph eventFlowGraph) {
+        /** Saving to array to avoid ConcurrentModificationException */
+        var transitionsToAdd = new ArrayList<Transitionable>();
+
+        eventFlowGraph.getTransitions().forEach(transition -> {
+            if (!transition.hasRemoteRequest(context.getRootUri())) {
+                transitionsToAdd.addAll(mergeTransitions(transition.getOrigin(), transition.getDestination(), eventFlowGraph));
+            }
+        });
+
+        transitionsToAdd.forEach(t -> eventFlowGraph.addTransition(t));
+    }
+
+    private List<Transitionable> mergeTransitions(State origin, State destination, EventFlowGraph graph) {
+        var transitionsToAdd = new ArrayList<Transitionable>();
+        var outgoing = graph.getOutgoingTransitions(destination);
+
+        outgoing.forEach(t -> {
+            var newT = new Transition(origin, t.getDestination(), t.getExecutedEvent());
+            newT.setRequests(t.getRequests());
+            transitionsToAdd.add(newT);
+        });
+
+        return transitionsToAdd;
     }
 }
