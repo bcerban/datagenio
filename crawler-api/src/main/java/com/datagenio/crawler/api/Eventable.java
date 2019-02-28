@@ -14,6 +14,14 @@ public interface Eventable {
 
     String getId();
     Element getSource();
+
+    /**
+     * Returns a copy of the source, with cleared styles
+     * and input values.
+     *
+     * @return the stripped source element
+     */
+    Element getStrippedSource();
     String getEventIdentifier();
     String getXpath();
     EventType getEventType();

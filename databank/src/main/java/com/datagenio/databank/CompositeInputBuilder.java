@@ -6,6 +6,7 @@ import com.datagenio.crawler.api.Eventable;
 import com.datagenio.databank.api.InputBuilder;
 import com.datagenio.databank.api.InputPovider;
 import com.datagenio.databank.provider.*;
+import com.datagenio.databank.util.InputSelector;
 import com.datagenio.databank.util.XPathParser;
 import com.datagenio.model.request.AbstractRequest;
 import com.github.javafaker.Faker;
@@ -19,8 +20,6 @@ import java.util.List;
 import java.util.Map;
 
 public class CompositeInputBuilder implements InputBuilder {
-
-    public static String INPUT_SELECTOR = "input, textarea, select";
 
     private Context context;
     private Map<String, InputPovider> providersByType;
@@ -88,13 +87,8 @@ public class CompositeInputBuilder implements InputBuilder {
         return inputs;
     }
 
-    private boolean isInput(Element element) {
-        String disabled = element.attr("disabled");
-        String readOnly = element.attr("readonly");
-        if (StringUtils.isNotBlank(disabled) && disabled.equals("true")) return false;
-        if (StringUtils.isNotBlank(readOnly) && disabled.equals("true")) return false;
-
-        return element.is(INPUT_SELECTOR);
+    public boolean isInput(Element element) {
+        return InputSelector.isInput(element);
     }
 
     private EventInput getInputForElement(String eventId, String elementXpath, Element element, Map<String, String> presents) {
