@@ -19,12 +19,14 @@ public interface Browser {
     int DEFAULT_WAIT_AFTER_SUBMIT = 500;
 
     void navigateTo(URI uri) throws BrowserException;
+    void navigateTo(URI uri, boolean saveProxyData) throws BrowserException;
     void back() throws BrowserException;
     void backOrClose() throws BrowserException;
     void close() throws BrowserException;
     void quit() throws BrowserException;
     void pause() throws BrowserException;
     void triggerEvent(Eventable event, List<EventInput> inputs) throws UnsupportedEventTypeException, EventTriggerException;
+    void triggerEvent(Eventable event, List<EventInput> inputs, boolean saveProxyData) throws UnsupportedEventTypeException, EventTriggerException;
 
     State getCurrentBrowserState() throws BrowserException;
     Document getDOM() throws BrowserException;

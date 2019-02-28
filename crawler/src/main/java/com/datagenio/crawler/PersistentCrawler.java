@@ -244,14 +244,14 @@ public class PersistentCrawler implements com.datagenio.crawler.api.Crawler {
     public void walk(GraphPath<State, Transitionable> path) throws UncrawlablePathException {
         try {
             // Reset browser to site root
-            browser.navigateTo(path.getStartVertex().getUri());
+            browser.navigateTo(path.getStartVertex().getUri(), false);
 
             // Walk to destination
             State previous = path.getStartVertex();
             var edges = path.getEdgeList();
             for (Transitionable edge : edges) {
                 getGraph().setCurrentState(edge.getOrigin());
-                browser.triggerEvent(edge.getExecutedEvent().getEvent(), edge.getExecutedEvent().getDataInputs());
+                browser.triggerEvent(edge.getExecutedEvent().getEvent(), edge.getExecutedEvent().getDataInputs(), false);
 
                 // Check a new state is reached after event execution
                 State current = browser.getCurrentBrowserState();
