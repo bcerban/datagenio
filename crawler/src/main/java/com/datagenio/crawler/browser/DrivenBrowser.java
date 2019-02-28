@@ -18,7 +18,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.net.SocketTimeoutException;
 import java.net.URI;
 import java.util.Collection;
 import java.util.List;
@@ -215,11 +214,16 @@ public class DrivenBrowser implements Browser {
 
     @Override
     public void navigateTo(URI uri) throws BrowserException {
+        navigateTo(uri, true);
+    }
+
+    @Override
+    public void navigateTo(URI uri, boolean saveProxyData) throws BrowserException {
         writeLock.lock();
         try {
             logger.debug("Navigating to {}.", uri.toString());
 
-            proxy.saveFor(uri.toString());
+            if (saveProxyData) proxy.saveFor(uri.toString());
             driver.navigate().to(uri.toString());
             handlePopups();
 
@@ -234,6 +238,11 @@ public class DrivenBrowser implements Browser {
 
     @Override
     public void triggerEvent(Eventable event, List<EventInput> inputs) throws UnsupportedEventTypeException, EventTriggerException {
+        triggerEvent(event, inputs, true);
+    }
+
+    @Override
+    public void triggerEvent(Eventable event, List<EventInput> inputs, boolean saveProxyData) throws UnsupportedEventTypeException, EventTriggerException {
         logger.debug("Attempting to trigger event {}...", event.getEventIdentifier());
         writeLock.lock();
         WebElement element = null;
@@ -250,7 +259,7 @@ public class DrivenBrowser implements Browser {
             throw new EventTriggerException("Selected event is not present in current interface.");
         }
 
-        proxy.saveFor(event.getEventIdentifier().replaceAll("/", "-"));
+        if (saveProxyData) proxy.saveFor(event.getEventIdentifier().replaceAll("/", "-"));
         handleEventByType(event, element, inputs);
     }
 
