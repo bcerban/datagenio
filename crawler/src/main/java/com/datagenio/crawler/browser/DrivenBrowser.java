@@ -22,7 +22,6 @@ import java.net.SocketTimeoutException;
 import java.net.URI;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.*;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -32,7 +31,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class DrivenBrowser implements Browser {
 
-    private static final int BROWSER_CLOSE_TIMEOUT = 5;
+    private static final int BROWSER_CLOSE_TIMEOUT = 15;
     private static Logger logger = LoggerFactory.getLogger(DrivenBrowser.class);
     private static ExecutorService closeExecutor = Executors.newCachedThreadPool(new BrowserCloserFactory());
 
@@ -136,12 +135,9 @@ public class DrivenBrowser implements Browser {
         try {
             Document view = getDOM();
             State state = new StateImpl(URI.create(driver.getCurrentUrl()), view);
-            List<Eventable> events = extractor.extractSorted(state, view, new SubmitFirstComparator());
+            List<Eventable> events = extractor.extract(state, view);
 
-            // Check that all eventables detected are interactable
-//            events.forEach(e -> {
-//
-//            });
+            // TODO: Check that all detected eventables are interactable
 
             state.setEventables(events);
             state.setUnfiredEventables(events);

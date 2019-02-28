@@ -1,5 +1,6 @@
 package com.datagenio.crawler.model;
 
+import com.datagenio.crawler.util.ElementCleaner;
 import com.datagenio.databank.util.XPathParser;
 import com.datagenio.crawler.api.Eventable;
 import org.apache.commons.lang.StringUtils;
@@ -18,6 +19,7 @@ public class ExecutableEvent implements Eventable {
 
     private String uid;
     private Element source;
+    private Element strippedSource;
     private EventType eventType;
     private String handler = "";
     private String xpath;
@@ -30,6 +32,7 @@ public class ExecutableEvent implements Eventable {
     public ExecutableEvent(Element e, EventType event) {
         uid = UUID.randomUUID().toString();
         source = e;
+        strippedSource = ElementCleaner.clean(source);
         eventType = event;
         xpath = XPathParser.getXPathFor(source);
     }
@@ -47,6 +50,12 @@ public class ExecutableEvent implements Eventable {
     @Override
     public Element getSource() {
         return source;
+    }
+
+    @Override
+    public Element getStrippedSource() {
+        if (strippedSource == null) strippedSource = ElementCleaner.clean(source);
+        return strippedSource;
     }
 
     @Override
@@ -140,7 +149,7 @@ public class ExecutableEvent implements Eventable {
         ExecutableEvent e = (ExecutableEvent) obj;
         return getEventType().equals(e.getEventType()) &&
                 getXpath().equals(e.getXpath()) &&
-                getSource().toString().equals(e.getSource().toString());
+                getStrippedSource().toString().equals(e.getStrippedSource().toString());
     }
 
     @Override

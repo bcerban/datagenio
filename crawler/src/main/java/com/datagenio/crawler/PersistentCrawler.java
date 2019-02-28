@@ -82,15 +82,11 @@ public class PersistentCrawler implements com.datagenio.crawler.api.Crawler {
                     crawlState(current, event);
                 }
 
-                if (reachedMaxGraphSize()) {
-                    break;
-                }
+                if (reachedMaxGraphSize()) break;
 
                 if (getGraph().getCurrentState().isFinished()) {
                     boolean relocated = relocateFrom(getGraph().getCurrentState());
-                    if (!relocated) {
-                        break;
-                    }
+                    if (!relocated) break;
                 }
             }
         } catch (Exception e) {
