@@ -16,6 +16,8 @@ public class ExecutableEventExtractor implements EventableExtractor {
     public static final String ATTR_HIDDEN = "hidden";
     public static final String ATTR_ARIA_HIDDEN = "aria-hidden";
     public static final String ATTR_VISIBILITY_HIDDEN = "visibility: hidden";
+    public static final String ATTR_ROLE = "role";
+    public static final String ROLE_MODAL = "modal";
 
     private Collection<ExtractionRule> rules;
 
@@ -44,6 +46,13 @@ public class ExecutableEventExtractor implements EventableExtractor {
         }
 
         return eventables;
+    }
+
+    @Override
+    public List<Eventable> extractShuffled(State origin, Element node) {
+        List<Eventable> events = new ArrayList<>(extract(origin, node));
+        Collections.shuffle(events);
+        return events;
     }
 
     @Override
@@ -104,7 +113,8 @@ public class ExecutableEventExtractor implements EventableExtractor {
 
     private boolean isHidden(Element element) {
         String style = element.attr(ATTR_STYLE);
-        return element.hasAttr(ATTR_HIDDEN) || element.hasAttr(ATTR_ARIA_HIDDEN) || style.contains(ATTR_VISIBILITY_HIDDEN);
+        String role = element.attr(ATTR_ROLE);
+        return element.hasAttr(ATTR_HIDDEN) || element.hasAttr(ATTR_ARIA_HIDDEN) || style.contains(ATTR_VISIBILITY_HIDDEN) || ROLE_MODAL.equals(role.toLowerCase());
     }
 
     private boolean isNavigationElement(Element element) {

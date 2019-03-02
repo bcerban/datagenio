@@ -7,7 +7,6 @@ import com.datagenio.crawler.exception.EventTriggerException;
 import com.datagenio.crawler.exception.UnsupportedEventTypeException;
 import com.datagenio.crawler.model.StateImpl;
 import com.datagenio.crawler.util.EventExtractorFactory;
-import com.datagenio.crawler.util.SubmitFirstComparator;
 import com.datagenio.databank.util.XPathParser;
 import org.apache.commons.lang.NotImplementedException;
 import org.jsoup.Jsoup;
@@ -134,7 +133,7 @@ public class DrivenBrowser implements Browser {
         try {
             Document view = getDOM();
             State state = new StateImpl(URI.create(driver.getCurrentUrl()), view);
-            List<Eventable> events = extractor.extract(state, view);
+            List<Eventable> events = extractor.extractShuffled(state, view);
 
             // TODO: Check that all detected eventables are interactable
 
@@ -225,10 +224,11 @@ public class DrivenBrowser implements Browser {
 
             if (saveProxyData) proxy.saveFor(uri.toString());
             driver.navigate().to(uri.toString());
+            Thread.sleep(100);
             handlePopups();
 
             logger.debug("Page loaded successfully.");
-        } catch (WebDriverException e) {
+        } catch (WebDriverException|InterruptedException e) {
             logger.debug("Navigation was interrupted before completing page load.", e);
             throw new BrowserException(e);
         } finally {
@@ -261,6 +261,7 @@ public class DrivenBrowser implements Browser {
 
         if (saveProxyData) proxy.saveFor(event.getEventIdentifier().replaceAll("/", "-"));
         handleEventByType(event, element, inputs);
+        handlePopups();
     }
 
     private void handleEventByType(Eventable event, WebElement element, List<EventInput> inputs) throws UnsupportedEventTypeException, EventTriggerException {
@@ -308,10 +309,15 @@ public class DrivenBrowser implements Browser {
 
             // Submit on form is unreliable because it doesn't trigger javascript functions.
             // Instead, we are required to find the submit button/input and CLICK on it.
-            // element.submit();
-            findSubmitElement(event).click();
+            // If no clickable element is found, then we try submitting.
+            try {
+                findSubmitElement(event).click();
+            } catch (NoSuchElementException e) {
+                element.submit();
+            }
+
             Thread.sleep(1000);
-        } catch (StaleElementReferenceException|ElementNotInteractableException|NoSuchElementException e) {
+        } catch (StaleElementReferenceException|ElementNotInteractableException e) {
             logger.debug(
                     "Element for event {} is unavailable in {}. Error: {}",
                     event.getEventIdentifier(), driver.getCurrentUrl(), e.getMessage()

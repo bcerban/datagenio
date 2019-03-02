@@ -90,13 +90,13 @@ public class StateImplTest {
 
     @Test
     public void testMarkEventAsFired() {
-        State newState = null;
-
         Eventable event = mock(Eventable.class);
         ExecutableEventExtractor extractor = mock(ExecutableEventExtractor.class);
+        var events = List.of(event);
 
-        when(extractor.extractSorted(any(), any(), any())).thenReturn(List.of(event));
-        newState = new StateImpl(uri, document);
+        State newState = new StateImpl(uri, document);
+        newState.setEventables(events);
+        newState.setUnfiredEventables(events);
 
         // Check preconditions for test
         assertFalse(newState.isFinished());

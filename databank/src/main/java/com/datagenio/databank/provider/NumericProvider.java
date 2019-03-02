@@ -39,11 +39,11 @@ public class NumericProvider implements InputPovider {
     private String provideAsNumber(Map<String, Object> constraints) {
         int minValue = constraints.containsKey(MIN_VALUE)
                 ? (int) constraints.get(MIN_VALUE)
-                : 0;
+                : DEFAULT_MIN_VALUE;
 
         int maxValue = constraints.containsKey(MAX_VALUE)
                 ? (int) constraints.get(MAX_VALUE)
-                : Integer.MAX_VALUE;
+                : DEFAULT_MAX_VALUE;
 
         return Integer.toString(faker.number().numberBetween(minValue, maxValue));
     }

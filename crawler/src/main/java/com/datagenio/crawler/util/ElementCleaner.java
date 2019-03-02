@@ -7,11 +7,14 @@ public class ElementCleaner {
 
     public static final String ATTR_STYLE = "style";
     public static final String ATTR_VALUE = "value";
+    public static final String ATTR_TITLE = "title";
 
     public static Element clean(Element node) {
         Element stripped = node.clone();
+        clearElementChildren(stripped);
         clearElementStyles(stripped);
         clearElementInputs(stripped);
+        clearElementTitles(stripped);
         return stripped;
     }
 
@@ -36,5 +39,16 @@ public class ElementCleaner {
         } else {
             node.children().forEach(child -> clearElementInputs(child));
         }
+    }
+
+    private static void clearElementChildren(Element node) {
+        if (!InputSelector.isInput(node)) {
+            node.empty();
+        }
+    }
+
+    private static void clearElementTitles(Element node) {
+        if (node.hasAttr(ATTR_TITLE)) node.removeAttr(ATTR_TITLE);
+        if (node.childNodeSize() > 0) node.children().forEach(child -> clearElementTitles(child));
     }
 }

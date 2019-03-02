@@ -197,7 +197,7 @@ public class DrivenBrowserTest {
         verify(event, times(1)).getXpath();
     }
 
-    @Test(expected = EventTriggerException.class)
+    @Test
     public void testTriggerSubmitEventNoSuchElement() throws UnsupportedEventTypeException, EventTriggerException {
         Eventable event = mock(Eventable.class);
         WebElement element = mock(WebElement.class);
@@ -218,6 +218,7 @@ public class DrivenBrowserTest {
 
         verify(event, times(2)).getEventIdentifier();
         verify(event, times(1)).getXpath();
+        verify(element, times(1)).submit();
     }
 
     @Test
