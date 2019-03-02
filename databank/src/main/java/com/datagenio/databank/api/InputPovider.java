@@ -3,14 +3,16 @@ package com.datagenio.databank.api;
 import java.util.Map;
 
 public interface InputPovider {
-    String MIN_LENGTH = "min_length";
-    String MAX_LENGTH = "max_length";
-    String MIN_VALUE = "min_value";
-    String MAX_VALUE = "max_value";
+    String MIN_LENGTH = "minlength";
+    String MAX_LENGTH = "maxlength";
+    String MIN_VALUE = "min";
+    String MAX_VALUE = "max";
     String REGEX = "regex";
     String AS_STRING = "as_string";
     int DEFAULT_MIN_LENGTH = 4;
-    int DEFAULT_MAX_LENGTH = 256;
+    int DEFAULT_MAX_LENGTH = 100;
+    int DEFAULT_MIN_VALUE = 1;
+    int DEFAULT_MAX_VALUE = 9999;
 
     String getType();
     String provide();

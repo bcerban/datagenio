@@ -126,10 +126,10 @@ public class CompositeInputBuilder implements InputBuilder {
     private Pair<String, String> getInputForElement(Element element, String type, Map<String, String> presents) {
         if (type.equals(HIDDEN)) return new Pair<>(HIDDEN, element.val());
 
-        String maxLength = element.attr("maxlength");
+        String maxLength = element.attr(InputPovider.MAX_LENGTH);
         String pattern = element.attr("pattern");
-        String minValue = element.attr("min");
-        String maxValue = element.attr("max");
+        String minValue = element.attr(InputPovider.MIN_VALUE);
+        String maxValue = element.attr(InputPovider.MAX_VALUE);
 
         Map<String, Object> constraints = new HashMap<>();
         constraints.put(InputPovider.AS_STRING, true);

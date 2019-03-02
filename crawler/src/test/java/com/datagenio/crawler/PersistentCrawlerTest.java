@@ -114,7 +114,7 @@ public class PersistentCrawlerTest {
 
         doReturn(uri).when(first).getUri();
         doReturn(first).when(path).getStartVertex();
-        doThrow(new BrowserException("")).when(browser).navigateTo(uri);
+        doThrow(new BrowserException("")).when(browser).navigateTo(uri, false);
 
         crawler.walk(path);
     }
@@ -136,11 +136,11 @@ public class PersistentCrawlerTest {
         doReturn(List.of(firstToSecond)).when(path).getEdgeList();
         doReturn(executedEvent).when(firstToSecond).getExecutedEvent();
         doReturn(event).when(executedEvent).getEvent();
-        doThrow(new UnsupportedEventTypeException("")).when(browser).triggerEvent(any(), any());
+        doThrow(new UnsupportedEventTypeException("")).when(browser).triggerEvent(any(), any(), anyBoolean());
 
         crawler.walk(path);
 
-        verify(browser, times(1)).navigateTo(uri);
+        verify(browser, times(1)).navigateTo(uri, false);
     }
 
     @Test(expected = UncrawlablePathException.class)
@@ -164,7 +164,7 @@ public class PersistentCrawlerTest {
 
         crawler.walk(path);
 
-        verify(browser, times(1)).navigateTo(uri);
+        verify(browser, times(1)).navigateTo(uri, false);
     }
 
     @Test
@@ -190,6 +190,6 @@ public class PersistentCrawlerTest {
 
         crawler.walk(path);
 
-        verify(browser, times(1)).navigateTo(uri);
+        verify(browser, times(1)).navigateTo(uri, false);
     }
 }
