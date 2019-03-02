@@ -8,6 +8,7 @@ import com.datagenio.crawler.exception.*;
 import com.datagenio.crawler.model.EventFlowGraphImpl;
 import com.datagenio.crawler.model.ExecutedEvent;
 import com.datagenio.crawler.model.Transition;
+import com.datagenio.crawler.util.FileTypeChecker;
 import com.datagenio.crawler.util.HtmlSaver;
 import com.datagenio.crawler.util.ScreenShotSaver;
 import com.datagenio.crawler.util.SiteBoundChecker;
@@ -132,7 +133,7 @@ public class PersistentCrawler implements com.datagenio.crawler.api.Crawler {
             logger.info("Tried to crawl invalid event with ID '{}' from {}", event.getEventIdentifier(), current.getIdentifier());
             event.setStatus(Eventable.Status.FAILED);
             event.setReasonForFailure(e.getMessage());
-        } catch (OutOfBoundsException e) {
+        } catch (OutOfBoundsException|FileTypeException e) {
             logger.info(e.getMessage());
             event.setStatus(Eventable.Status.FAILED);
             event.setReasonForFailure(e.getMessage());
@@ -170,13 +171,17 @@ public class PersistentCrawler implements com.datagenio.crawler.api.Crawler {
         return browser.getCapturedRequests(context.getRootUri(), event.getId(), context.getOutputDirName());
     }
 
-    private State executeEvent(Eventable event, List<EventInput> inputs) throws UnsupportedEventTypeException, OutOfBoundsException, EventTriggerException {
+    private State executeEvent(Eventable event, List<EventInput> inputs) throws UnsupportedEventTypeException, OutOfBoundsException, EventTriggerException, FileTypeException {
         try {
             browser.triggerEvent(event, inputs);
             State newState = browser.getCurrentBrowserState();
 
             if (SiteBoundChecker.isOutOfBounds(newState.getUri(), context)) {
                 throw new OutOfBoundsException("Trying to access " + newState.getUri().toString());
+            }
+
+            if (!FileTypeChecker.isValidFileType(newState.getUri())) {
+                throw new FileTypeException("File type is not crawlable.");
             }
 
             var stateEvents = new ArrayList<Eventable>();

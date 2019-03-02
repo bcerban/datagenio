@@ -23,7 +23,7 @@ public class NumericProvider implements InputPovider {
 
     @Override
     public String provide() {
-        int length = new Random().nextInt((DEFAULT_MAX_LENGTH - DEFAULT_MIN_LENGTH) + 1) + DEFAULT_MIN_LENGTH;
+        int length = new Random().nextInt((DEFAULT_MAX_LENGTH_NUMERIC - DEFAULT_MIN_LENGTH_NUMERIC) + 1) + DEFAULT_MIN_LENGTH_NUMERIC;
         return RandomStringUtils.randomNumeric(length);
     }
 
@@ -51,11 +51,11 @@ public class NumericProvider implements InputPovider {
     private String provideAsString(Map<String, Object> constraints) {
         int minLength = constraints.containsKey(MIN_LENGTH)
                 ? (int) constraints.get(MIN_LENGTH)
-                : DEFAULT_MIN_LENGTH;
+                : DEFAULT_MIN_LENGTH_NUMERIC;
 
         int maxLength = constraints.containsKey(MAX_LENGTH)
                 ? (int) constraints.get(MAX_LENGTH)
-                : DEFAULT_MAX_LENGTH;
+                : DEFAULT_MAX_LENGTH_NUMERIC;
 
         int length = new Random().nextInt((maxLength - minLength) + 1) + minLength;
         return RandomStringUtils.randomNumeric(length);
