@@ -11,6 +11,8 @@ public interface InputPovider {
     String AS_STRING = "as_string";
     int DEFAULT_MIN_LENGTH = 4;
     int DEFAULT_MAX_LENGTH = 100;
+    int DEFAULT_MIN_LENGTH_NUMERIC = 1;
+    int DEFAULT_MAX_LENGTH_NUMERIC = 4;
     int DEFAULT_MIN_VALUE = 1;
     int DEFAULT_MAX_VALUE = 9999;
 
