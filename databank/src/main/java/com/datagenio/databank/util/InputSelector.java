@@ -7,6 +7,7 @@ public class InputSelector {
 
     public static String DISABLED = "disabled";
     public static String READ_ONLY = "readonly";
+    public static String TEXTAREA = "textarea";
     public static String INPUT_SELECTOR = "input, textarea, select";
 
     public static boolean isInput(Element element) {
@@ -16,5 +17,9 @@ public class InputSelector {
         if (StringUtils.isNotBlank(readOnly) && disabled.equals("true")) return false;
 
         return element.is(INPUT_SELECTOR);
+    }
+
+    public static boolean isTextArea(Element element) {
+        return element.is(TEXTAREA);
     }
 }
