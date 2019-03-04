@@ -5,6 +5,7 @@ import com.datagenio.databank.InputBuilderFactory;
 import com.datagenio.databank.api.InputBuilder;
 import com.datagenio.generator.api.FormattedWriter;
 import com.datagenio.generator.api.RequestFormatter;
+import com.datagenio.model.WebTransition;
 import com.datagenio.model.request.AbstractRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

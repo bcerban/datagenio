@@ -5,14 +5,17 @@ import com.datagenio.model.request.AbstractRequest;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Objects;
+import java.util.UUID;
 
 public class WebTransition {
 
+    private String identifier;
     private WebState origin;
     private WebState destination;
     private Collection<AbstractRequest> abstractRequests;
 
     public WebTransition() {
+        identifier = UUID.randomUUID().toString();
         abstractRequests = new ArrayList<>();
     }
 
@@ -22,6 +25,13 @@ public class WebTransition {
         this.destination = destination;
     }
 
+    public String getIdentifier() {
+        return identifier;
+    }
+
+    public void setIdentifier(String identifier) {
+        this.identifier = identifier;
+    }
 
     public WebState getOrigin() {
         return origin;

@@ -7,6 +7,7 @@ import com.datagenio.generator.api.Generator;
 import com.datagenio.generator.api.GraphConverter;
 import com.datagenio.generator.util.FormattedWriterFactory;
 import com.datagenio.model.WebFlowGraph;
+import com.datagenio.model.WebTransition;
 import com.datagenio.model.request.AbstractRequest;
 import com.datagenio.storageapi.ReadAdapter;
 import com.datagenio.storageapi.WriteAdapter;
@@ -75,9 +76,25 @@ public class GeneratorImpl implements Generator {
 
         FormattedWriter writer = FormattedWriterFactory.get(context);
         List<AbstractRequest> requests = new ArrayList<>();
-        webModel.getTransitions().forEach(t -> requests.addAll(t.getAbstractRequests()));
+        webModel.getTransitions().forEach(t -> {
+            int weight = getTransitionWeight(t);
+            while (weight > 0) {
+                requests.addAll(t.getAbstractRequests());
+                weight--;
+            }
+        });
         writer.formatAndWrite(requests);
 
         logger.info("Data set generation finished.");
+    }
+
+    private int getTransitionWeight(WebTransition transition) {
+        var contextWeight = context.getTransitionWeights()
+                .stream()
+                .filter(w -> w.getTransitionId().equals(transition.getIdentifier()))
+                .findFirst();
+
+        if (contextWeight.isPresent()) return contextWeight.get().getWeight();
+        return context.getDefaultTransitionWeight();
     }
 }
