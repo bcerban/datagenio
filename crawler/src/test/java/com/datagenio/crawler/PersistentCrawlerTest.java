@@ -35,7 +35,8 @@ public class PersistentCrawlerTest {
         context = new Context();
         context.setRootUrl(ROOT_URL);
         context.setOutputDirName(OUTPUT_DIR);
-        crawler = new PersistentCrawler(context, browser, inputBuilder, readAdapter);
+        crawler = new PersistentCrawler(context, inputBuilder, readAdapter);
+        crawler.setBrowser(browser);
     }
 
     @Test

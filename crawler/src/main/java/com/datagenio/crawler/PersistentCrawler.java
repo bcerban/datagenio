@@ -4,6 +4,7 @@ import com.datagenio.context.Context;
 import com.datagenio.context.DatagenioException;
 import com.datagenio.context.EventInput;
 import com.datagenio.crawler.api.*;
+import com.datagenio.crawler.browser.BrowserFactory;
 import com.datagenio.crawler.exception.*;
 import com.datagenio.crawler.model.EventFlowGraphImpl;
 import com.datagenio.crawler.model.ExecutedEvent;
@@ -32,14 +33,13 @@ public class PersistentCrawler implements com.datagenio.crawler.api.Crawler {
     private InputBuilder inputBuilder;
     private ReadAdapter readAdapter;
 
-    public PersistentCrawler(Context context, Browser browser, InputBuilder inputBuilder, ReadAdapter readAdapter) {
+    public PersistentCrawler(Context context, InputBuilder inputBuilder, ReadAdapter readAdapter) {
         this.context = context;
-        this.browser = browser;
         this.inputBuilder = inputBuilder;
         this.readAdapter = readAdapter;
 
         if (context.isContinueExistingModel()) {
-            graph = readAdapter.loadEventModel();
+            graph = this.readAdapter.loadEventModel();
             updateGraphFromContext();
         }
     }
@@ -50,6 +50,7 @@ public class PersistentCrawler implements com.datagenio.crawler.api.Crawler {
     }
 
     public Browser getBrowser() {
+        if (browser == null) browser = BrowserFactory.drivenByFirefox();
         return browser;
     }
 
@@ -137,7 +138,7 @@ public class PersistentCrawler implements com.datagenio.crawler.api.Crawler {
             logger.info(e.getMessage());
             event.setStatus(Eventable.Status.FAILED);
             event.setReasonForFailure(e.getMessage());
-            browser.backOrClose();
+            getBrowser().backOrClose();
         }
     }
 
@@ -168,13 +169,13 @@ public class PersistentCrawler implements com.datagenio.crawler.api.Crawler {
 
     private Collection<RemoteRequest> getRequestsForEvent(Eventable event) {
         // Save har
-        return browser.getCapturedRequests(context.getRootUri(), event.getId(), context.getOutputDirName());
+        return getBrowser().getCapturedRequests(context.getRootUri(), event.getId(), context.getOutputDirName());
     }
 
     private State executeEvent(Eventable event, List<EventInput> inputs) throws UnsupportedEventTypeException, OutOfBoundsException, EventTriggerException, FileTypeException {
         try {
-            browser.triggerEvent(event, inputs);
-            State newState = browser.getCurrentBrowserState();
+            getBrowser().triggerEvent(event, inputs);
+            State newState = getBrowser().getCurrentBrowserState();
 
             if (SiteBoundChecker.isOutOfBounds(newState.getUri(), context)) {
                 throw new OutOfBoundsException("Trying to access " + newState.getUri().toString());
@@ -216,8 +217,8 @@ public class PersistentCrawler implements com.datagenio.crawler.api.Crawler {
     private void initCrawl() throws UncrawlableStateException {
         try {
             var root = URI.create(context.getRootUrl());
-            browser.navigateTo(root);
-            State initial = browser.getCurrentBrowserState();
+            getBrowser().navigateTo(root);
+            State initial = getBrowser().getCurrentBrowserState();
             getGraph().addStateAsCurrent(initial);
             getGraph().setRoot(initial);
             saveStateScreenShot(initial);
@@ -249,17 +250,17 @@ public class PersistentCrawler implements com.datagenio.crawler.api.Crawler {
     public void walk(GraphPath<State, Transitionable> path) throws UncrawlablePathException {
         try {
             // Reset browser to site root
-            browser.navigateTo(path.getStartVertex().getUri(), false);
+            getBrowser().navigateTo(path.getStartVertex().getUri(), false);
 
             // Walk to destination
             State previous = path.getStartVertex();
             var edges = path.getEdgeList();
             for (Transitionable edge : edges) {
                 getGraph().setCurrentState(edge.getOrigin());
-                browser.triggerEvent(edge.getExecutedEvent().getEvent(), edge.getExecutedEvent().getDataInputs(), false);
+                getBrowser().triggerEvent(edge.getExecutedEvent().getEvent(), edge.getExecutedEvent().getDataInputs(), false);
 
                 // Check a new state is reached after event execution
-                State current = browser.getCurrentBrowserState();
+                State current = getBrowser().getCurrentBrowserState();
                 if (previous.equals(current)) {
                     throw new UncrawlablePathException("Stopped crawling at state " + current.toString());
                 }
@@ -289,7 +290,7 @@ public class PersistentCrawler implements com.datagenio.crawler.api.Crawler {
 
     private void saveStateScreenShot(State state) {
         if (context.isPrintScreen()) {
-            var bytes = browser.getScreenShotBytes();
+            var bytes = getBrowser().getScreenShotBytes();
 
             new Thread(new Runnable() {
                 @Override
@@ -320,7 +321,7 @@ public class PersistentCrawler implements com.datagenio.crawler.api.Crawler {
     private void handleClosing() {
         try {
             logger.info("Trying to close browser sessions.");
-            browser.quit();
+            getBrowser().quit();
         } catch (BrowserException e) {
             logger.info("Browser closing failed.", e);
         }
