@@ -25,8 +25,8 @@ public class CsvFormatter implements RequestFormatter {
     }
 
     @Override
-    public String getHeaderLine() {
-        return String.format("%s,%s,%s,%s", HEADER_METHOD, HEADER_URL, HEADER_HEADERS, HEADER_BODY);
+    public String[] getHeaderLine() {
+        return new String[] { HEADER_METHOD, HEADER_URL, HEADER_HEADERS, HEADER_BODY };
     }
 
     @Override
@@ -35,7 +35,7 @@ public class CsvFormatter implements RequestFormatter {
     }
 
     @Override
-    public String format(AbstractRequest request, Map<String, String> inputs) {
+    public String[] format(AbstractRequest request, Map<String, String> inputs) {
         String[] formattedParts = new String[4];
         formattedParts[0] = request.getMethod();
         formattedParts[1] = formatUrl(request.getUrl(), inputs);
@@ -47,7 +47,7 @@ public class CsvFormatter implements RequestFormatter {
             formattedParts[3] = "";
         }
 
-        return Arrays.stream(formattedParts).collect(Collectors.joining(","));
+        return formattedParts;
     }
 
     private String formatUrl(AbstractUrl url, Map<String, String> inputs) {
@@ -65,7 +65,7 @@ public class CsvFormatter implements RequestFormatter {
                 .map(h -> h.toString())
                 .collect(Collectors.joining("\n"));
 
-        return String.format("\"%s\"", formattedHeaders);
+        return String.format("%s", formattedHeaders);
     }
 
     private String formatBody(AbstractBody body, Map<String, String> inputs) {
@@ -88,7 +88,7 @@ public class CsvFormatter implements RequestFormatter {
                 .map(p -> String.format("%s name=%s\r\n\r\n%s", AbstractBody.FORM_DATA_CONTENT, p.getName(), inputs.get(p.getName())))
                 .collect(Collectors.joining("\r\n--" + body.getBoundary() + "\n"));
         return String.format(
-                "\"%s %s%s\r\n\r\n--%s\r\n%s\"",
+                "%s %s%s\r\n\r\n--%s\r\n%s",
                 AbstractBody.MULTIPART_FORM_DATA,
                 AbstractBody.FORM_DATA_BOUNDARY,
                 body.getBoundary(),

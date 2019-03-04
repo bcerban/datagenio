@@ -11,8 +11,6 @@ public class RequestFormatterFactory {
         switch (format) {
             case FORMAT_CSV:
                 return new CsvFormatter();
-            case FORMAT_ZAP:
-                return new ZapProxyFormatter();
             default:
                 return new CsvFormatter();
         }

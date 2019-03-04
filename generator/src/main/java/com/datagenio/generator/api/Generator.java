@@ -10,5 +10,4 @@ public interface Generator {
     WebFlowGraph buildWebModel();
     WebFlowGraph loadWebModel();
     void generateDataset(WebFlowGraph webModel);
-    List<String> generateTransitionData(WebTransition transition);
 }

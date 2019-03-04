@@ -2,25 +2,19 @@ package com.datagenio.generator;
 
 import com.datagenio.context.Context;
 import com.datagenio.crawler.api.Crawler;
-import com.datagenio.databank.InputBuilderFactory;
-import com.datagenio.databank.api.InputBuilder;
+import com.datagenio.generator.api.FormattedWriter;
 import com.datagenio.generator.api.Generator;
 import com.datagenio.generator.api.GraphConverter;
-import com.datagenio.generator.api.RequestFormatter;
-import com.datagenio.generator.util.DataSetWriter;
-import com.datagenio.generator.util.RequestFormatterFactory;
+import com.datagenio.generator.util.FormattedWriterFactory;
 import com.datagenio.model.WebFlowGraph;
-import com.datagenio.model.WebTransition;
 import com.datagenio.model.request.AbstractRequest;
 import com.datagenio.storageapi.ReadAdapter;
 import com.datagenio.storageapi.WriteAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 public class GeneratorImpl implements Generator {
     private static Logger logger = LoggerFactory.getLogger(GeneratorImpl.class);
@@ -30,8 +24,6 @@ public class GeneratorImpl implements Generator {
     private Crawler crawler;
     private ReadAdapter readAdapter;
     private WriteAdapter writeAdapter;
-    private InputBuilder inputBuilder;
-    private RequestFormatter formatter;
 
     public GeneratorImpl(Context context, Crawler crawler, GraphConverter converter, ReadAdapter readAdapter, WriteAdapter writeAdapter) {
         this.context = context;
@@ -39,8 +31,6 @@ public class GeneratorImpl implements Generator {
         this.converter = converter;
         this.readAdapter = readAdapter;
         this.writeAdapter = writeAdapter;
-        this.inputBuilder = InputBuilderFactory.get(context);
-        this.formatter = RequestFormatterFactory.get(context.getFormat());
     }
 
     public ReadAdapter getReadAdapter() {
@@ -83,30 +73,11 @@ public class GeneratorImpl implements Generator {
     public void generateDataset(WebFlowGraph webModel) {
         logger.info("Beginning data set generation...");
 
-        DataSetWriter writer = new DataSetWriter(context, formatter);
-        List<String> lines = new ArrayList<>();
+        FormattedWriter writer = FormattedWriterFactory.get(context);
+        List<AbstractRequest> requests = new ArrayList<>();
+        webModel.getTransitions().forEach(t -> requests.addAll(t.getAbstractRequests()));
+        writer.formatAndWrite(requests);
 
-        if (formatter.requiredHeader()) lines.add(formatter.getHeaderLine());
-        webModel.getTransitions().forEach(transition -> lines.addAll(generateTransitionData(transition)));
-
-        try {
-            writer.writeLines(lines);
-        } catch (FileNotFoundException e) { }
         logger.info("Data set generation finished.");
-    }
-
-    @Override
-    public List<String> generateTransitionData(WebTransition transition) {
-        List<String> lines = new ArrayList<>();
-        transition.getAbstractRequests().forEach(request -> {
-            lines.add(getPopulatedRequest(request));
-        });
-
-        return lines;
-    }
-
-    private String getPopulatedRequest(AbstractRequest request) {
-        Map<String, String> inputs = inputBuilder.buildInputs(request);
-        return formatter.format(request, inputs);
     }
 }
