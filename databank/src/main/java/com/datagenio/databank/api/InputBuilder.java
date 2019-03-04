@@ -22,6 +22,7 @@ public interface InputBuilder {
     String CHECKBOX = "checkbox";
     String RADIO = "radio";
     String HIDDEN = "hidden";
+    String PARAGRAPH = "paragraph";
 
     InputPovider getProviderByType(String type);
     List<EventInput> buildInputs(Eventable event);

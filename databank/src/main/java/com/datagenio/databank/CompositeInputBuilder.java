@@ -39,6 +39,7 @@ public class CompositeInputBuilder implements InputBuilder {
         providersByType.put(BOOLEAN, new BooleanProvider(faker));
         providersByType.put(DATE, new DateProvider(faker));
         providersByType.put(RADIO, new NumericProvider(faker));
+        providersByType.put(PARAGRAPH, new ParagraphProvider(faker));
         providersByType.put(CHECKBOX, providersByType.get(BOOLEAN));
         providersByType.put(TEXT, providersByType.get(ALPHANUMERIC));
         providersByType.put(DEFAULT, providersByType.get(ALPHANUMERIC));
@@ -109,15 +110,21 @@ public class CompositeInputBuilder implements InputBuilder {
         definedInput.setEventId(eventId);
         definedInput.setXpath(elementXpath);
 
-        String elementType = element.attr("type");
-        if (StringUtils.isNotBlank(elementType)) {
-            var typeValuePair = getInputForElement(element, elementType, presents);
-            definedInput.setInputType(typeValuePair.getFirst());
-            definedInput.setInputValue(typeValuePair.getSecond());
+        if (InputSelector.isTextArea(element)) {
+            var paragraphProvider = providersByType.get(PARAGRAPH);
+            definedInput.setInputType(paragraphProvider.getType());
+            definedInput.setInputValue(paragraphProvider.provide());
         } else {
-            var defaultProvider = providersByType.get(DEFAULT);
-            definedInput.setInputType(defaultProvider.getType());
-            definedInput.setInputValue(defaultProvider.provide());
+            String elementType = element.attr("type");
+            if (StringUtils.isNotBlank(elementType)) {
+                var typeValuePair = getInputForElement(element, elementType, presents);
+                definedInput.setInputType(typeValuePair.getFirst());
+                definedInput.setInputValue(typeValuePair.getSecond());
+            } else {
+                var defaultProvider = providersByType.get(DEFAULT);
+                definedInput.setInputType(defaultProvider.getType());
+                definedInput.setInputValue(defaultProvider.provide());
+            }
         }
 
         return definedInput;
