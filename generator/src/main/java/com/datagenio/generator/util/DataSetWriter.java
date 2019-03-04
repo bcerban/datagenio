@@ -1,7 +1,11 @@
 package com.datagenio.generator.util;
 
 import com.datagenio.context.Context;
+import com.datagenio.databank.InputBuilderFactory;
+import com.datagenio.databank.api.InputBuilder;
+import com.datagenio.generator.api.FormattedWriter;
 import com.datagenio.generator.api.RequestFormatter;
+import com.datagenio.model.request.AbstractRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -9,8 +13,9 @@ import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
-public class DataSetWriter {
+public abstract class DataSetWriter implements FormattedWriter {
 
     private static Logger logger = LoggerFactory.getLogger(DataSetWriter.class);
     public static String DATA_SET_DIRECTORY = "datasets";
@@ -18,31 +23,37 @@ public class DataSetWriter {
     private Context context;
     private File outputDirectory;
     private File outputFile;
+    private RequestFormatter formatter;
+    private InputBuilder inputBuilder;
 
-    public DataSetWriter(Context context, RequestFormatter formatter) {
+    public DataSetWriter(Context context) {
         this.context = context;
+        this.inputBuilder = InputBuilderFactory.get(context);
         outputDirectory = getValidOutputDirectory(context.getOutputDirName());
-        outputFile = new File(outputDirectory, getFileName(formatter));
     }
 
-    public void writeLines(List<String> lines) throws FileNotFoundException {
-        FileOutputStream fos = new FileOutputStream(outputFile);
-        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(fos));
-
-        lines.forEach(line -> {
-            try {
-                bw.append(line);
-                bw.newLine();
-            } catch (IOException e) {
-                logger.info("Failed to write line.", e);
-            }
-        });
-
-        try {
-            bw.close();
-        } catch (IOException e) {
-            logger.info("Error while trying to close file.", e);
+    public File getOutputFile() {
+        if (outputFile == null) {
+            outputFile = new File(outputDirectory, getFileName(formatter));
         }
+        return outputFile;
+    }
+
+    public RequestFormatter getFormatter() {
+        return formatter;
+    }
+
+    public void setFormatter(RequestFormatter formatter) {
+        this.formatter = formatter;
+    }
+
+    public static Logger getLogger() {
+        return logger;
+    }
+
+    protected String[] getPopulatedRequest(AbstractRequest request) {
+        Map<String, String> inputs = inputBuilder.buildInputs(request);
+        return formatter.format(request, inputs);
     }
 
     private File getValidOutputDirectory(String directoryName) {
