@@ -23,6 +23,7 @@ public class WebTransitionTranslator implements Translator<WebTransition, Map<St
     @Override
     public Map<String, Object> buildProperties(WebTransition original) {
         Map<String, Object> properties = new HashMap<>();
+        properties.put(Properties.IDENTIFICATION, original.getIdentifier());
         properties.put(Properties.ABSTRACT_REQUESTS, gson.toJson(original.getAbstractRequests()));
         return properties;
     }
@@ -30,6 +31,7 @@ public class WebTransitionTranslator implements Translator<WebTransition, Map<St
     @Override
     public WebTransition translateFrom(Map<String, Object> translated) {
         var transition = new WebTransition();
+        transition.setIdentifier((String)translated.get(Properties.IDENTIFICATION));
         var abstractRequests = (ArrayList<AbstractRequest>)gson.fromJson(
                 (String)translated.get(Properties.ABSTRACT_REQUESTS),
                 new TypeToken<ArrayList<AbstractRequest>>() { }.getType()

@@ -27,6 +27,9 @@ public class Context {
     @SerializedName("crawl_depth")
     private int crawlDepth;
 
+    @SerializedName("transition_weight")
+    private int defaultTransitionWeight;
+
     @SerializedName("url")
     private String rootUrl;
 
@@ -57,13 +60,18 @@ public class Context {
     @SerializedName("event_inputs")
     private List<EventInput> eventInputs;
 
+    @SerializedName("transition_weights")
+    private List<TransitionWeight> transitionWeights;
+
     public Context() {
-        crawlDepth      = NO_MAX_DEPTH;
-        crawlTimeout    = 0;
-        requestTimeout  = REQUEST_TIMEOUT;
-        verbose         = false;
-        printScreen     = true;
-        eventInputs     = new ArrayList<>();
+        crawlDepth              = NO_MAX_DEPTH;
+        crawlTimeout            = 0;
+        requestTimeout          = REQUEST_TIMEOUT;
+        defaultTransitionWeight = 1;
+        verbose                 = false;
+        printScreen             = true;
+        eventInputs             = new ArrayList<>();
+        transitionWeights       = new ArrayList<>();
     }
 
     public String getRootUrl() throws DatagenioException {
@@ -188,6 +196,22 @@ public class Context {
 
     public void setEventInputs(List<EventInput> eventInputs) {
         this.eventInputs = eventInputs;
+    }
+
+    public List<TransitionWeight> getTransitionWeights() {
+        return transitionWeights;
+    }
+
+    public void setTransitionWeights(List<TransitionWeight> transitionWeights) {
+        this.transitionWeights = transitionWeights;
+    }
+
+    public int getDefaultTransitionWeight() {
+        return defaultTransitionWeight;
+    }
+
+    public void setDefaultTransitionWeight(int defaultTransitionWeight) {
+        this.defaultTransitionWeight = defaultTransitionWeight;
     }
 
     public boolean urlIsValid(String url) {
