@@ -134,7 +134,7 @@ public class CrawlRunner {
         var requestAbstractor   = new HttpRequestAbstractor(urlAbstractor, bodyConverter);
         var stateConverter      = new StateConverter(urlAbstractor, requestAbstractor, context.getRootUri());
 
-        var crawler = new PersistentCrawler(context, BrowserFactory.drivenByFirefox(), InputBuilderFactory.get(context), readAdapter);
+        var crawler = new PersistentCrawler(context, InputBuilderFactory.get(context), readAdapter);
         return new GeneratorImpl(context, crawler, new GraphConverterImpl(context, stateConverter, requestAbstractor), readAdapter, writeAdapter);
     }
 
