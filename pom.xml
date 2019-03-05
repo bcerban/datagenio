@@ -4,7 +4,7 @@
 
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.datagenio</groupId>
-    <version>0.0.1</version>
+    <version>1.0.0</version>
     <artifactId>datagenio-parent-pom</artifactId>
     <packaging>pom</packaging>
     <name>Datagenio</name>
