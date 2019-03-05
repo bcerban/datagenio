@@ -3,7 +3,6 @@ package com.datagenio.cli;
 import com.datagenio.context.DatagenioException;
 import com.datagenio.crawler.PersistentCrawler;
 import com.datagenio.context.Context;
-import com.datagenio.crawler.browser.BrowserFactory;
 import com.datagenio.databank.InputBuilderFactory;
 import com.datagenio.generator.GeneratorImpl;
 import com.datagenio.generator.api.Generator;
@@ -31,9 +30,8 @@ import java.io.*;
 
 public class CrawlRunner {
 
-    private static final String HTTP = "http";
-    private static final String HTTPS = "https";
-    private static final int WIDTH = 80;
+    private static final String BASIC_USAGE = "java -jar datagenio-{version}.jar -url {url} -o {output-dir}";
+    private static final int WIDTH = 100;
 
     private static Logger logger = LoggerFactory.getLogger(CrawlRunner.class);
 
@@ -69,8 +67,7 @@ public class CrawlRunner {
     private static void printUsage() {
         var helpFormatter = new HelpFormatter();
         var printWriter = new PrintWriter(System.out);
-
-        helpFormatter.printUsage(printWriter, WIDTH, "datagenio", ArgumentParser.options());
+        helpFormatter.printHelp(printWriter, WIDTH, BASIC_USAGE, "", ArgumentParser.options(), 3, 5, "");
         printWriter.flush();
     }
 

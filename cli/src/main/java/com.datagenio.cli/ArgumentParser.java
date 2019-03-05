@@ -94,7 +94,7 @@ public class ArgumentParser {
                 .required(false)
                 .hasArg(false)
                 .longOpt(HELP)
-                .desc("Print help")
+                .desc("Print this help message")
                 .build();
 
         Options options = new Options();
@@ -102,11 +102,11 @@ public class ArgumentParser {
         options.addOption(urlOption);
         options.addOption(outputDirOption);
         options.addOption(maxDepthOption);
-        options.addOption(maxTimeOption);
+//        options.addOption(maxTimeOption);
         options.addOption(continueOption);
         options.addOption(modelOnlyOption);
         options.addOption(dataSetOnlyOption);
-        options.addOption(verboseOption);
+//        options.addOption(verboseOption);
         options.addOption(versionOption);
         options.addOption(helpOption);
         return options;
